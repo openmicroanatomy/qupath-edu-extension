@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base href="{{qupath-resource-root}}" />
+    <link rel="stylesheet" type="text/css" href="css/ckeditor.css">
+</head>
+<body id="content">
+
+<p class="ckeditor--loading" style="text-align: center;font-size:30px">Loading editor ...</p>
+
+<div class="editor" style="display: none">
+    {{qupath-input}}
+</div>
+
+<script src="ckeditor/ckeditor.js"></script>
+<script>
+    ClassicEditor.create(document.querySelector('.editor'), {
+        toolbar: {
+            items: [
+                'undo',
+                'redo',
+                'removeFormat',
+                '|',
+                'heading',
+                '|',
+                'fontFamily',
+                'fontSize',
+                'bold',
+                'italic',
+                'underline',
+                'strikethrough',
+                'fontColor',
+                'fontBackgroundColor',
+                '|',
+                'link',
+                'insertImage',
+                'mediaEmbed',
+                '|',
+                'alignment',
+                '|',
+                'bulletedList',
+                'numberedList',
+                'indent',
+                'outdent',
+                '|',
+                'subscript',
+                'superscript',
+                '|',
+                'blockQuote',
+                'insertTable',
+                '|',
+                'highlight',
+                'horizontalLine',
+                '|',
+                'codeBlock',
+                'MathType',
+                'ChemType',
+                'specialCharacters'
+            ]
+        },
+        language: 'en',
+        image: {
+            resizeUnit: 'px',
+            styles: [
+                'alignLeft', 'alignCenter', 'alignRight'
+            ],
+            toolbar: [
+                'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight',
+                '|',
+                'imageTextAlternative'
+            ]
+        },
+        table: {
+            contentToolbar: [
+                'tableAlignment',
+                'tableColumn',
+                'tableRow',
+                'mergeTableCells',
+                'tableCellProperties',
+                'tableProperties'
+           ]
+        },
+        licenseKey: '',
+        simpleUpload: {
+            uploadUrl: '{{qupath-upload-url}}',
+
+            headers: {
+                {{qupath-auth}}
+            }
+        },
+
+    }).then( editor => {
+        window.editor = editor;
+
+        document.querySelector('.ckeditor--loading').style.display = "none";
+        document.querySelector( '.document-editor__toolbar' ).appendChild( editor.ui.view.toolbar.element );
+        document.querySelector( '.ck-toolbar' ).classList.add( 'ck-reset_all' );
+
+    }).catch( error => {
+        console.error( 'Oops, something went wrong!' );
+        console.error( error );
+    });
+</script>
+
+</body>
+</html>
