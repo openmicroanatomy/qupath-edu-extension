@@ -28,6 +28,7 @@ If you wish to run QuPath with the latest version of the extension and/or use an
 --add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED
 --add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED
 --add-exports=javafx.web/com.sun.javafx.webkit=ALL-UNNAMED
+--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=ALL-UNNAMED
 ```
 
 _NB: Remember to change the `[JavaFX SDK]` to the SDK installation path_
