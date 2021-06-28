@@ -14,11 +14,11 @@ import org.controlsfx.control.action.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qupath.edu.api.EduAPI;
-import qupath.edu.gui.*;
+import qupath.edu.gui.Browser;
 import qupath.edu.gui.dialogs.*;
+import qupath.edu.tours.SlideTour;
 import qupath.edu.util.EditModeManager;
 import qupath.edu.util.ReflectionUtil;
-import qupath.edu.tours.SlideTour;
 import qupath.lib.gui.ActionTools;
 import qupath.lib.gui.QuPathGUI;
 import qupath.lib.gui.Version;
@@ -33,7 +33,7 @@ import qupath.lib.gui.viewer.tools.PathTools;
 import qupath.lib.projects.Project;
 
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.IOException;
 
 import static qupath.lib.gui.ActionTools.createAction;
 import static qupath.lib.gui.ActionTools.createMenuItem;
@@ -239,7 +239,31 @@ public class EduExtension implements QuPathExtension {
     private void replaceAnnotationsPane() {
         SimpleAnnotationPane simpleAnnotationPane = new SimpleAnnotationPane(qupath);
 
-        ReflectionUtil.getAnalysisPanel().getTabs().get(2).setContent(simpleAnnotationPane.getPane());
+        /* Checkbox */
+
+        CheckBox cbUseAdvancedMenu = new CheckBox("Use Advanced mode");
+        cbUseAdvancedMenu.setPadding(new Insets(5));
+        cbUseAdvancedMenu.setContentDisplay(ContentDisplay.RIGHT);
+        cbUseAdvancedMenu.setFont(Font.font(10));
+        cbUseAdvancedMenu.setTooltip(new Tooltip("Advanced mode is needed when using QuPath for analysis."));
+
+        /* Annotation Panes */
+
+        Node advancedPane = ReflectionUtil.getAnalysisPanel().getTabs().get(2).getContent();
+        Node simplePane   = simpleAnnotationPane.getPane();
+
+        BorderPane pane = new BorderPane(simplePane);
+        pane.setTop(cbUseAdvancedMenu);
+
+        ReflectionUtil.getAnalysisPanel().getTabs().get(2).setContent(pane);
+
+        cbUseAdvancedMenu.setOnAction(e -> {
+            if (cbUseAdvancedMenu.isSelected()) {
+                pane.setCenter(advancedPane);
+            } else {
+                pane.setCenter(simplePane);
+            }
+        });
     }
 
     private void replaceViewer() {
