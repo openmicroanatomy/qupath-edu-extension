@@ -38,7 +38,7 @@ public class EduOptions {
      */
     public static StringProperty previousWorkspace() {
         return previousWorkspace;
-    };
+    }
 
     private static StringProperty previousWorkspace = PathPrefs.createPersistentPreference("eduPreviousProject", null);
 

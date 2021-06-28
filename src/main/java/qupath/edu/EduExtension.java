@@ -138,9 +138,7 @@ public class EduExtension implements QuPathExtension {
         qupath.projectProperty().addListener((obs, oldProject, newProject) -> {
             if (newProject == null) {
                 projectInformation.setContent("No project open");
-            } else if (newProject instanceof EduProject) {
-                EduProject project = (EduProject) newProject;
-
+            } else if (newProject instanceof EduProject project) {
                 Object informationText = project.retrieveMetadataValue(EduProject.PROJECT_INFORMATION);
 
                 if (informationText == null) {
