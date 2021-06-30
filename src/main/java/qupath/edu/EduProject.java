@@ -13,6 +13,7 @@ import qupath.edu.api.Roles;
 import qupath.lib.classifiers.object.ObjectClassifier;
 import qupath.lib.classifiers.pixel.PixelClassifier;
 import qupath.lib.common.GeneralTools;
+import qupath.lib.gui.QuPathGUI;
 import qupath.lib.gui.commands.ProjectCommands;
 import qupath.lib.gui.dialogs.Dialogs;
 import qupath.lib.images.ImageData;
@@ -36,6 +37,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Data structure to store multiple images and their respective data.
@@ -422,6 +424,11 @@ public class EduProject implements Project<BufferedImage> {
 		private transient BufferedImage thumbnail;
 
 		/**
+		 * True if trying to fetch thumbnail asynchronously.
+		 */
+		private transient boolean waitingForThumbnail = false;
+
+		/**
 		 * JSON Representation of annotations. <b>Temporary until ImageData is fully JSON serializable!</b>
 		 */
 		public String annotations;
@@ -617,15 +624,26 @@ public class EduProject implements Project<BufferedImage> {
 		 * Tries to download the thumbnail from the QuPath Edu Server, fallbacks to trying to generate one client-side.
 		 */
 		@Override public BufferedImage getThumbnail() {
+			if (waitingForThumbnail && thumbnail == null) {
+				return null;
+			}
+
 			if (thumbnail != null) {
 				return thumbnail;
 			}
 
-			if (!(fetchThumbnailFromServer())) {
-				generateThumbnail();
-			}
+			CompletableFuture.runAsync(() -> {
+				waitingForThumbnail = false;
 
-			return thumbnail;
+				if (!(fetchThumbnailFromServer())) {
+					generateThumbnail();
+				}
+
+				// TODO: Make this run only once; this currently cascades into refreshing the project multiple times
+				QuPathGUI.getInstance().refreshProject();
+			});
+
+			return null;
 		}
 
 		@Override
