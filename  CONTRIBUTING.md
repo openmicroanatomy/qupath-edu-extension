@@ -1,12 +1,6 @@
 # Building
 
-To install the QuPath dependencies, you first need to setup a **personal access token** in Github 
-
-1. Go to [https://github.com/settings/tokens](https://github.com/settings/tokens)
-2. Create a new token with the `read:packages` scope
-3. Create the following environment variables: `GITHUB_USERNAME` and `GITHUB_TOKEN`, equaling to your Github username and the token you just created.
-
-Now you're ready to build the extension with `./gradlew build`
+Build the extension with `./gradlew build`
 
 Find the built extension at `build/libs/qupath-edu-extension-[version].jar`
 

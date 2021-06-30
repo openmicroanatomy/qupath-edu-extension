@@ -10,11 +10,13 @@ repositories {
     mavenCentral()
 
     maven {
-        url = uri("https://maven.pkg.github.com/qupath/qupath")
-        credentials {
-            username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_USERNAME")
-            password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
-        }
+        name = "SciJava releases"
+        url = uri("https://maven.scijava.org/content/repositories/releases")
+    }
+
+    maven {
+        name = "SciJava snapshots"
+        url = uri("https://maven.scijava.org/content/repositories/snapshots")
     }
 }
 
