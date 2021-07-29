@@ -19,10 +19,11 @@ import qupath.edu.gui.dialogs.*;
 import qupath.edu.tours.SlideTour;
 import qupath.edu.util.EditModeManager;
 import qupath.edu.util.ReflectionUtil;
+import qupath.lib.common.Version;
 import qupath.lib.gui.ActionTools;
 import qupath.lib.gui.QuPathGUI;
-import qupath.lib.gui.Version;
 import qupath.lib.gui.dialogs.Dialogs;
+import qupath.lib.gui.extensions.GitHubProject;
 import qupath.lib.gui.extensions.QuPathExtension;
 import qupath.lib.gui.panes.PreferencePane;
 import qupath.lib.gui.panes.ProjectBrowser;
@@ -45,7 +46,7 @@ import static qupath.lib.gui.ActionTools.createMenuItem;
  *  - Figure out why "Save as" syncs changes but not "Save"
  *
  */
-public class EduExtension implements QuPathExtension {
+public class EduExtension implements QuPathExtension, GitHubProject {
 
     private static final Logger logger = LoggerFactory.getLogger(EduExtension.class);
 
@@ -55,8 +56,6 @@ public class EduExtension implements QuPathExtension {
     private static final SimpleBooleanProperty noWriteAccess = new SimpleBooleanProperty(true);
     private static final Browser projectInformation = new Browser();
     private final TabPane tabbedPanel = new TabPane();
-
-    private static Version version = Version.parse("1.0.0");
 
     @Override
     public void installExtension(QuPathGUI qupath) {
@@ -95,10 +94,6 @@ public class EduExtension implements QuPathExtension {
         // Run on a separate thread, because extension initialization happens in QuPath's
         // main thread and our dialogs can interfere with its' initialization.
         Platform.runLater(() -> {
-            if (EduOptions.checkForUpdatesOnStartup().get()) {
-                UpdateManager.checkForUpdates();
-            }
-
             // Perform first time setup if host is undefined.
             if (EduOptions.host().isNull().get()) {
                 FirstTimeSetup.showDialog();
@@ -174,12 +169,13 @@ public class EduExtension implements QuPathExtension {
     }
 
     @Override
-    public String getQuPathVersion() {
-        return "0.3.0";
+    public GitHubRepo getRepository() {
+        return GitHubRepo.create("QuPath Edu Extension", "yli-hallila", "qupath-edu-extension");
     }
 
-    public static Version getExtensionVersion() {
-        return version;
+    @Override
+    public Version getQuPathVersion() {
+        return Version.parse("0.3.0");
     }
 
     public static EditModeManager getEditModeManager() {

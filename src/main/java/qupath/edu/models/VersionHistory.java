@@ -1,6 +1,6 @@
 package qupath.edu.models;
 
-import qupath.lib.gui.Version;
+import qupath.lib.common.Version;
 
 import java.util.List;
 

@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import qupath.edu.exceptions.HttpException;
 import qupath.edu.util.VersionAdapter;
 import qupath.edu.models.*;
+import qupath.lib.common.Version;
 import qupath.lib.gui.QuPathGUI;
-import qupath.lib.gui.Version;
 import qupath.lib.gui.dialogs.Dialogs;
 import qupath.lib.io.GsonTools;
 import qupath.lib.projects.Project;
@@ -248,18 +248,6 @@ public class EduAPI {
 	}
 
 	/* Master server API */
-
-	// todo: rename this? "getUpdates?"
-	public static VersionHistory getVersionHistory() {
-		var response = get("/api/versions.json", MASTER_SERVER);
-
-		if (isInvalidResponse(response)) {
-			throw new HttpException("Error while fetching updates.");
-		} else {
-			Gson gson = GsonTools.getDefaultBuilder().registerTypeAdapter(Version.class, new VersionAdapter()).create();
-			return gson.fromJson(response.get().body(), VersionHistory.class);
-		}
-	}
 
 	public static List<Server> fetchPublicServers() {
 		var response = get("/api/servers.json", MASTER_SERVER);
