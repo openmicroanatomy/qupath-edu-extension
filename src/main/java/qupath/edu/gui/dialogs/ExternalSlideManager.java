@@ -146,10 +146,15 @@ public class ExternalSlideManager {
         BooleanBinding slideSelected = table.getSelectionModel().selectedItemProperty().isNull();
         BooleanBinding canManageSlides = new SimpleBooleanProperty(EduAPI.hasRole(Roles.MANAGE_SLIDES)).not();
 
-        Button btnAdd = new Button("Add selected");
-        btnAdd.setTooltip(new Tooltip("Add selected slides to current project"));
-        btnAdd.disableProperty().bind(qupath.projectProperty().isNull());
-        btnAdd.setOnAction(e -> addImages());
+        Button btnAddRemote = new Button("Add selected");
+        btnAddRemote.setTooltip(new Tooltip("Add selected slides to current project"));
+        btnAddRemote.disableProperty().bind(qupath.projectProperty().isNull());
+        btnAddRemote.setOnAction(e -> addImages());
+
+        Button btnAddLocal = new Button("Add local slide");
+        btnAddLocal.setTooltip(new Tooltip("Add a slide stored locally to current project"));
+        btnAddLocal.disableProperty().bind(qupath.projectProperty().isNull());
+        btnAddLocal.setOnAction(e -> ProjectCommands.promptToImportImages(qupath));
 
         Button btnOpen = new Button("Open slide");
         btnOpen.setOnAction(e -> openSlide(table.getSelectionModel().getSelectedItem()));
@@ -181,7 +186,7 @@ public class ExternalSlideManager {
         btnUpload.setOnAction(e -> uploadSlide());
         btnUpload.disableProperty().bind(canManageSlides);
 
-        GridPane paneButtons = PaneTools.createColumnGridControls(btnAdd, btnOpen, btnRename, btnDelete, menuMore, btnUpload);
+        GridPane paneButtons = PaneTools.createColumnGridControls(btnAddRemote, btnAddLocal, btnOpen, btnRename, btnDelete, menuMore, btnUpload);
         paneButtons.setHgap(5);
 
         /* Pane */
@@ -205,8 +210,12 @@ public class ExternalSlideManager {
         });
 
         // Only add slides which have its' checkbox selected.
-        // If no slides have a checked checkbox, we'll add the slide which is just selected, it should never be null.
+        // If no slides have a checked checkbox, we'll add the slide which is just selected
         if (urls.isEmpty()) {
+            if (table.getSelectionModel().getSelectedItem() == null) {
+                return;
+            }
+
             ExternalSlide selected = table.getSelectionModel().getSelectedItem();
             urls.add(EduAPI.getHost() + "/" + EduAPI.e(selected.getId()) + "#" + EduAPI.e(selected.getName()));
         }

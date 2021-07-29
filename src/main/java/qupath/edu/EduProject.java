@@ -424,7 +424,7 @@ public class EduProject implements Project<BufferedImage> {
 		private transient BufferedImage thumbnail;
 
 		/**
-		 * True if trying to fetch thumbnail asynchronously.
+		 * True if currently trying to fetch the thumbnail async.
 		 */
 		private transient boolean waitingForThumbnail = false;
 
@@ -633,11 +633,13 @@ public class EduProject implements Project<BufferedImage> {
 			}
 
 			CompletableFuture.runAsync(() -> {
-				waitingForThumbnail = false;
+				waitingForThumbnail = true;
 
 				if (!(fetchThumbnailFromServer())) {
 					generateThumbnail();
 				}
+
+				waitingForThumbnail = false;
 
 				// TODO: Make this run only once; this currently cascades into refreshing the project multiple times
 				QuPathGUI.getInstance().refreshProject();

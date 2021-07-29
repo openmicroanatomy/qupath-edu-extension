@@ -8,9 +8,11 @@ import org.slf4j.LoggerFactory;
 import qupath.edu.exceptions.HttpException;
 import qupath.edu.util.VersionAdapter;
 import qupath.edu.models.*;
+import qupath.lib.gui.QuPathGUI;
 import qupath.lib.gui.Version;
 import qupath.lib.gui.dialogs.Dialogs;
 import qupath.lib.io.GsonTools;
+import qupath.lib.projects.Project;
 
 import java.io.File;
 import java.io.IOException;
@@ -183,6 +185,14 @@ public class EduAPI {
 	}
 
 	public static boolean hasRole(Roles role) {
+		Project project = QuPathGUI.getInstance().getProject();
+
+		if (project != null) {
+			if (project.getPath() != null) {
+				return true;
+			}
+		}
+
 		return roles.contains(role);
 	}
 
