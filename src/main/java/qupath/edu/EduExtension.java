@@ -357,9 +357,9 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         toggleTools();
 
         // Toggle edit mode so that tools get disabled / enabled
-
         editModeManager.editModeEnabledProperty().set(!editModeManager.editModeEnabledProperty().get());
         editModeManager.editModeEnabledProperty().set(!editModeManager.editModeEnabledProperty().get());
+        qupath.setReadOnly(true);
 
         Button btnToggleEditMode = new Button();
         btnToggleEditMode.textProperty().bind(Bindings.when(editModeManager.editModeEnabledProperty()).then("Save changes / discard").otherwise("Enable editing"));

@@ -47,6 +47,10 @@ public class EditModeManager {
     public void setEditModeEnabled(boolean enabled) {
         QuPathGUI qupath = QuPathGUI.getInstance();
 
+        var SAVE_CHANGES    = "Save";
+        var DISCARD_CHANGES = "Discard";
+        var CANCEL          = "Cancel";
+
         if (enabled) {
             editModeEnabledProperty().set(true);
             qupath.setReadOnly(false);
@@ -62,14 +66,14 @@ public class EditModeManager {
         } else {
             var choice = Dialogs.builder()
                     .title("Confirm")
-                    .contentText("Do you wish to save changes or restore changes?")
-                    .buttons("Save", "Restore", "Cancel")
+                    .contentText("Do you wish to save or discard changes?")
+                    .buttons(SAVE_CHANGES, DISCARD_CHANGES, CANCEL)
                     .build()
                     .showAndWait()
-                    .orElseGet(() -> new ButtonType("Cancel"))
+                    .orElseGet(() -> new ButtonType(CANCEL))
                     .getText();
 
-            if (choice.equals("Save")) {
+            if (choice.equals(SAVE_CHANGES)) {
                 var project = qupath.getProject();
                 var imageData = qupath.getImageData();
 
@@ -85,7 +89,7 @@ public class EditModeManager {
 
                 qupath.setReadOnly(true);
                 editModeEnabledProperty().set(false);
-            } else if (choice.equals("Restore")) {
+            } else if (choice.equals(DISCARD_CHANGES)) {
                 restoreImageData();
                 qupath.setReadOnly(true);
                 editModeEnabledProperty().set(false);
@@ -95,6 +99,12 @@ public class EditModeManager {
 
     public void restoreImageData() {
         try {
+            // This happens when the user hasn't opened any images and tries to restore changes.
+            // TODO: Should backupImageData() be moved to when enabling edit mode instead of when changing slides ...
+            if (imageDataBackup.size() == 0) {
+                return;
+            }
+
             QuPathGUI.getInstance().getViewer().setImageData(PathIO.readImageData(new ByteArrayInputStream(imageDataBackup.toByteArray()), null, null, BufferedImage.class));
         } catch (IOException e) {
             logger.error("Error when restoring image data", e);
