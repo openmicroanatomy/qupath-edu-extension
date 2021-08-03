@@ -513,7 +513,7 @@ public class WorkspaceManager {
                     Optional<String> projectData = EduAPI.downloadProject(extProject.getIdWithTimestamp());
 
                     if (projectData.isEmpty()) {
-                        updateMessage("Error when downloading project, see log.");
+                        Dialogs.showErrorNotification("Error", "Error when downloading project, see log for possibly more details.");
                         return Optional.empty();
                     }
 

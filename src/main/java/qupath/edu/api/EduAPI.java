@@ -690,7 +690,17 @@ public class EduAPI {
 	/* Private API */
 
 	private static boolean isInvalidResponse(Optional<HttpResponse<String>> response) {
-		return !(response.isPresent() && response.get().statusCode() >= 200 && response.get().statusCode() < 300);
+		var isInvalidResponse = response.isEmpty() || (response.get().statusCode() < 200 || response.get().statusCode() > 300);
+
+		if (isInvalidResponse) {
+			if (response.isPresent()) {
+				logger.error("Invalid HTTP Response: {}", httpResponseToString(response.get()));
+			} else {
+				logger.error("Invalid HTTP Response: Response was empty.");
+			}
+		}
+
+		return isInvalidResponse;
 	}
 
 	private static Optional<HttpResponse<String>> get(String path) {
@@ -874,6 +884,15 @@ public class EduAPI {
 
 	private static String basicAuth(String username, String password) {
 		return "Basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes());
+	}
+
+	private static String httpResponseToString(HttpResponse<String> httpResponse) {
+		return String.format("[Method: %s, Request Headers: %s, Status: %d, Response Headers: %s, Body: %s]",
+				httpResponse.request().method(),
+				httpResponse.request().headers().map(),
+				httpResponse.statusCode(),
+				httpResponse.headers().map(),
+				httpResponse.body());
 	}
 
 	public enum Result {
