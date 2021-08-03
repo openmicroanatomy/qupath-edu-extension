@@ -696,16 +696,14 @@ public class EduProject implements Project<BufferedImage> {
 		}
 
 		@Override
-		public Collection<URI> getServerURIs() {
-			if (serverBuilder == null) {
+		public Collection<URI> getUris() throws IOException {
+			if (serverBuilder == null)
 				return Collections.emptyList();
-			}
-
 			return serverBuilder.getURIs();
 		}
 
 		@Override
-		public boolean updateServerURIs(Map<URI, URI> replacements) {
+		public boolean updateUris(Map<URI, URI> replacements) throws IOException {
 			var builderBefore = serverBuilder;
 			serverBuilder = serverBuilder.updateURIs(replacements);
 
