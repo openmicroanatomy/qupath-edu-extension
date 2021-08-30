@@ -1,5 +1,6 @@
 package qupath.edu.api;
 
+import com.google.common.collect.Maps;
 import com.google.gson.*;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -676,7 +677,7 @@ public class EduAPI {
 
 			HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
 
-			return response.statusCode() == 200;
+			return !(isInvalidResponse(Optional.of(response)));
 		} catch (IOException | InterruptedException e) {
 			logger.error("Error while uploading organization logo", e);
 		}
@@ -902,9 +903,16 @@ public class EduAPI {
 	}
 
 	private static String httpResponseToString(HttpResponse<String> httpResponse) {
-		return String.format("[Method: %s, Request Headers: %s, Status: %d, Response Headers: %s, Body: %s]",
+		Map<String, List<String>> headers = Maps.newHashMap(httpResponse.request().headers().map());
+
+		if (headers.containsKey("Token")) {
+			headers.put("Token", List.of("Removed from log"));
+		}
+
+		return String.format("[Path: %s, Method: %s, Request Headers: %s, Status: %d, Response Headers: %s, Body: %s]",
+				httpResponse.request().uri().getPath(),
 				httpResponse.request().method(),
-				httpResponse.request().headers().map(),
+				headers,
 				httpResponse.statusCode(),
 				httpResponse.headers().map(),
 				httpResponse.body());
