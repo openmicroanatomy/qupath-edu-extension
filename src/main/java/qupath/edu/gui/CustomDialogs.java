@@ -21,7 +21,7 @@ public final class CustomDialogs {
 	private static final Logger logger = LoggerFactory.getLogger(CustomDialogs.class);
 
 	public static Optional<String> showWYSIWYGEditor(String input) {
-		String resourceRoot = QuPathGUI.class.getResource("/ckeditor/ckeditor.js").toString();
+		String resourceRoot = Browser.class.getResource("/ckeditor/ckeditor.js").toString();
 		resourceRoot = resourceRoot.substring(0, resourceRoot.length() - 20); // Hacky wacky way to get jar:file: ... URI
 
 		if (input == null) {
@@ -31,7 +31,7 @@ public final class CustomDialogs {
 		String HTML;
 
 		try {
-			HTML = GeneralTools.readInputStreamAsString(QuPathGUI.class.getResourceAsStream("/html/editor.html"));
+			HTML = GeneralTools.readInputStreamAsString(Browser.class.getResourceAsStream("/html/editor.html"));
 			HTML = HTML.replace("{{qupath-input}}", input)
 					   .replace("{{qupath-resource-root}}", resourceRoot)
 			           .replace("{{qupath-upload-url}}", EduAPI.getCKEditorUploadUrl());

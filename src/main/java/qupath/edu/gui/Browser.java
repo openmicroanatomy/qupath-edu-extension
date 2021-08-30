@@ -138,7 +138,7 @@ public class Browser extends Region {
             CSS.append(".ck { -webkit-user-select: none; cursor: default; }");
         }
 
-        String resourceRoot = QuPathGUI.class.getResource("/ckeditor/ckeditor.js").toString();
+        String resourceRoot = Browser.class.getResource("/ckeditor/ckeditor.js").toString();
         resourceRoot = resourceRoot.substring(0, resourceRoot.length() - 20); // Hacky wacky way to get jar:file: ... URI
 
         if (body) {
