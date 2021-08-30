@@ -55,7 +55,7 @@ public class EduProject implements Project<BufferedImage> {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	private List<RemoteProjectImageEntry> images = new ArrayList<>();
+	private List<EduProjectImageEntry> images = new ArrayList<>();
 
 	private String LATEST_VERSION = GeneralTools.getVersion();
 	private String version;
@@ -84,7 +84,7 @@ public class EduProject implements Project<BufferedImage> {
 		}
 
 		if (element.has("images")) {
-			RemoteProjectImageEntry[] images = gson.fromJson(element.get("images"), RemoteProjectImageEntry[].class);
+			EduProjectImageEntry[] images = gson.fromJson(element.get("images"), EduProjectImageEntry[].class);
 			addImages(images);
 		}
 
@@ -145,27 +145,27 @@ public class EduProject implements Project<BufferedImage> {
 
 	@Override
 	public ProjectImageEntry<BufferedImage> addImage(ImageServerBuilder.ServerBuilder<BufferedImage> builder) {
-		var entry = new RemoteProjectImageEntry(builder, null, null, null, null);
+		var entry = new EduProjectImageEntry(builder, null, null, null, null);
 
 		images.add(entry);
 
 		return entry;
 	}
 
-	public void addImages(RemoteProjectImageEntry... entries) {
-		for (RemoteProjectImageEntry entry : entries) {
-			addImage(new RemoteProjectImageEntry(entry));
+	public void addImages(EduProjectImageEntry... entries) {
+		for (EduProjectImageEntry entry : entries) {
+			addImage(new EduProjectImageEntry(entry));
 		}
 	}
 
 	private boolean addImage(ProjectImageEntry<BufferedImage> entry) {
-		if (entry instanceof RemoteProjectImageEntry) {
-			images.add((RemoteProjectImageEntry) entry);
+		if (entry instanceof EduProjectImageEntry) {
+			images.add((EduProjectImageEntry) entry);
 			return true;
 		}
 
 		try {
-			return addImage(new RemoteProjectImageEntry(entry.getServerBuilder(), null, entry.getImageName(), entry.getDescription(), entry.getMetadataMap()));
+			return addImage(new EduProjectImageEntry(entry.getServerBuilder(), null, entry.getImageName(), entry.getDescription(), entry.getMetadataMap()));
 		} catch (Exception e) {
 			logger.error("Unable to add entry " + entry, e);
 		}
@@ -201,7 +201,7 @@ public class EduProject implements Project<BufferedImage> {
 	@Override
 	public void removeImage(ProjectImageEntry<?> entry, boolean removeAllData) {
 		// TODO: Is this an irrelevant check?
-		if (entry instanceof RemoteProjectImageEntry) {
+		if (entry instanceof EduProjectImageEntry) {
 			images.remove(entry);
 		} else {
 			logger.error("Cannot remove image, is not instance of RemoteProjectImageEntry. [{}]", entry.toString());
@@ -378,10 +378,10 @@ public class EduProject implements Project<BufferedImage> {
 
 	@Override
 	public String toString() {
-		return "RemoteProject: " + name;
+		return "EduProject: " + name;
 	}
 
-	class RemoteProjectImageEntry implements ProjectImageEntry<BufferedImage> {
+	class EduProjectImageEntry implements ProjectImageEntry<BufferedImage> {
 
 		/**
 		 * ServerBuilder. This should be lightweight & capable of being JSON-ified.
@@ -414,7 +414,7 @@ public class EduProject implements Project<BufferedImage> {
 		private Map<String, String> metadata = new LinkedHashMap<>();
 
 		/**
-		 * ImageData Base64 encoded.
+		 * ImageData as a base64 encoded string.
 		 */
 		private String imageData;
 
@@ -433,7 +433,7 @@ public class EduProject implements Project<BufferedImage> {
 		 */
 		public String annotations;
 
-		RemoteProjectImageEntry(ImageServerBuilder.ServerBuilder<BufferedImage> builder, Long entryID, String imageName, String description, Map<String, String> metadataMap) {
+		EduProjectImageEntry(ImageServerBuilder.ServerBuilder<BufferedImage> builder, Long entryID, String imageName, String description, Map<String, String> metadataMap) {
 			this.serverBuilder = builder;
 
 			if (entryID == null) {
@@ -457,7 +457,7 @@ public class EduProject implements Project<BufferedImage> {
 			}
 		}
 
-		public RemoteProjectImageEntry(RemoteProjectImageEntry entry) {
+		public EduProjectImageEntry(EduProjectImageEntry entry) {
 			this.serverBuilder = entry.serverBuilder;
 			this.entryID = entry.entryID;
 			this.imageName = entry.imageName;
@@ -548,17 +548,32 @@ public class EduProject implements Project<BufferedImage> {
 
 		@Override
 		public ImageData<BufferedImage> readImageData() throws IOException {
-			if (imageData != null) {
-				ByteArrayInputStream is = new ByteArrayInputStream(Base64.getDecoder().decode(imageData));
+			if (imageData == null) {
+				return initializeImageData();
+			}
 
+			return readImageDataBase64();
+		}
+
+		/**
+		 * ImageData is stored as a Base64 encoded string inside the project properties.
+		 */
+		private ImageData<BufferedImage> readImageDataBase64() throws IOException {
+			try (ByteArrayInputStream is = new ByteArrayInputStream(Base64.getDecoder().decode(imageData))) {
 				ImageData<BufferedImage> imageData = PathIO.readImageData(is, null, null, BufferedImage.class);
-				imageData.setChanged(false);
 
-				is.close();
+				// The IMAGE_ID property is missing in some circumstances which causes slides to duplicate when opening
+				if (!imageData.getProperties().containsKey(IMAGE_ID)) {
+					imageData.setProperty(IMAGE_ID, entryID.toString());
+				}
+
+				imageData.setChanged(false);
 
 				return imageData;
 			}
+		}
 
+		private ImageData<BufferedImage> initializeImageData() throws IOException {
 			// TODO: What if serverBuilder is null? Can it be null?
 
 			try {
