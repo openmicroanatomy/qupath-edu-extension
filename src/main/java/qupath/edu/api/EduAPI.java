@@ -1,6 +1,7 @@
 package qupath.edu.api;
 
 import com.google.gson.*;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.slf4j.Logger;
@@ -46,6 +47,19 @@ public class EduAPI {
 	 * Master server provides new versions, list of public servers and so on.
 	 */
 	private static final URI MASTER_SERVER = URI.create("https://edu.qupath.yli-hallila.fi/");
+
+	/**
+	 * False when {@link EduAPI#authType} is equals to {@link EduAPI.AuthType#UNAUTHENTICATED}, otherwise false.
+	 */
+	private static final SimpleBooleanProperty connectedToServer = new SimpleBooleanProperty(false);
+
+	public static boolean isConnectedToServer() {
+		return connectedToServer.get();
+	}
+
+	public static SimpleBooleanProperty connectedToServerProperty() {
+		return connectedToServer;
+	}
 
 	private static AuthType authType = AuthType.UNAUTHENTICATED;
 	private static String token;
@@ -121,6 +135,7 @@ public class EduAPI {
 	}
 
 	public static void setAuthType(AuthType authType) {
+		connectedToServer.set(authType != AuthType.UNAUTHENTICATED);
 		EduAPI.authType = authType;
 	}
 

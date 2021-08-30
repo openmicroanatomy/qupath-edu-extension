@@ -45,6 +45,7 @@ public class OrganizationManager {
                 .title("Organization management")
                 .content(manager.getPane())
                 .size(1000, 600)
+                .buttons(ButtonType.CLOSE)
                 .build();
 
         dialog.getDialogPane().getStylesheets().add(OrganizationManager.class.getClassLoader().getResource("css/remove_buttonbar.css").toExternalForm());

@@ -44,6 +44,7 @@ public class RemoteUserManager {
         dialog = Dialogs.builder()
                 .title("User Management")
                 .content(manager.getPane())
+                .buttons(ButtonType.CLOSE)
                 .build();
 
         dialog.getDialogPane().getStylesheets().add(RemoteUserManager.class.getClassLoader().getResource("css/remove_buttonbar.css").toExternalForm());

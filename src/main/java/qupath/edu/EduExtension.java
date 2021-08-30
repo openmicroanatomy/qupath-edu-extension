@@ -10,11 +10,14 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
+import org.controlsfx.control.PopOver;
 import org.controlsfx.control.action.Action;
+import org.controlsfx.glyphfont.FontAwesome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qupath.edu.api.EduAPI;
 import qupath.edu.gui.Browser;
+import qupath.edu.gui.buttons.IconButtons;
 import qupath.edu.gui.dialogs.*;
 import qupath.edu.tours.SlideTour;
 import qupath.edu.util.EditModeManager;
@@ -88,6 +91,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         onProjectChange();
         onSlideChange();
         onImageDataChange();
+        onEditModeToggled();
 
         disableButtons();
 
@@ -108,7 +112,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         });
     }
 
-    private void toggleTools() {
+    private void onEditModeToggled() {
         editModeManager.editModeEnabledProperty().addListener((observable, oldValue, enabled) -> {
             if (enabled) {
                 PathPrefs.imageTypeSettingProperty().set(PathPrefs.ImageTypeSetting.PROMPT);
@@ -120,6 +124,10 @@ public class EduExtension implements QuPathExtension, GitHubProject {
 
             qupath.setToolSwitchingEnabled(enabled);
         });
+
+        // Toggle edit mode so that tools get disabled / enabled
+        editModeManager.editModeEnabledProperty().set(!editModeManager.editModeEnabledProperty().get());
+        editModeManager.editModeEnabledProperty().set(!editModeManager.editModeEnabledProperty().get());
     }
 
     private void onSlideChange() {
@@ -190,7 +198,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
             createMenuItem(action)
         );
 
-        qupath.getMenu("Remote Slides", true).getItems().addAll(
+        qupath.getMenu("QuPath Edu", true).getItems().addAll(
             createMenuItem(createAction(ExternalSlideManager::showExternalSlideManager, "Manage slides")),
             createMenuItem(createAction(BackupManager::showBackupManagerPane, "Manage backups")),
             createMenuItem(createAction(RemoteUserManager::showManagementDialog, "Manage users")),
@@ -333,40 +341,44 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         }
     }
 
+    private final String[] actionsToDisable = {
+        /* File Menu */
+
+        "Create project",
+        "Add images",
+        "Edit project metadata",
+        "Check project URIs",
+        "Import images from v0.1.2",
+    };
+
     /**
      * Disable various buttons based on users write access.
      *
      * TODO: Add support when user is not connected to any server
      */
     private void disableButtons() {
-        /* File menu */
+        for (String text : actionsToDisable) {
+            Action action = qupath.lookupActionByText(text);
 
-        qupath.lookupActionByText("Edit project metadata").disabledProperty().bind(editModeManager.editModeEnabledProperty().not());
-        qupath.lookupActionByText("Check project URIs").disabledProperty().bind(editModeManager.editModeEnabledProperty().not());
-        qupath.lookupActionByText("Import images from v0.1.2").disabledProperty().bind(editModeManager.editModeEnabledProperty().not());
-
-        /* Slide context menu */
-
-//        qupath.lookupActionByText("Delete image(s)").disabledProperty().bind(editModeEnabledProperty().not());
-//        qupath.lookupActionByText("Duplicate image(s)").disabledProperty().bind(editModeEnabledProperty().not());
-//        qupath.lookupActionByText("Rename image").disabledProperty().bind(editModeEnabledProperty().not());
-//        qupath.lookupActionByText("Add metadata").disabledProperty().bind(editModeEnabledProperty().not());
-//        qupath.lookupActionByText("Edit description").disabledProperty().bind(editModeEnabledProperty().not());
-//        qupath.lookupActionByText("Refresh thumbnail").disabledProperty().bind(editModeEnabledProperty().not());
-
-        toggleTools();
-
-        // Toggle edit mode so that tools get disabled / enabled
-        editModeManager.editModeEnabledProperty().set(!editModeManager.editModeEnabledProperty().get());
-        editModeManager.editModeEnabledProperty().set(!editModeManager.editModeEnabledProperty().get());
-        qupath.setReadOnly(true);
+            if (action != null) {
+                action.disabledProperty().bind(editModeManager.editModeEnabledProperty().not());
+            }
+        }
 
         Button btnToggleEditMode = new Button();
-        btnToggleEditMode.textProperty().bind(Bindings.when(editModeManager.editModeEnabledProperty()).then("Save changes / discard").otherwise("Enable editing"));
+        btnToggleEditMode.textProperty().bind(Bindings.when(editModeManager.editModeEnabledProperty()).then("Turn editing off").otherwise("Turn editing on"));
+        btnToggleEditMode.disableProperty().bind(EduAPI.connectedToServerProperty().not());
         btnToggleEditMode.setOnAction(a -> editModeManager.toggleEditMode());
         btnToggleEditMode.setFont(Font.font(10));
 
-        qupath.getToolBar().getItems().addAll(new Separator(), btnToggleEditMode);
+        PopOver infoPopOver = new PopOver(EditModeInfoPopOverDialog.getPane());
+        infoPopOver.setArrowLocation(PopOver.ArrowLocation.TOP_CENTER);
+
+        Button btnEditModeInfo = IconButtons.createIconButton(FontAwesome.Glyph.QUESTION, 10);
+        btnEditModeInfo.setFont(Font.font(10));
+        btnEditModeInfo.setOnAction(a -> infoPopOver.show(btnEditModeInfo));
+
+        qupath.getToolBar().getItems().addAll(new Separator(), btnToggleEditMode, btnEditModeInfo);
     }
 
     public static void showWorkspaceOrLoginDialog() {

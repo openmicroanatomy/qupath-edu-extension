@@ -498,10 +498,15 @@ public class SimpleAnnotationPane implements PathObjectSelectionListener, Change
     public void changed(ObservableValue<? extends ImageData<BufferedImage>> source, ImageData<BufferedImage> imageDataOld, ImageData<BufferedImage> imageDataNew) {
         setImageData(imageDataNew);
 
-        if (imageDataNew == null) {
+        if (imageDataNew == null || qupath.getProject() == null) {
             setSlideDescription(null);
         } else {
-            setSlideDescription(qupath.getProject().getEntry(imageDataNew).getDescription());
+            var entry = qupath.getProject().getEntry(imageDataNew);
+            if (entry == null) {
+                setSlideDescription(null);
+            } else {
+                setSlideDescription(entry.getDescription());
+            }
         }
     }
 

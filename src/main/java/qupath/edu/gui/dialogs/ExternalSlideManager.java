@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qupath.edu.api.EduAPI;
 import qupath.edu.api.Roles;
+import qupath.edu.server.EduServerBuilder;
 import qupath.lib.gui.QuPathGUI;
 import qupath.lib.gui.commands.ProjectCommands;
 import qupath.lib.gui.dialogs.Dialogs;
@@ -60,7 +61,7 @@ public class ExternalSlideManager {
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         dialog = Dialogs.builder()
-                .title("External Slide Manager")
+                .title("Edu Slide Manager")
                 .content(manager.getPane())
                 .buttons(ButtonType.CLOSE)
                 .width(Math.min(800, screenSize.getWidth() / 2))
@@ -156,7 +157,7 @@ public class ExternalSlideManager {
         btnAddLocal.disableProperty().bind(qupath.projectProperty().isNull());
         btnAddLocal.setOnAction(e -> ProjectCommands.promptToImportImages(qupath));
 
-        Button btnOpen = new Button("Open slide");
+        Button btnOpen = new Button("Open selected");
         btnOpen.setOnAction(e -> openSlide(table.getSelectionModel().getSelectedItem()));
         btnOpen.disableProperty().bind(slideSelected);
 
@@ -182,7 +183,7 @@ public class ExternalSlideManager {
         menuMore.getItems().addAll(miCopyID, miCopyURL, miViewProperties);
         menuMore.disableProperty().bind(slideSelected);
 
-        Button btnUpload = new Button("Upload new slide");
+        Button btnUpload = new Button("Import slide");
         btnUpload.setOnAction(e -> uploadSlide());
         btnUpload.disableProperty().bind(canManageSlides);
 
@@ -222,7 +223,7 @@ public class ExternalSlideManager {
 
         dialog.close();
 
-        Platform.runLater(() -> ProjectCommands.promptToImportImages(qupath, urls.toArray(new String[0])));
+        Platform.runLater(() -> ProjectCommands.promptToImportImages(qupath, new EduServerBuilder(), urls.toArray(new String[0])));
     }
 
     private void copySlideURL() {
@@ -356,6 +357,8 @@ public class ExternalSlideManager {
             );
 
             refreshDialog();
+        } catch (NoSuchElementException e) {
+            Dialogs.showErrorNotification("Missing OpenSlide", "Please install the OpenSlide extension to import slides.");
         } catch (IOException e) {
             logger.error("Error while reading file", e);
         }

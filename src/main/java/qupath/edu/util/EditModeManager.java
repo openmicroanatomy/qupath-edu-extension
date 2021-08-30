@@ -4,6 +4,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.ButtonType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import qupath.edu.api.EduAPI;
 import qupath.lib.gui.QuPathGUI;
 import qupath.lib.gui.dialogs.Dialogs;
 import qupath.lib.images.ImageData;
@@ -21,12 +22,23 @@ public class EditModeManager {
 
     private final Logger logger = LoggerFactory.getLogger(EditModeManager.class);
 
-    private final SimpleBooleanProperty editModeEnabled = new SimpleBooleanProperty(false);
+    /**
+     * Edit mode is enabled by default when using QuPath Edu locally and disabled when connected to a server.
+     */
+    private final SimpleBooleanProperty editModeEnabled = new SimpleBooleanProperty(true);
 
     /**
      * Stores the pre-editing image data which can be restored.
      */
     private final ByteArrayOutputStream imageDataBackup = new ByteArrayOutputStream(0);
+
+    public EditModeManager() {
+        QuPathGUI.getInstance().setReadOnly(editModeEnabled.not().get());
+
+        EduAPI.connectedToServerProperty().addListener((observable, wasConnected, isConnected) -> {
+            editModeEnabled.set(!isConnected);
+        });
+    }
 
     public SimpleBooleanProperty editModeEnabledProperty() {
         return editModeEnabled;
@@ -47,8 +59,8 @@ public class EditModeManager {
     public void setEditModeEnabled(boolean enabled) {
         QuPathGUI qupath = QuPathGUI.getInstance();
 
-        var SAVE_CHANGES    = "Save";
-        var DISCARD_CHANGES = "Discard";
+        var SAVE_CHANGES    = "Save changes";
+        var DISCARD_CHANGES = "Discard changes";
         var CANCEL          = "Cancel";
 
         if (enabled) {
@@ -64,6 +76,13 @@ public class EditModeManager {
                 }
             }
         } else {
+            // TODO: Is this enough? Should we compare the imageDataBackup with getImageData()?
+            if (qupath.getImageData() == null || !qupath.getImageData().isChanged()) {
+                qupath.setReadOnly(true);
+                editModeEnabledProperty().set(false);
+                return;
+            }
+
             var choice = Dialogs.builder()
                     .title("Confirm")
                     .contentText("Do you wish to save or discard changes?")
