@@ -21,7 +21,16 @@ repositories {
 }
 
 dependencies {
-    api "io.github.qupath:qupath-gui-fx:0.3.0-SNAPSHOT"
-    implementation "com.microsoft.azure:msal4j:1.6.1"
+    implementation "io.github.qupath:qupath-gui-fx:0.3.0-rc2"
     implementation "com.google.guava:guava:30.1.1-jre"
+    api "com.microsoft.azure:msal4j:1.11.0"
+}
+
+jar {
+    duplicatesStrategy = 'warn'
+    configurations.api.setCanBeResolved(true)
+
+    from {
+        configurations.api.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
