@@ -1,5 +1,6 @@
 package qupath.edu.gui;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.control.*;
@@ -94,6 +95,7 @@ public class WorkspaceProjectListCell extends GridCell<ExternalProject> {
 
         Label description = new Label(project.getDescription());
         description.setWrapText(true);
+        addTooltipIfOverRun(description);
 
         ImageView icon = new ImageView(ReflectionUtil.loadIcon(48));
 
@@ -227,5 +229,15 @@ public class WorkspaceProjectListCell extends GridCell<ExternalProject> {
                 );
             }
         }
+    }
+
+    private void addTooltipIfOverRun(Label label) {
+        Platform.runLater(() -> {
+            Text actual = ((Text) label.lookup(".text"));
+
+            if (actual != null && actual.getText().endsWith(label.getEllipsisString())) {
+                label.setTooltip(new Tooltip(project.getDescription()));
+            }
+        });
     }
 }

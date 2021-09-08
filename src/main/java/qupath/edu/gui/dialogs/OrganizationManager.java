@@ -48,7 +48,6 @@ public class OrganizationManager {
                 .buttons(ButtonType.CLOSE)
                 .build();
 
-        dialog.getDialogPane().getStylesheets().add(OrganizationManager.class.getClassLoader().getResource("css/remove_buttonbar.css").toExternalForm());
         dialog.setResult(ButtonType.CLOSE);
         dialog.show();
     }

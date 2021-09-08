@@ -30,7 +30,7 @@ public class BackupManager {
         BackupManager manager = new BackupManager();
 
         dialog = Dialogs.builder()
-                .title("Backup Manager")
+                .title("Backup manager")
                 .content(manager.getPane())
                 .buttons(ButtonType.CLOSE)
                 .resizable()

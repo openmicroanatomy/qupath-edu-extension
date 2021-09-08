@@ -296,9 +296,7 @@ public class SimpleAnnotationPane implements PathObjectSelectionListener, Change
             return;
         }
 
-        if (pathObjectSelected instanceof PathAnnotationObject) {
-            PathAnnotationObject annotation = (PathAnnotationObject) pathObjectSelected;
-
+        if (pathObjectSelected instanceof PathAnnotationObject annotation) {
             if (annotation.getDescription() != null && ReflectionUtil.retrieveMetadataValue(annotation, ANSWER_KEY) == null) {
                 descriptionProperty.set(annotation.getDescription());
                 answerProperty.set(null);
@@ -441,7 +439,15 @@ public class SimpleAnnotationPane implements PathObjectSelectionListener, Change
     }
 
     private void showAnswerDialog(PathObject pathObject) {
-        Dialogs.showMessageDialog(pathObject.getName(), (String) ReflectionUtil.retrieveMetadataValue(pathObject, ANSWER_KEY));
+        String message = (String) ReflectionUtil.retrieveMetadataValue(pathObject, ANSWER_KEY);
+
+        String description = ((PathAnnotationObject) pathObject).getDescription();
+        if (description != null) {
+            message += "\n\n";
+            message += description;
+        }
+
+        Dialogs.showMessageDialog(pathObject.getName(), message);
     }
 
     // todo: rework variable names & remember to update table property references

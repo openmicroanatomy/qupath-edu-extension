@@ -42,6 +42,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static javafx.beans.binding.Bindings.isEmpty;
+import static javafx.beans.binding.Bindings.when;
+
 public class SlideTour implements QuPathViewerListener {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -175,7 +178,8 @@ public class SlideTour implements QuPathViewerListener {
 	private void drawTourStartPane() {
 		/* Buttons */
 
-		Button btnStartTour = new Button("Start tour");
+		Button btnStartTour = new Button();
+		btnStartTour.textProperty().bind(when(isEmpty(tourEntries)).then("Create tour").otherwise("Start tour"));
 		btnStartTour.setOnAction(e -> startTour());
 		btnStartTour.visibleProperty().bind(isMenuMinimizedProperty.not());
 		btnStartTour.managedProperty().bind(isMenuMinimizedProperty.not());
@@ -282,6 +286,8 @@ public class SlideTour implements QuPathViewerListener {
 				editLocation(entry);
 				editAnnotations(entry);
 				editText(entry);
+
+				Dialogs.showInfoNotification("Updated", "Updated viewer location, annotations and text");
 			}
 			case "Viewer position" -> editLocation(entry);
 			case "Annotations" -> editAnnotations(entry);
@@ -293,6 +299,8 @@ public class SlideTour implements QuPathViewerListener {
 
 	private void editLocation(SlideTourEntry entry) {
 		entry.setLocation(viewer.getCenterPixelX(), viewer.getCenterPixelY(), viewer.getMagnification(), viewer.getRotation());
+
+		Dialogs.showInfoNotification("Updated", "Viewer location updated");
 	}
 
 	private void editText(SlideTourEntry entry) {
@@ -302,10 +310,14 @@ public class SlideTour implements QuPathViewerListener {
 			entry.setText(text);
 			entryTextProperty.set(text);
 		}
+
+		Dialogs.showInfoNotification("Updated", "Text updated");
 	}
 
 	private void editAnnotations(SlideTourEntry entry) {
 		entry.setAnnotations(viewer.getImageData().getHierarchy().getAnnotationObjects());
+
+		Dialogs.showInfoNotification("Updated", "Annotations updated");
 	}
 
 	private void createNewEntry() {
@@ -474,8 +486,8 @@ public class SlideTour implements QuPathViewerListener {
 		double diffY = y - currentY;
 		int diff = (int) Math.hypot(diffX, diffY);
 
-		// 2500 pixels is travelled in 1000 ms, up to maximum of 5000 ms
-		int maxSteps = Math.min(5, Math.max(1, (diff / 2500))) * 20;
+		// 2500 pixels is travelled in 1000 ms, up to maximum of 2000 ms
+		int maxSteps = Math.min(2, Math.max(1, (diff / 2500))) * 20;
 		// Utils.clamp();
 		AtomicInteger steps = new AtomicInteger(1);
 

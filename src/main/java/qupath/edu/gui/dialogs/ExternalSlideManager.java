@@ -61,7 +61,7 @@ public class ExternalSlideManager {
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         dialog = Dialogs.builder()
-                .title("Edu Slide Manager")
+                .title("Slide manager")
                 .content(manager.getPane())
                 .buttons(ButtonType.CLOSE)
                 .width(Math.min(800, screenSize.getWidth() / 2))

@@ -42,12 +42,11 @@ public class RemoteUserManager {
         RemoteUserManager manager = new RemoteUserManager();
 
         dialog = Dialogs.builder()
-                .title("User Management")
+                .title("User management")
                 .content(manager.getPane())
                 .buttons(ButtonType.CLOSE)
                 .build();
 
-        dialog.getDialogPane().getStylesheets().add(RemoteUserManager.class.getClassLoader().getResource("css/remove_buttonbar.css").toExternalForm());
         dialog.setResult(ButtonType.CLOSE);
         dialog.show();
     }
@@ -129,19 +128,19 @@ public class RemoteUserManager {
 
         /* Buttons */
 
-        Button btnCreate = new Button("Create");
+        Button btnCreate = new Button("Create a new user");
         btnCreate.setOnAction(a -> createUser());
         btnCreate.disableProperty().bind(hasPermission.not());
 
-        Button btnEdit = new Button("Edit");
+        Button btnEdit = new Button("Edit selected");
         btnEdit.setOnAction(a -> editUser(selected.get()));
         btnEdit.disableProperty().bind(selected.isNull().or(hasPermission.not()));
 
-        Button btnDelete = new Button("Delete");
+        Button btnDelete = new Button("Delete selected");
         btnDelete.setOnAction(a -> deleteUser(selected.get()));
         btnDelete.disableProperty().bind(selected.isNull().or(hasPermission.not()));
 
-        GridPane buttons = PaneTools.createColumnGridControls(btnDelete, btnEdit, btnCreate);
+        GridPane buttons = PaneTools.createColumnGridControls(btnCreate, btnEdit, btnDelete);
         buttons.setHgap(5);
 
         /* Pane */
@@ -197,6 +196,7 @@ public class RemoteUserManager {
 
         ComboBox<ExternalOrganization> cbOrganization = new ComboBox<>();
         cbOrganization.setDisable(true);
+        cbOrganization.setMaxWidth(Double.MAX_VALUE);
 
         Button btnEditOrganization;
 
@@ -339,10 +339,14 @@ public class RemoteUserManager {
         TextField tfEmail = new TextField();
         tfEmail.setPromptText("Email");
 
-        TextField tfPassword = new TextField();
+        TextField tfPassword = new PasswordField();
         tfPassword.setPromptText("Password");
 
+        TextField tfPasswordRepeat = new PasswordField();
+        tfPasswordRepeat.setPromptText("Repeat password");
+
         ComboBox<ExternalOrganization> cbOrganization = new ComboBox<>();
+        cbOrganization.setMaxWidth(Double.MAX_VALUE);
 
         if (EduAPI.hasRole(Roles.ADMIN)) {
             cbOrganization.setItems(FXCollections.observableArrayList(EduAPI.getAllOrganizations().orElse(List.of())));
@@ -351,6 +355,8 @@ public class RemoteUserManager {
             cbOrganization.setItems(FXCollections.observableArrayList(EduAPI.getOrganization().orElse(null)));
             cbOrganization.setDisable(true);
         }
+
+        cbOrganization.getSelectionModel().selectFirst();
 
         /* Pane */
 
@@ -364,11 +370,13 @@ public class RemoteUserManager {
         pane.add(tfName, 0, ++row);
         pane.add(tfEmail, 0, ++row);
         pane.add(tfPassword, 0, ++row);
+        pane.add(tfPasswordRepeat, 0, ++row);
         pane.add(cbOrganization, 0, ++row);
 
         GridPane.setHgrow(tfName, Priority.ALWAYS);
         GridPane.setHgrow(tfEmail, Priority.ALWAYS);
         GridPane.setHgrow(tfPassword, Priority.ALWAYS);
+        GridPane.setHgrow(tfPasswordRepeat, Priority.ALWAYS);
         GridPane.setHgrow(cbOrganization, Priority.ALWAYS);
 
         /* Dialog */
@@ -380,6 +388,12 @@ public class RemoteUserManager {
                 .showAndWait();
 
         if (result.isPresent() && result.get().equals(ButtonType.FINISH)) {
+            if (!tfPassword.getText().equals(tfPasswordRepeat.getText())) {
+                // TODO: Keep dialog open, just empty the password fields.
+                Dialogs.showErrorNotification("Error", "Passwords do not match");
+                return;
+            }
+
             Optional<ExternalUser> user = EduAPI.createUser(
                 tfPassword.getText(), tfEmail.getText(), tfName.getText(), cbOrganization.getValue().getId()
             );
