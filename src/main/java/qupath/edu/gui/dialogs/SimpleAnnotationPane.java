@@ -17,11 +17,10 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.text.TextBoundsType;
+import javafx.scene.text.Text;
 import org.controlsfx.control.MasterDetailPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import qupath.edu.gui.Browser;
 import qupath.edu.util.ReflectionUtil;
 import qupath.lib.gui.QuPathGUI;
 import qupath.lib.gui.dialogs.Dialogs;
@@ -84,13 +83,9 @@ public class SimpleAnnotationPane implements PathObjectSelectionListener, Change
         // Empty text areas take up space: setting managed to false will stop rendering it.
         slideDescription.setManaged(!(Strings.isNullOrEmpty(description)));
 
-        slideDescription.setPrefHeight(Utils.computeTextHeight(
-            slideDescription.getFont(),
-            description,
-            slideDescription.getWidth(),
-            10,
-            TextBoundsType.VISUAL
-        ));
+        // Hacky way to calculate text height, Utils.computeTextHeight(); is too inaccurate
+        Text text = (Text) slideDescription.lookup(".text");
+        slideDescription.setPrefHeight(text.getBoundsInLocal().getHeight() + 10);
     }
 
     private StringProperty descriptionProperty = new SimpleStringProperty();
@@ -110,7 +105,6 @@ public class SimpleAnnotationPane implements PathObjectSelectionListener, Change
      * @param qupath current QuPath instance.
      */
     public SimpleAnnotationPane(final QuPathGUI qupath) {
-        // TODO: Make toggle between old annotation pane!
         this.qupath = qupath;
 
         setImageData(qupath.getImageData());

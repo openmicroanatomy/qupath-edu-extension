@@ -38,6 +38,7 @@ import qupath.lib.projects.Project;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.List;
 
 import static qupath.lib.gui.ActionTools.createAction;
 import static qupath.lib.gui.ActionTools.createMenuItem;
@@ -341,27 +342,36 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         }
     }
 
-    private final String[] actionsToDisable = {
-        /* File Menu */
-
-        "Create project",
-        "Add images",
-        "Edit project metadata",
-        "Check project URIs",
-        "Import images from v0.1.2",
-    };
-
     /**
      * Disable various buttons based on users write access.
      *
      * TODO: Add support when user is not connected to any server
      */
     private void disableButtons() {
+        String[] actionsToDisable = { "Create project", "Add images", "Edit project metadata",
+                "Check project URIs", "Import images from v.0.1.2" };
+
         for (String text : actionsToDisable) {
             Action action = qupath.lookupActionByText(text);
 
             if (action != null) {
                 action.disabledProperty().bind(editModeManager.editModeEnabledProperty().not());
+            }
+        }
+
+        List<String> menuItemsToDisable = List.of("Delete image(s)", "Rename image", "Refresh thumbnail",
+                "Edit description", "Add metadata", "Duplicate image(s)");
+
+        TreeView<Object> tree = ReflectionUtil.getProjectBrowserTree();
+        List<MenuItem> items = tree.getContextMenu().getItems();
+
+        for (MenuItem item : items) {
+            if (item == null || item.getText() == null) {
+                continue;
+            }
+
+            if (menuItemsToDisable.contains(item.getText())) {
+                item.disableProperty().bind(editModeManager.editModeEnabledProperty().not());
             }
         }
 
@@ -372,7 +382,9 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         btnToggleEditMode.setFont(Font.font(10));
 
         PopOver infoPopOver = new PopOver(EditModeInfoPopOverDialog.getPane());
+        infoPopOver.setDetachable(false);
         infoPopOver.setArrowLocation(PopOver.ArrowLocation.TOP_CENTER);
+        infoPopOver.getRoot().getStylesheets().add(EduExtension.class.getClassLoader().getResource("css/popover.css").toExternalForm());
 
         Button btnEditModeInfo = IconButtons.createIconButton(FontAwesome.Glyph.QUESTION, 10);
         btnEditModeInfo.setFont(Font.font(10));
@@ -394,14 +406,21 @@ public class EduExtension implements QuPathExtension, GitHubProject {
                 WorkspaceManager.showWorkspace(QuPathGUI.getInstance());
             }
         } catch (Exception e) {
-            Dialogs.showErrorMessage(
-                "Error when connecting to server",
-                "Check your internet connection and that you're connecting to the right server. See log for more details."
-            );
-
             logger.error("Error when connecting to server", e);
 
+            var confirm = Dialogs.showConfirmDialog(
+                "Error when connecting to " + EduAPI.getHost(),
+                "Please check your internet connection and that you're connecting to the correct server." +
+                "\n\n" +
+                "Do you wish to change the server you're connecting to?"
+            );
+
             EduAPI.logout();
+
+            if (confirm) {
+                FirstTimeSetup.showDialog();
+                showWorkspaceOrLoginDialog();
+            }
         }
     }
 }

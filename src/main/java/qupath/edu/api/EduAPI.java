@@ -909,6 +909,10 @@ public class EduAPI {
 			headers.put("Token", List.of("Removed from log"));
 		}
 
+		if (headers.containsKey("Authorization")) {
+			headers.put("Authorization", List.of("Removed from log"));
+		}
+
 		return String.format("[Path: %s, Method: %s, Request Headers: %s, Status: %d, Response Headers: %s, Body: %s]",
 				httpResponse.request().uri().getPath(),
 				httpResponse.request().method(),

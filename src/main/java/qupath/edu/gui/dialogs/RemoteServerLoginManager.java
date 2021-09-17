@@ -8,6 +8,7 @@ import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -15,9 +16,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.dialog.ProgressDialog;
@@ -27,6 +26,7 @@ import qupath.edu.EduExtension;
 import qupath.edu.EduOptions;
 import qupath.edu.api.EduAPI;
 import qupath.edu.api.Roles;
+import qupath.edu.exceptions.HttpException;
 import qupath.edu.models.ExternalOrganization;
 import qupath.edu.models.ServerConfiguration;
 import qupath.lib.gui.QuPathGUI;
@@ -115,8 +115,24 @@ public class RemoteServerLoginManager {
 
         /* Statusbar */
         
+        Text txtHost = new Text("Host " + EduOptions.host().get());
+        Hyperlink btnChangeHost = new Hyperlink("Change host ...");
+        btnChangeHost.setOnAction(a -> {
+            dialog.close();
+            FirstTimeSetup.showDialog();
+            EduExtension.showWorkspaceOrLoginDialog();
+        });
+
+        BorderPane borderPane = new BorderPane();
+        borderPane.setLeft(txtHost);
+        borderPane.setRight(btnChangeHost);
+
+        BorderPane.setAlignment(txtHost, Pos.CENTER_LEFT);
+        BorderPane.setAlignment(btnChangeHost, Pos.CENTER_RIGHT);
+
         StatusBar statusBar = new StatusBar();
-        statusBar.setText("Host " + EduOptions.host().get());
+        statusBar.setText(null);
+        statusBar.setGraphic(borderPane);
 
         /* Borderpane */
 

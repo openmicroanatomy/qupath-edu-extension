@@ -28,6 +28,7 @@ import qupath.edu.gui.CustomDialogs;
 import qupath.edu.util.ReflectionUtil;
 import qupath.edu.api.EduAPI;
 import qupath.edu.api.Roles;
+import qupath.lib.gui.QuPathGUI;
 import qupath.lib.gui.dialogs.Dialogs;
 import qupath.lib.gui.tools.PaneTools;
 import qupath.lib.gui.viewer.QuPathViewer;
@@ -51,6 +52,7 @@ public class SlideTour implements QuPathViewerListener {
 
 	private final String TOUR_ENTRIES_KEY = "TOUR_ENTRIES";
 
+	private final QuPathGUI qupath = QuPathGUI.getInstance();
 	private QuPathViewer viewer;
 
 	private final SimpleBooleanProperty isMenuMinimizedProperty = new SimpleBooleanProperty(false);
@@ -134,6 +136,7 @@ public class SlideTour implements QuPathViewerListener {
 
 		imageDataChanged = imageData.isChanged();
 
+		qupath.getUndoRedoManager().clear();
 		annotations = imageData.getHierarchy().getAnnotationObjects();
 		viewer.getImageData().getHierarchy().getSelectionModel().clearSelection();
 		viewer.getImageData().getHierarchy().clearAll();
@@ -275,7 +278,7 @@ public class SlideTour implements QuPathViewerListener {
 		SlideTourEntry entry = tourEntries.get(currentIndexProperty.get());
 
 		String[] choices = { "Everything", "Viewer position", "Annotations", "Text" };
-		String edit = Dialogs.showChoiceDialog("Edit ...", "Choose what to edit", choices, "Everything");
+		String edit = Dialogs.showChoiceDialog("Edit ...", "Choose what to edit", choices, choices[0]);
 
 		if (edit == null) {
 			return;
@@ -286,8 +289,6 @@ public class SlideTour implements QuPathViewerListener {
 				editLocation(entry);
 				editAnnotations(entry);
 				editText(entry);
-
-				Dialogs.showInfoNotification("Updated", "Updated viewer location, annotations and text");
 			}
 			case "Viewer position" -> editLocation(entry);
 			case "Annotations" -> editAnnotations(entry);
@@ -327,10 +328,6 @@ public class SlideTour implements QuPathViewerListener {
 		double rotation = viewer.getRotation();
 
 		tourEntries.add(new SlideTourEntry(null, x, y, magnification, rotation, Collections.emptyList()));
-
-		viewer.setMagnification(1);
-		viewer.setCenterPixelLocation(x, y);
-		viewer.setRotation(0);
 
 		currentIndexProperty.set(tourEntries.size() - 1);
 
@@ -486,6 +483,10 @@ public class SlideTour implements QuPathViewerListener {
 		double diffY = y - currentY;
 		int diff = (int) Math.hypot(diffX, diffY);
 
+		if (diff == 0) {
+			return;
+		}
+
 		// 2500 pixels is travelled in 1000 ms, up to maximum of 2000 ms
 		int maxSteps = Math.min(2, Math.max(1, (diff / 2500))) * 20;
 		// Utils.clamp();
@@ -498,7 +499,7 @@ public class SlideTour implements QuPathViewerListener {
 			new KeyFrame(
 				Duration.millis(50),
 				event -> {
-					double multiplier = Math.min(1, 1.0 * steps.get() / maxSteps);
+					double multiplier = easeInOutSine(1.0 * steps.get() / maxSteps);
 					viewer.setMagnification(currentMagnification + diffMagnification * multiplier);
 					viewer.setCenterPixelLocation(currentX + diffX * multiplier, currentY + diffY * multiplier);
 					viewer.setRotation(currentRotation + diffRotation * multiplier);
@@ -510,6 +511,15 @@ public class SlideTour implements QuPathViewerListener {
 
 		timeline.setCycleCount(maxSteps);
 		timeline.play();
+	}
+
+	/**
+	 * Ease-in-ease-out-sine function.
+	 * @param x represents the absolute progress of the animation in the bounds of 0 (beginning of the animation) and 1 (end of animation).
+	 * @return number between 0 ... 1
+	 */
+	private double easeInOutSine(double x) {
+		return -(Math.cos(Math.PI * x) - 1) / 2;
 	}
 
 	/**

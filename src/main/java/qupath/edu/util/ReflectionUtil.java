@@ -1,6 +1,7 @@
 package qupath.edu.util;
 
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Region;
@@ -158,6 +159,22 @@ public class ReflectionUtil {
             Method method = PathObject.class.getDeclaredMethod("retrieveMetadataValue", String.class);
             method.setAccessible(true);
             return method.invoke(object, key);
+        } catch (Exception e) {
+            Dialogs.showErrorNotification("Reflection exception. Please report this error via Github", e);
+        }
+
+        return null;
+    }
+
+    /* ProjectBrowser: getTree() */
+
+    public static TreeView<Object> getProjectBrowserTree() {
+        ProjectBrowser projectBrowser = getProjectBrowser();
+
+        try {
+            Field field = ProjectBrowser.class.getDeclaredField("tree");
+            field.setAccessible(true);
+            return (TreeView<Object>) field.get(projectBrowser);
         } catch (Exception e) {
             Dialogs.showErrorNotification("Reflection exception. Please report this error via Github", e);
         }

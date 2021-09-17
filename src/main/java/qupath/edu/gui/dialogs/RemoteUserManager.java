@@ -349,14 +349,13 @@ public class RemoteUserManager {
         cbOrganization.setMaxWidth(Double.MAX_VALUE);
 
         if (EduAPI.hasRole(Roles.ADMIN)) {
+            cbOrganization.setPromptText("Select organization");
             cbOrganization.setItems(FXCollections.observableArrayList(EduAPI.getAllOrganizations().orElse(List.of())));
             cbOrganization.setPlaceholder(new Text("No organizations"));
         } else {
             cbOrganization.setItems(FXCollections.observableArrayList(EduAPI.getOrganization().orElse(null)));
             cbOrganization.setDisable(true);
         }
-
-        cbOrganization.getSelectionModel().selectFirst();
 
         /* Pane */
 
