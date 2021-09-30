@@ -408,18 +408,27 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         } catch (Exception e) {
             logger.error("Error when connecting to server", e);
 
-            var confirm = Dialogs.showConfirmDialog(
-                "Error when connecting to " + EduAPI.getHost(),
-                "Please check your internet connection and that you're connecting to the correct server." +
-                "\n\n" +
-                "Do you wish to change the server you're connecting to?"
-            );
+            String[] choices = { "Cancel", "Change server", "Retry connection" };
+
+            var dialog = Dialogs.builder()
+                .title("Error when connecting to " + EduAPI.getHost())
+                .contentText("Please check your internet connection and that you're connecting to the correct server.")
+                .buttons(choices)
+                .build();
+
+            var response = dialog.showAndWait();
 
             EduAPI.logout();
 
-            if (confirm) {
-                FirstTimeSetup.showDialog();
-                showWorkspaceOrLoginDialog();
+            if (response.isPresent()) {
+                var text = response.orElse(ButtonType.CLOSE).getText();
+
+                if (text.equals(choices[1])) {
+                    FirstTimeSetup.showDialog();
+                    showWorkspaceOrLoginDialog();
+                } else if (text.equals(choices[2])) {
+                    showWorkspaceOrLoginDialog();
+                }
             }
         }
     }
