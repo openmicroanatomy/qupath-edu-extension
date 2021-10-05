@@ -24,10 +24,10 @@ import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qupath.edu.EduExtension;
+import qupath.edu.EduProject;
 import qupath.edu.gui.CustomDialogs;
 import qupath.edu.util.ReflectionUtil;
 import qupath.edu.api.EduAPI;
-import qupath.edu.api.Roles;
 import qupath.lib.gui.QuPathGUI;
 import qupath.lib.gui.dialogs.Dialogs;
 import qupath.lib.gui.tools.PaneTools;
@@ -169,9 +169,16 @@ public class SlideTour implements QuPathViewerListener {
 	private synchronized void drawPane() {
 		pane.setVisible(viewer.getImageData() != null);
 
+		EduProject project = (EduProject) QuPathGUI.getInstance().getProject();
+		boolean hasWritePermission = false;
+
+		if (project != null) {
+			hasWritePermission = EduAPI.hasWritePermission(project.getId());
+		}
+
 		if (isTourActive) {
 			drawTourPane();
-		} else if (tourEntries.size() > 0 || EduAPI.hasRole(Roles.MANAGE_PROJECTS)) {
+		} else if (tourEntries.size() > 0 || hasWritePermission) {
 			drawTourStartPane();
 		} else {
 			pane.setVisible(false);

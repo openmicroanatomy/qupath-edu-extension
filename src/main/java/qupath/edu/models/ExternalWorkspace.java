@@ -12,6 +12,10 @@ public class ExternalWorkspace {
     private ExternalOwner owner;
     private List<ExternalSubject> subjects;
 
+    // TODO: Teach GSON when object is ExternalOrganization and when ExternalUser... Type Erasure?
+    private List<ExternalOwner> read;
+    private List<ExternalOwner> write;
+
     public String getName() {
         return name;
     }
@@ -38,6 +42,14 @@ public class ExternalWorkspace {
         return getSubjects().stream()
                 .flatMap(s -> s.getProjects().stream())
                 .collect(Collectors.toList());
+    }
+
+    public List<ExternalOwner> getEntitiesWithWritePermission() {
+        return write;
+    }
+
+    public List<ExternalOwner> getEntitiesWithReadPermission() {
+        return read;
     }
 
     @Override

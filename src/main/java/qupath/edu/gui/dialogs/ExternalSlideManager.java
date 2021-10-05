@@ -140,7 +140,7 @@ public class ExternalSlideManager {
             if (selectedItem == null) {
                 return false;
             } else {
-                return EduAPI.isOwner(selectedItem.getOwner().getId());
+                return EduAPI.hasRole(Roles.MANAGE_SLIDES) && EduAPI.getOrganizationId().equals(selectedItem.getOwner().getId());
             }
         }, table.getSelectionModel().selectedItemProperty());
 

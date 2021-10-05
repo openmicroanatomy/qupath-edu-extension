@@ -47,7 +47,7 @@ public class ExternalSubject {
      */
     public List<ExternalProject> getProjects() {
         return projects.stream()
-                .filter(project -> !(project.isHidden() && !EduAPI.isOwner(project.getOwner())))
+                .filter(project -> !(project.isHidden() && !EduAPI.hasWritePermission(project.getId())))
                 .sorted(Comparator.comparing(ExternalProject::getName, new NaturalOrderComparator<>()))
                 .collect(Collectors.toList());
     }

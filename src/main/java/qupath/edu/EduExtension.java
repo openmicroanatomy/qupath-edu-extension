@@ -204,6 +204,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
             createMenuItem(createAction(BackupManager::showBackupManagerPane, "Manage backups")),
             createMenuItem(createAction(RemoteUserManager::showManagementDialog, "Manage users")),
             createMenuItem(createAction(OrganizationManager::showOrganizationManager, "Manage organizations")),
+            createMenuItem(createAction(WorkspacePermissionManager::showDialog, "Manage permissions")),
             createMenuItem(createAction(EduExtension::showWorkspaceOrLoginDialog, "Show workspaces")),
             createMenuItem(createAction(this::checkSaveChanges, "Sync changes"))
         );
@@ -278,7 +279,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
             if (event.getClickCount() > 1 && project instanceof EduProject) {
                 String projectId = ((EduProject) project).getId();
 
-                if (EduExtension.getEditModeManager().isEditModeEnabled() && EduAPI.hasPermission(projectId)) {
+                if (EduExtension.getEditModeManager().isEditModeEnabled() && EduAPI.hasWritePermission(projectId)) {
                     ProjectDescriptionEditorCommand.openDescriptionEditor();
                 }
             }

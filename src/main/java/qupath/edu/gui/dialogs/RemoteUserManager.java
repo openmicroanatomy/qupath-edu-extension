@@ -197,6 +197,8 @@ public class RemoteUserManager {
         ComboBox<ExternalOrganization> cbOrganization = new ComboBox<>();
         cbOrganization.setDisable(true);
         cbOrganization.setMaxWidth(Double.MAX_VALUE);
+        cbOrganization.setCellFactory(p -> new OrganizationNameListCell());
+        cbOrganization.setButtonCell(new OrganizationNameListCell());
 
         Button btnEditOrganization;
 
@@ -253,7 +255,8 @@ public class RemoteUserManager {
             label.setLabelFor(checkbox);
             label.setAlignment(Pos.BASELINE_RIGHT);
 
-            if (role.equals(Roles.MANAGE_USERS) && user.getId().equals(EduAPI.getUserId()) ) {
+            // Prohibit removing MANAGE_USERS permission from themselves
+            if (role.equals(Roles.MANAGE_USERS) && user.getId().equals(EduAPI.getUserId())) {
                 checkbox.setDisable(true);
                 label.setTooltip(new Tooltip("Cannot modify this permission."));
             }
@@ -347,6 +350,8 @@ public class RemoteUserManager {
 
         ComboBox<ExternalOrganization> cbOrganization = new ComboBox<>();
         cbOrganization.setMaxWidth(Double.MAX_VALUE);
+        cbOrganization.setCellFactory(p -> new OrganizationNameListCell());
+        cbOrganization.setButtonCell(new OrganizationNameListCell());
 
         if (EduAPI.hasRole(Roles.ADMIN)) {
             cbOrganization.setPromptText("Select organization");
@@ -402,6 +407,19 @@ public class RemoteUserManager {
                 Dialogs.showInfoNotification("Success", "Successfully created user.");
             } else {
                 Dialogs.showErrorNotification("Error", "Error while creating user. See log for possibly more details.");
+            }
+        }
+    }
+
+    static class OrganizationNameListCell extends ListCell<ExternalOrganization> {
+        @Override protected void updateItem(ExternalOrganization organization, boolean empty) {
+            super.updateItem(organization, empty);
+
+            if (organization == null || empty) {
+                setGraphic(null);
+                setText(null);
+            } else {
+                setText(organization.getName());
             }
         }
     }

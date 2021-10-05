@@ -208,16 +208,15 @@ public class WorkspaceManager {
         gvProjects.getItems().clear();
 
         for (ExternalWorkspace workspace : workspaces) {
-            if (!(workspace.getOwnerId().equals(EduAPI.getOrganizationId()) || workspace.getOwnerId().equals(EduAPI.getUserId()))) {
-                return;
+            if (!belongsToSameOrganizationAsUser(workspace)) {
+                continue;
             }
 
-            var hasWriteAccess = EduAPI.isOwner(workspace.getOwnerId());
+            var hasWriteAccess = EduAPI.hasWritePermission(workspace.getId());
 
             ListView<ExternalSubject> lvSubjects = new ListView<>();
             lvSubjects.setCellFactory(f -> new SubjectListCell(this, hasWriteAccess));
             lvSubjects.getItems().addAll(workspace.getSubjects());
-
             lvSubjects.setOnMouseClicked(e -> {
                 ExternalSubject selectedSubject = lvSubjects.getSelectionModel().getSelectedItem();
 
@@ -246,6 +245,13 @@ public class WorkspaceManager {
 
             accordion.getPanes().add(tpWorkspace);
         }
+    }
+
+    /**
+     * Check if the given workspace belongs to the same organization as the user.
+     */
+    private boolean belongsToSameOrganizationAsUser(ExternalWorkspace workspace) {
+        return workspace.getOwnerId().equals(EduAPI.getOrganizationId()) || workspace.getOwnerId().equals(EduAPI.getUserId());
     }
 
     private void openById(ActionEvent actionEvent) {
@@ -297,9 +303,9 @@ public class WorkspaceManager {
             if (workspace.getId() != null) {
                 currentWorkspace.set(workspace.getId());
 
-                // TODO: Move this check to login and check if user has MANAGE_PROJECTS / ADMIN role, and organization == user.organization
-                hasAccessProperty.set(EduAPI.hasPermission(workspace.getId()));
-                gvProjects.setItems(FXCollections.observableArrayList(workspace.getAllProjects()));
+                var hasWritePermission = EduAPI.hasWritePermission(workspace.getId());
+                hasAccessProperty.set(hasWritePermission);
+                EduExtension.setWriteAccess(hasWritePermission);
             }
         };
     }

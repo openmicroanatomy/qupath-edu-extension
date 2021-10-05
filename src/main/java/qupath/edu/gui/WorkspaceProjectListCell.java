@@ -48,7 +48,7 @@ public class WorkspaceProjectListCell extends GridCell<ExternalProject> {
             return;
         }
 
-        this.hasWriteAccess = EduAPI.isOwner(project.getOwner());
+        this.hasWriteAccess = EduAPI.hasWritePermission(project.getId());
 
         GridPane pane = new GridPane();
         pane.setPadding(new Insets(5));

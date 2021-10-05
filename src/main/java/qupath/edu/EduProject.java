@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import qupath.edu.api.EduAPI;
 import qupath.edu.exceptions.HttpException;
 import qupath.edu.gui.dialogs.WorkspaceManager;
-import qupath.edu.api.Roles;
 import qupath.lib.classifiers.object.ObjectClassifier;
 import qupath.lib.classifiers.pixel.PixelClassifier;
 import qupath.lib.common.GeneralTools;
@@ -248,7 +247,7 @@ public class EduProject implements Project<BufferedImage> {
 		var makeCopy = false;
 
 		try {
-			hasWriteAccess = EduAPI.hasPermission(getId());
+			hasWriteAccess = EduAPI.hasWritePermission(getId());
 		} catch (HttpException e) {
 			logger.error("Error while syncing project.", e);
 
@@ -260,7 +259,7 @@ public class EduProject implements Project<BufferedImage> {
 			);
 		}
 
-		if (!hasWriteAccess && EduAPI.hasRole(Roles.MANAGE_PERSONAL_PROJECTS)) {
+		if (!hasWriteAccess && EduAPI.getAuthType().shouldPrompt()) {
 			var confirm = Dialogs.showYesNoDialog("Sync changes",
 				"These changes are only visible to you because you're not authorized to edit this project. These changes will be lost after closing the project." +
 				"\n\n" +
@@ -303,6 +302,7 @@ public class EduProject implements Project<BufferedImage> {
 				EduAPI.uploadProject(projectId.get(), projectData);
 
 				// TODO: This prompts twice to create a personal copy because first QuPathGUI calls syncChanges() and it is ran again when opening the new project
+				// 		 -- QuPathGUI#setReadOnly(true); before loading project and then to false after loading?
 				WorkspaceManager.loadProject(projectId.get(), "Copy of " + getName());
 			} else {
 				Dialogs.showErrorNotification("Error", "Error while creating personal project. See log for possible details.");

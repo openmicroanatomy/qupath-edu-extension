@@ -221,7 +221,6 @@ public class RemoteServerLoginManager {
             if (EduAPI.login(tfEmail.getText(), tfPassword.getText())) {
                 dialog.close();
 
-                EduExtension.setWriteAccess(EduAPI.hasRole(Roles.MANAGE_PROJECTS));
                 EduExtension.showWorkspaceOrLoginDialog();
             } else {
                 Dialogs.showErrorNotification("Error", "Wrong username, password or host");
@@ -265,7 +264,6 @@ public class RemoteServerLoginManager {
 
                             Platform.runLater(() -> {
                                 dialog.close();
-                                EduExtension.setWriteAccess(EduAPI.hasRole(Roles.MANAGE_PROJECTS));
                                 EduExtension.showWorkspaceOrLoginDialog();
                             });
                         }

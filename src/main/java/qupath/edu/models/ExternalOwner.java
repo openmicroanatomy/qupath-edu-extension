@@ -1,9 +1,11 @@
 package qupath.edu.models;
 
+import java.util.Objects;
+
 public class ExternalOwner {
 
-    private String id;
-    private String name;
+    protected String id;
+    protected String name;
 
     public String getId() {
         return id;
@@ -21,4 +23,17 @@ public class ExternalOwner {
         this.name = name;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        if (!(o instanceof ExternalOwner)) return false;
+        ExternalOwner that = (ExternalOwner) o;
+        return id.equals(that.id) && name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name);
+    }
 }

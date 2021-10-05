@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /*
  	TODO:
@@ -201,6 +202,7 @@ public class EduAPI {
 	}
 
 	public static boolean hasRole(Roles role) {
+		// Check if we're on a local project, where everyone has all roles.
 		Project project = QuPathGUI.getInstance().getProject();
 
 		if (project != null) {
@@ -209,18 +211,18 @@ public class EduAPI {
 			}
 		}
 
-		return roles.contains(role);
+		return roles.contains(Roles.ADMIN) || roles.contains(role);
 	}
 
+	private static final Map<String, Boolean> writePermissionCache = new HashMap<>();
+	private static final Map<String, Boolean> readPermissionCache = new HashMap<>();
+
 	/**
-	 * User is treated as a owner when ...
-	 * 	  a) The ownerId is the same as userId and the user has the role MANAGE_PERSONAL PROJECTS.
-	 * 	  b) The ownerId is the same as tenantId and the user has the the role MANAGE_PROJECTS.
-	 * 	  c) the user has the ADMIN role
-	 * @param ownerId ID of project or workspace owner.
-	 * @return True if owner (=has write permissions)
+	 * This method checks if the user is authorized to edit a given resource (workspace, subject, project).
+	 * @param id workspace, subject or project id.
+	 * @return true if user has write permissions.
 	 */
-	public static boolean isOwner(String ownerId) {
+	public static boolean hasWritePermission(String id) {
 		if (!getAuthType().shouldPrompt()) {
 			return false;
 		}
@@ -229,26 +231,8 @@ public class EduAPI {
 			return true;
 		}
 
-		return (ownerId.equals(userId) && hasRole(Roles.MANAGE_PERSONAL_PROJECTS)) ||
-				(ownerId.equals(organizationId) && hasRole(Roles.MANAGE_PROJECTS));
-	}
-
-	private static Map<String, Boolean> permissions = new HashMap<>();
-
-	/**
-	 * This method checks if the user is authorized to edit a given ID.
-	 * Use isOwner(String ownerId) if the ownerId is available;
-	 * use this method only when only the object ID is available.
-	 * @param id Project or workspace Id.
-	 * @return True if has write permissions.
-	 */
-	public static boolean hasPermission(String id) {
-		if (!getAuthType().shouldPrompt()) {
-			return false;
-		}
-
-		if (permissions.containsKey(id)) {
-			return permissions.get(id);
+		if (writePermissionCache.containsKey(id)) {
+			return writePermissionCache.get(id);
 		}
 
 		var response = get("/api/v0/auth/write/" + e(id));
@@ -258,7 +242,28 @@ public class EduAPI {
 		}
 
 		var result = Boolean.parseBoolean(response.get().body());
-		permissions.put(id, result);
+		writePermissionCache.put(id, result);
+
+		return result;
+	}
+
+	public static boolean hasReadPermission(String id) {
+		if (readPermissionCache.containsKey(id)) {
+			return readPermissionCache.get(id);
+		}
+
+		if (hasRole(Roles.ADMIN)) {
+			return true;
+		}
+
+		var response = get("/api/v0/auth/read/" + e(id));
+
+		if (response.isEmpty()) {
+			return false;
+		}
+
+		var result = Boolean.parseBoolean(response.get().body());
+		readPermissionCache.put(id, result);
 
 		return result;
 	}
@@ -323,8 +328,11 @@ public class EduAPI {
 	public static void logout() {
 		setToken(null);
 		setCredentials(null, null);
+		setOrganizationId(null);
+		setUserId(null);
 		roles.clear();
-		permissions.clear();
+		writePermissionCache.clear();
+		readPermissionCache.clear();
 	}
 
 	/* Users */
@@ -332,6 +340,7 @@ public class EduAPI {
 	public static List<ExternalUser> getAllUsers() {
 		var response = get("/api/v0/users");
 
+		// TODO: 401 response is technically not an invalid response.
 		if (isInvalidResponse(response)) {
 			return Collections.emptyList();
 		}
@@ -580,14 +589,14 @@ public class EduAPI {
 
 	/* Workspaces */
 
-	public static Optional<String> getWorkspace(String id) {
-		var response = get("/api/v0/workspaces" + e(id));
+	public static Optional<ExternalWorkspace> getWorkspace(String id) {
+		var response = get("/api/v0/workspaces/" + e(id));
 
 		if (isInvalidResponse(response)) {
 			return Optional.empty();
 		}
 
-		return Optional.of(response.get().body());
+		return Optional.of(GsonTools.getInstance().fromJson(response.get().body(), ExternalWorkspace.class));
 	}
 
 	public static List<ExternalWorkspace> getAllWorkspaces() {
@@ -613,6 +622,24 @@ public class EduAPI {
 		var response = patch(
 			"/api/v0/workspaces/" + e(workspaceId),
 			Map.of("workspace-name", newName)
+		);
+
+		return isInvalidResponse(response) ? Result.FAIL : Result.OK;
+	}
+
+	public static Result editWorkspaceWritePermissions(String workspaceId, List<ExternalOwner> owners) {
+		var response = patch(
+			"/api/v0/workspaces/" + e(workspaceId),
+			Map.of("write", GsonTools.getInstance().toJson(owners.stream().map(ExternalOwner::getId).collect(Collectors.toList())))
+		);
+
+		return isInvalidResponse(response) ? Result.FAIL : Result.OK;
+	}
+
+	public static Result editWorkspaceReadPermissions(String workspaceId, List<ExternalOwner> owners) {
+		var response = patch(
+			"/api/v0/workspaces/" + e(workspaceId),
+			Map.of("read", GsonTools.getInstance().toJson(owners.stream().map(ExternalOwner::getId).collect(Collectors.toList())))
 		);
 
 		return isInvalidResponse(response) ? Result.FAIL : Result.OK;
@@ -938,7 +965,7 @@ public class EduAPI {
 		 * Represents if the should be prompted for various different questions, such as Image Type.
 		 * AuthTypes without any write access should return false.
 		 */
-		private boolean prompt;
+		private final boolean prompt;
 
 		AuthType(boolean prompt) {
 			this.prompt = prompt;

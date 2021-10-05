@@ -4,21 +4,11 @@ import qupath.edu.api.Roles;
 
 import java.util.List;
 
-public class ExternalUser {
+public class ExternalUser extends ExternalOwner {
 
-    private String id;
-    private String name;
     private String email;
     private ExternalOrganization organization;
     private List<Roles> roles;
-
-    public String getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
 
     public String getEmail() {
         return email;
@@ -49,7 +39,7 @@ public class ExternalUser {
     }
 
     public List<Roles> getRoles() {
-        return roles;
+        return roles == null ? List.of() : roles;
     }
 
     @Override
