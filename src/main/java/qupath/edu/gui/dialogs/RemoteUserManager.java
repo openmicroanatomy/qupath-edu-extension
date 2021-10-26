@@ -398,6 +398,11 @@ public class RemoteUserManager {
                 return;
             }
 
+            if (cbOrganization.getValue() == null) {
+                Dialogs.showErrorNotification("Error", "Please select an organization");
+                return;
+            }
+
             Optional<ExternalUser> user = EduAPI.createUser(
                 tfPassword.getText(), tfEmail.getText(), tfName.getText(), cbOrganization.getValue().getId()
             );
