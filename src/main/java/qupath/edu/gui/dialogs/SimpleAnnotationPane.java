@@ -3,7 +3,6 @@ package qupath.edu.gui.dialogs;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.sun.javafx.scene.control.skin.Utils;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;

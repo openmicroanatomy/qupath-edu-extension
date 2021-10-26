@@ -53,7 +53,7 @@ public final class NaturalOrderComparator<T> implements Comparator<T> {
                 }
             } else if (ca > cb) {
                 if (bias == 0)
-                    bias = +1;
+                    bias = 1;
             } else if (ca == 0) {
                 return bias;
             }

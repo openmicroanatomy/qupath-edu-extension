@@ -10,8 +10,6 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import qupath.edu.gui.FocusingTextFieldTableCell;
 import qupath.edu.util.ReflectionUtil;
-import qupath.edu.api.EduAPI;
-import qupath.edu.api.Roles;
 import qupath.lib.gui.dialogs.Dialogs;
 import qupath.lib.gui.tools.PaneTools;
 import qupath.lib.io.GsonTools;

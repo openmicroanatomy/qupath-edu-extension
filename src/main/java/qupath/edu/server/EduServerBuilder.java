@@ -13,10 +13,6 @@ public class EduServerBuilder implements ImageServerBuilder<BufferedImage> {
 
     private static Logger logger = LoggerFactory.getLogger(EduServerBuilder.class);
 
-    static {
-        // TODO: Does this require some initial checks?
-    }
-
     @Override
     public ImageServer<BufferedImage> buildServer(URI uri, String...args) {
         try {

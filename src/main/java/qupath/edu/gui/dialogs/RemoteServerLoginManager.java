@@ -25,8 +25,6 @@ import org.slf4j.LoggerFactory;
 import qupath.edu.EduExtension;
 import qupath.edu.EduOptions;
 import qupath.edu.api.EduAPI;
-import qupath.edu.api.Roles;
-import qupath.edu.exceptions.HttpException;
 import qupath.edu.models.ExternalOrganization;
 import qupath.edu.models.ServerConfiguration;
 import qupath.lib.gui.QuPathGUI;

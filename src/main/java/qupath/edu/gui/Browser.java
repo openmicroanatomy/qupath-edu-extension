@@ -14,7 +14,6 @@ import javafx.scene.web.WebView;
 import netscape.javascript.JSException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import qupath.lib.gui.QuPathGUI;
 
 import java.awt.*;
 import java.net.URI;
