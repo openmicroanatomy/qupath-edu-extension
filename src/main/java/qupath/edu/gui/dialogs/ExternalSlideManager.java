@@ -300,7 +300,7 @@ public class ExternalSlideManager {
         valueColumn.setEditable(true);
 
         propertiesTable.getColumns().addAll(keyColumn, valueColumn);
-        propertiesTable.getItems().addAll(slide.getParameters().entrySet());
+        propertiesTable.getItems().addAll(slide.getProperties().entrySet());
         propertiesTable.getSortOrder().add(keyColumn);
 
         Dialogs.builder()
@@ -403,7 +403,7 @@ public class ExternalSlideManager {
         }
     }
 
-    private class UploadSlideTask extends Task<Void> {
+    private static class UploadSlideTask extends Task<Void> {
 
         private File file;
         private String filename;
