@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import qupath.edu.api.EduAPI;
 import qupath.edu.exceptions.HttpException;
 import qupath.edu.gui.dialogs.WorkspaceManager;
+import qupath.edu.util.PathAnnotationObjectWithMetadata;
 import qupath.lib.classifiers.object.ObjectClassifier;
 import qupath.lib.classifiers.pixel.PixelClassifier;
 import qupath.lib.common.GeneralTools;
@@ -20,6 +21,7 @@ import qupath.lib.images.servers.ImageServer;
 import qupath.lib.images.servers.ImageServerBuilder;
 import qupath.lib.io.GsonTools;
 import qupath.lib.io.PathIO;
+import qupath.lib.objects.PathAnnotationObject;
 import qupath.lib.objects.classes.PathClass;
 import qupath.lib.objects.hierarchy.PathObjectHierarchy;
 import qupath.lib.projects.Project;
@@ -37,6 +39,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * Data structure to store multiple images and their respective data.
@@ -600,7 +603,14 @@ public class EduProject implements Project<BufferedImage> {
 
 			try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
 				PathIO.writeImageData(os, imageData);
-				this.annotations = GsonTools.getInstance().toJson(imageData.getHierarchy().getAnnotationObjects());
+
+				// TODO: Temporary fix until resolved in upstream
+				Collection<PathAnnotationObjectWithMetadata> annotations = imageData.getHierarchy().getAnnotationObjects()
+						.stream()
+						.map(annotation -> new PathAnnotationObjectWithMetadata((PathAnnotationObject) annotation))
+						.collect(Collectors.toList());
+
+				this.annotations = GsonTools.getInstance().toJson(annotations);
 				this.imageData = Base64.getEncoder().encodeToString(os.toByteArray());
 			} catch (IOException e) {
 				Dialogs.showErrorNotification("Error while saving image data", e);
