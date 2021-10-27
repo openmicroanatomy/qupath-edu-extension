@@ -7,6 +7,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -185,6 +186,11 @@ public class RemoteServerLoginManager {
         labPassword.setLabelFor(tfPassword);
         tfPassword.setPromptText("********");
 
+        /* Buttons */
+
+        Hyperlink btnReset = new Hyperlink("Forgot password");
+        btnReset.setOnAction(a -> new PasswordResetGUI().showRequestPasswordResetTokenDialog());
+
         /* Constraints */
 
         ColumnConstraints labelColumn = new ColumnConstraints();
@@ -196,15 +202,19 @@ public class RemoteServerLoginManager {
         /* Pane */
 
         GridPane loginPane = new GridPane();
-        loginPane.getColumnConstraints().addAll(labelColumn, textFieldColumn);
-        loginPane.setHgap(5);
+        loginPane.setPrefWidth(250);
         loginPane.setVgap(5);
 
         int row = 0;
-        loginPane.add(labEmail, 0, row);
-        loginPane.add(tfEmail, 1, row++);
-        loginPane.add(labPassword, 0, row);
-        loginPane.add(tfPassword, 1, row);
+        loginPane.add(labEmail,    0, row++);
+        loginPane.add(tfEmail,     0, row++);
+        loginPane.add(labPassword, 0, row++);
+        loginPane.add(tfPassword,  0, row++);
+        loginPane.add(btnReset,    0, row);
+
+        GridPane.setHgrow(tfEmail, Priority.ALWAYS);
+        GridPane.setHgrow(tfPassword, Priority.ALWAYS);
+        GridPane.setHalignment(btnReset, HPos.RIGHT);
 
         /* Dialog */
 

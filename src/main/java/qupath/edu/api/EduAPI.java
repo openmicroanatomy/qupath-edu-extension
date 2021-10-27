@@ -335,6 +335,28 @@ public class EduAPI {
 		readPermissionCache.clear();
 	}
 
+	/* Password */
+
+	public static boolean requestPasswordResetToken(String email) {
+		var response = post("/api/v0/password/recovery",
+			Map.of(
+				"email", email
+			)
+		);
+
+		return !isInvalidResponse(response);
+	}
+
+	public static boolean resetPassword(String token, String password) {
+		var response = post("/api/v0/password/set/" + e(token),
+			Map.of(
+				"password", password
+			)
+		);
+
+		return !isInvalidResponse(response);
+	}
+
 	/* Users */
 
 	public static List<ExternalUser> getAllUsers() {
