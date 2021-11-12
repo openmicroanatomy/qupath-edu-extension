@@ -16,14 +16,7 @@ import java.util.*;
 import java.util.List;
 
 /**
- * EduImageServer is based on the OpenslideImageServer implementation
- *
- * TODO:
- *  - Associated images
- *  - Bounds
- *  - BioFormats support [These changes need to be made on the server most likely]
- *
- * @author Pete Bankhead, Aaron Yli-Hallila
+ * EduImageServer is based on the {@link qupath.lib.images.servers.openslide.OpenslideImageServer} implementation.
  *
  */
 public class EduImageServer extends AbstractTileableImageServer {
@@ -36,11 +29,10 @@ public class EduImageServer extends AbstractTileableImageServer {
 
     private int boundsX, boundsY, boundsWidth, boundsHeight;
 
-    private URI uri;
+    private final URI uri;
     private String[] args;
 
     private String serverURI;
-
 
     private static double readJsonPropertyOrDefault(JsonObject json, String parameter, double defaultValue) {
         if (json.has(parameter)) {
@@ -53,10 +45,6 @@ public class EduImageServer extends AbstractTileableImageServer {
     public EduImageServer(URI uri, String...args) throws IOException {
         super();
         this.uri = uri;
-
-        // Ensure the garbage collector has run - otherwise any previous attempts to load the required native library
-        // from different classloader are likely to cause an error (although upon first further investigation it seems this doesn't really solve the problem...)
-        System.gc();
 
         initialize(args);
     }
