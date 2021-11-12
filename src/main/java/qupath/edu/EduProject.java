@@ -563,7 +563,7 @@ public class EduProject implements Project<BufferedImage> {
 		 */
 		private ImageData<BufferedImage> readImageDataBase64() throws IOException {
 			try (ByteArrayInputStream is = new ByteArrayInputStream(Base64.getDecoder().decode(imageData))) {
-				ImageData<BufferedImage> imageData = PathIO.readImageData(is, null, null, BufferedImage.class);
+				ImageData<BufferedImage> imageData = PathIO.readImageData(is, null, serverBuilder.build(), BufferedImage.class);
 
 				// The IMAGE_ID property is missing in some circumstances which causes slides to duplicate when opening
 				if (!imageData.getProperties().containsKey(IMAGE_ID)) {
@@ -573,6 +573,8 @@ public class EduProject implements Project<BufferedImage> {
 				imageData.setChanged(false);
 
 				return imageData;
+			} catch (Exception e) {
+				throw new IOException(e);
 			}
 		}
 
