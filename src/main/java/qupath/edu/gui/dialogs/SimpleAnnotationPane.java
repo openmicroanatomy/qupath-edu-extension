@@ -49,7 +49,7 @@ public class SimpleAnnotationPane implements PathObjectSelectionListener, Change
 
     private final static Logger logger = LoggerFactory.getLogger(SimpleAnnotationPane.class);
 
-    public static final String ANSWER_KEY = "eduAnswer";
+    public static final String ANSWER_KEY = "EDU_ANSWER";
 
     private QuPathGUI qupath;
     private ImageData<BufferedImage> imageData;
