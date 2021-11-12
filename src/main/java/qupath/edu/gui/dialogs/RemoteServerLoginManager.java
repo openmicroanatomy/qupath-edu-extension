@@ -19,6 +19,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.dialog.ProgressDialog;
 import org.slf4j.Logger;
@@ -341,13 +342,16 @@ public class RemoteServerLoginManager {
             if (item == null || empty) {
                 setGraphic(null);
             } else {
-                Image image = new Image(item.getLogoUrl());
+                Image image = new Image(item.getLogoUrl(), true);
+                image.progressProperty().addListener((obs, o, n) -> {
+                    if (image.getException() == null) {
+                        setLogoAsGraphic(image);
+                    } else {
+                        setNameAsGraphic(item.getName());
+                    }
+                });
 
-                if (image.getException() == null) {
-                    setLogoAsGraphic(image);
-                } else {
-                    setNameAsGraphic(item.getName());
-                }
+                setNameAsGraphic(item.getName());
             }
         }
 
@@ -360,15 +364,26 @@ public class RemoteServerLoginManager {
                 imageView.setFitWidth(310);
             }
 
+            imageView.setFitHeight(80);
             imageView.setPreserveRatio(true);
             imageView.setSmooth(true);
             imageView.setCache(true);
 
+            setAlignment(Pos.CENTER);
             setGraphic(imageView);
         }
 
         private void setNameAsGraphic(String name) {
-            setGraphic(new Text(name));
+            BorderPane pane = new BorderPane();
+            pane.setCenter(new Text(name));
+
+            if (buttonCell) {
+                pane.setPrefSize(330, 80);
+            } else {
+                pane.setPrefSize(310, 80);
+            }
+
+            setGraphic(pane);
         }
     }
 
