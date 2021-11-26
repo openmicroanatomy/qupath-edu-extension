@@ -25,6 +25,10 @@ public class ExternalSlide {
         return owner;
     }
 
+    public String getOwnerReadable() { // Accessed via Reflection by ExternalSlideManager
+        return owner.getName();
+    }
+
     public Map<String, String> getProperties() {
         return properties;
     }
