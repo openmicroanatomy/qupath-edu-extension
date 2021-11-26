@@ -76,12 +76,12 @@ public class PasswordResetGUI {
         Platform.runLater(tfToken::requestFocus);
 
         Label labPassword = new Label("Password");
-        TextField tFPassword = new TextField();
+        PasswordField tFPassword = new PasswordField();
         tFPassword.setPromptText("Password");
         labPassword.setLabelFor(labPassword);
 
         Label labRepeatPassword = new Label("Repeat password");
-        TextField tfRepeatPassword = new TextField();
+        PasswordField tfRepeatPassword = new PasswordField();
         tfRepeatPassword.setPromptText("Repeat password");
         labRepeatPassword.setLabelFor(labRepeatPassword);
 
