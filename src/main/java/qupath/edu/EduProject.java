@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import qupath.edu.api.EduAPI;
 import qupath.edu.exceptions.HttpException;
 import qupath.edu.gui.dialogs.WorkspaceManager;
+import qupath.edu.server.EduServerBuilder;
 import qupath.edu.util.PathAnnotationObjectWithMetadata;
 import qupath.lib.classifiers.object.ObjectClassifier;
 import qupath.lib.classifiers.pixel.PixelClassifier;
@@ -429,7 +430,7 @@ public class EduProject implements Project<BufferedImage> {
 		/**
 		 * True if currently trying to fetch the thumbnail async.
 		 */
-		private transient boolean waitingForThumbnail = false;
+		private transient boolean thumbnailAvailable = false;
 
 		/**
 		 * JSON Representation of annotations. <b>Temporary until ImageData is fully JSON serializable!</b>
@@ -651,22 +652,16 @@ public class EduProject implements Project<BufferedImage> {
 		 * Tries to download the thumbnail from the QuPath Edu Server, fallbacks to trying to generate one client-side.
 		 */
 		@Override public BufferedImage getThumbnail() {
-			if (waitingForThumbnail && thumbnail == null) {
-				return null;
-			}
-
-			if (thumbnail != null) {
+			if (thumbnailAvailable) {
 				return thumbnail;
 			}
 
 			CompletableFuture.runAsync(() -> {
-				waitingForThumbnail = true;
-
 				if (!(fetchThumbnailFromServer())) {
 					generateThumbnail();
 				}
 
-				waitingForThumbnail = false;
+				thumbnailAvailable = true;
 
 				// TODO: Make this run only once; this currently cascades into refreshing the project multiple times
 				QuPathGUI.getInstance().refreshProject();
@@ -676,8 +671,8 @@ public class EduProject implements Project<BufferedImage> {
 		}
 
 		@Override
-		public void setThumbnail(BufferedImage img) {
-			this.thumbnail = img;
+		public void setThumbnail(BufferedImage thumbnail) {
+			this.thumbnail = thumbnail;
 		}
 
 		/**
@@ -686,6 +681,10 @@ public class EduProject implements Project<BufferedImage> {
 		 * @return true when fetching the thumbnail was a success
 		 */
 		private boolean fetchThumbnailFromServer() {
+			if (!(serverBuilder instanceof EduServerBuilder)) {
+				return false;
+			}
+
 			String property = "openslide.thumbnail.uri";
 
 			try {
@@ -710,16 +709,14 @@ public class EduProject implements Project<BufferedImage> {
 		 *
 		 * @return true when generating the thumbnail was a succes.
 		 */
-		private boolean generateThumbnail() {
+		private void generateThumbnail() {
+			setThumbnail(null);
+
 			try {
 				setThumbnail(ProjectCommands.getThumbnailRGB(serverBuilder.build()));
-
-				return true;
 			} catch (Exception e) {
 				logger.error("Unable to generate thumbnail for {}", entryID, e);
 			}
-
-			return false;
 		}
 
 		@Override
