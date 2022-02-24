@@ -580,7 +580,7 @@ public class EduAPI {
 		HttpRequest request = builder.build();
 
 		HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-		return response.statusCode() == 200 ? Result.OK : Result.FAIL;
+		return isInvalidResponse(Optional.of(response)) ? Result.FAIL : Result.OK;
 	}
 
 	public static URI getSlideUploadURL(String fileName, long fileSize, int chunkIndex, int chunkSize) {
@@ -712,8 +712,11 @@ public class EduAPI {
 		try {
 			String boundary = new BigInteger(256, new Random()).toString();
 			Map<Object, Object> data = new LinkedHashMap<>();
-			data.put("logo", Files.readAllBytes(logo.toPath()));
 			data.put("name", name);
+
+			if (logo != null) {
+				data.put("logo", Files.readAllBytes(logo.toPath()));
+			}
 
 			HttpClient client = getHttpClient();
 			HttpRequest.Builder builder = HttpRequest.newBuilder()
