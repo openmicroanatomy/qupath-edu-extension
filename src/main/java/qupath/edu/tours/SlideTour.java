@@ -1,6 +1,5 @@
 package qupath.edu.tours;
 
-import com.google.common.collect.Lists;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -469,7 +468,7 @@ public class SlideTour implements QuPathViewerListener {
 		if (qupath.getProject() instanceof EduProject project) {
 			var slide = (EduProject.EduProjectImageEntry) project.getEntry(imageData);
 
-			slide.setSlideTour(Lists.newArrayList(tourEntries));
+			slide.setSlideTour(Collections.unmodifiableList(tourEntries));
 		} else {
 			logger.error("Error when saving slide tour data");
 		}
