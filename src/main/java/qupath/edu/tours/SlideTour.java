@@ -1,5 +1,6 @@
 package qupath.edu.tours;
 
+import com.google.common.collect.Lists;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -34,7 +35,6 @@ import qupath.lib.gui.tools.PaneTools;
 import qupath.lib.gui.viewer.QuPathViewer;
 import qupath.lib.gui.viewer.QuPathViewerListener;
 import qupath.lib.images.ImageData;
-import qupath.lib.io.GsonTools;
 import qupath.lib.objects.PathObject;
 
 import java.awt.*;
@@ -49,8 +49,6 @@ import static javafx.beans.binding.Bindings.when;
 public class SlideTour implements QuPathViewerListener {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-
-	private final String TOUR_ENTRIES_KEY = "TOUR_ENTRIES";
 
 	private final QuPathGUI qupath = QuPathGUI.getInstance();
 	private QuPathViewer viewer;
@@ -468,11 +466,12 @@ public class SlideTour implements QuPathViewerListener {
 	 * Saves the entries in the current images metadata.
 	 */
 	private void syncSlideTours() {
-		try {
-			imageDataChanged = true;
-			this.imageData.setProperty(TOUR_ENTRIES_KEY, GsonTools.getInstance().toJson(tourEntries));
-		} catch (Exception e) {
-			logger.error("Error when saving slide tour data", e);
+		if (qupath.getProject() instanceof EduProject project) {
+			var slide = (EduProject.EduProjectImageEntry) project.getEntry(imageData);
+
+			slide.setSlideTour(Lists.newArrayList(tourEntries));
+		} else {
+			logger.error("Error when saving slide tour data");
 		}
 	}
 
@@ -545,10 +544,11 @@ public class SlideTour implements QuPathViewerListener {
 		this.isTourActive = false;
 		this.tourEntries.clear();
 
-		if (imageData != null && imageData.getProperties().containsKey(TOUR_ENTRIES_KEY)) {
+		if (imageData != null && qupath.getProject() instanceof EduProject project) {
+			var slide = (EduProject.EduProjectImageEntry) project.getEntry(imageData);
+
 			try {
-				SlideTourEntry[] entries = GsonTools.getInstance().fromJson((String) imageData.getProperty(TOUR_ENTRIES_KEY), SlideTourEntry[].class);
-				this.tourEntries.addAll(FXCollections.observableArrayList(entries));
+				this.tourEntries.addAll(FXCollections.observableArrayList(slide.getSlideTour()));
 			} catch (Exception e) {
 				logger.error("Error when loading slide tour", e);
 			}

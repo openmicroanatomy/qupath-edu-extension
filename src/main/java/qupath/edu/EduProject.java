@@ -10,6 +10,7 @@ import qupath.edu.api.EduAPI;
 import qupath.edu.exceptions.HttpException;
 import qupath.edu.gui.dialogs.WorkspaceManager;
 import qupath.edu.server.EduServerBuilder;
+import qupath.edu.tours.SlideTourEntry;
 import qupath.edu.util.PathAnnotationObjectWithMetadata;
 import qupath.lib.classifiers.object.ObjectClassifier;
 import qupath.lib.classifiers.pixel.PixelClassifier;
@@ -385,7 +386,7 @@ public class EduProject implements Project<BufferedImage> {
 		return "EduProject: " + name;
 	}
 
-	class EduProjectImageEntry implements ProjectImageEntry<BufferedImage> {
+	public class EduProjectImageEntry implements ProjectImageEntry<BufferedImage> {
 
 		/**
 		 * ServerBuilder. This should be lightweight & capable of being JSON-ified.
@@ -421,6 +422,11 @@ public class EduProject implements Project<BufferedImage> {
 		 * ImageData as a base64 encoded string.
 		 */
 		private String imageData;
+
+		/**
+		 * SlideTour as Base64 encoded JSON.
+		 */
+		private byte[] slideTour;
 
 		/**
 		 * Thumbnail for this slide.
@@ -469,6 +475,7 @@ public class EduProject implements Project<BufferedImage> {
 			this.metadata = entry.metadata;
 			this.imageData = entry.imageData;
 			this.thumbnail = entry.thumbnail;
+			this.slideTour = entry.slideTour;
 		}
 
 		@Override
@@ -618,6 +625,14 @@ public class EduProject implements Project<BufferedImage> {
 			} catch (IOException e) {
 				Dialogs.showErrorNotification("Error while saving image data", e);
 			}
+		}
+
+		public List<SlideTourEntry> getSlideTour() {
+			return List.of(GsonTools.getInstance().fromJson(new String(Base64.getDecoder().decode(slideTour)), SlideTourEntry[].class));
+		}
+
+		public void setSlideTour(List<SlideTourEntry> entries) {
+			this.slideTour = Base64.getEncoder().encode(GsonTools.getInstance().toJson(entries).getBytes(StandardCharsets.UTF_8));
 		}
 
 		@Override
