@@ -6,41 +6,44 @@ _Use QuPath for teaching histology and pathology._
 
 ## 🤝 Introduction
 
-**QuPath Edu** is an **extension for QuPath** to make it support teaching pathology & histology.
+**QuPath Edu** is an **_extension_ for QuPath** that makes it possible for QuPath to be used for teaching histology and pathology.
 
-QuPath Edu is developed by the [University of Oulu](#) in collaboration with the QuPath developers from the [University of Edinburgh](#).
+QuPath Edu is developed by the [University of Oulu](https://www.oulu.fi/en/university/faculties-and-units/faculty-medicine) in collaboration with the QuPath developers from the [University of Edinburgh](https://www.ed.ac.uk/pathology).
 
 ## 👩‍🎓 Students & Teachers
 
-1. Install [QuPath](#)
-2. [Download](#) the QuPath Edu extension and install it
-    - See [here](#) for instructions on how to install QuPath extensions
-3. Connect to your institutions server
-    - Refer to your course materials for this! Check [here](#) if you're lost.
-4. Start using QuPath to study! 🐱‍🏍
+1. Install [QuPath](https://qupath.readthedocs.io/en/stable/docs/intro/installation.html) by following the instructions
+2. [Download](https://github.com/yli-hallila/qupath-edu-extension/releases) the QuPath Edu extension
+3. Install the extension by drag and dropping the downloaded ``.jar`` file to the QuPath viewer
+    - See [here](https://github.com/qupath/qupath/wiki/Creating-extensions#installing-extensions) for more detailed instructions on how to install QuPath extensions
+4. Connect to your institutions server
+    - Refer to your course materials if you don't know where to connect to
+5. Start using QuPath to study! 🐱‍🏍
 
 # 🏫 Administrators
 
-Setting up QuPath Edu includes installing the QuPath Edu Server.
-
-The [yli-hallila/qupath-edu-server](#) repository has all the information you need for setting up the server.
+Setting up QuPath Edu includes installing the [QuPath Edu Server](https://github.com/yli-hallila/qupath-edu-server). The [wiki](https://github.com/yli-hallila/qupath-edu-extension/wiki) has all the information you need for setting up the server.
 
 # 🆘 Help
 
-See the [wiki pages](#) for more detailed instructions about everything QuPath Edu related.
+See the [wiki pages](https://github.com/yli-hallila/qupath-edu-extension/wiki) for more detailed instructions about everything QuPath Edu related.
 
-**Still stuck?** Check the _Known issues_ below and feel free to [open a new Github issue](#) and we'll try to get you sorted out!
+**Still stuck?** Check the _Known issues_ below and feel free to [open a new GitHub issue](https://github.com/yli-hallila/qupath-edu-extension/issues) and we'll try to get you sorted out!
 
 ## 🤑 Support
 
-This project is made possible with a generous grant from [The Pathological Society of Great Britain & Ireland](#).
+This project is made possible with a generous grant from [The Pathological Society of Great Britain & Ireland](https://www.pathsoc.org/).
 
 ## 🔨 Developers
 
-See the [CONTRIBUTING.md](#) on instructions on how to contribute to the project, how to build from source and other development related questions.
+See the [CONTRIBUTING.md](https://github.com/yli-hallila/qupath-edu-extension/blob/master/CONTRIBUTING.md) on instructions on how to contribute to the project, how to build from source and other development related questions.
 
 ---
 
 ### 🐞 Known issues
 
+**None currently** 🤗
+
 ### 🔜 Future plans
+
+- Support for BioFormats
