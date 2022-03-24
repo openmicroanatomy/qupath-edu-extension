@@ -40,7 +40,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
@@ -57,6 +58,8 @@ public class EduProject implements Project<BufferedImage> {
 	public final static String IMAGE_ID = "PROJECT_ENTRY_ID";
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
+
+	private final ExecutorService thumbnailLoader = Executors.newSingleThreadExecutor();
 
 	private List<EduProjectImageEntry> images = new ArrayList<>();
 
@@ -452,7 +455,7 @@ public class EduProject implements Project<BufferedImage> {
 		/**
 		 * True if currently trying to fetch the thumbnail async.
 		 */
-		private transient boolean thumbnailAvailable = false;
+		private transient ThumbnailState thumbnailState = ThumbnailState.NOT_INITIALIZED;
 
 		/**
 		 * JSON Representation of annotations. <b>Temporary until ImageData is fully JSON serializable!</b>
@@ -683,20 +686,30 @@ public class EduProject implements Project<BufferedImage> {
 		 * Tries to download the thumbnail from the QuPath Edu Server, fallbacks to trying to generate one client-side.
 		 */
 		@Override public BufferedImage getThumbnail() {
-			if (thumbnailAvailable) {
+			if (thumbnailState == ThumbnailState.LOADED) {
 				return thumbnail;
 			}
 
-			CompletableFuture.runAsync(() -> {
-				if (!(fetchThumbnailFromServer())) {
-					generateThumbnail();
-				}
+			if (thumbnailState == ThumbnailState.FAILURE) {
+				return null;
+			}
 
-				thumbnailAvailable = true;
+			if (thumbnailState == ThumbnailState.NOT_INITIALIZED) {
+				thumbnailState = ThumbnailState.LOADING;
 
-				// TODO: Make this run only once; this currently cascades into refreshing the project multiple times
-				QuPathGUI.getInstance().refreshProject();
-			});
+				thumbnailLoader.submit(() -> {
+					// First try to fetch the thumbnail from the server, then try to generate it.
+					if (fetchThumbnailFromServer() || generateThumbnail()) {
+						thumbnailState = ThumbnailState.LOADED;
+
+						QuPathGUI.getInstance().refreshProject();
+					} else {
+						thumbnailState = ThumbnailState.FAILURE;
+
+						// We don't need to refresh the project here as the thumbnail is already null.
+					}
+				});
+			}
 
 			return null;
 		}
@@ -738,16 +751,20 @@ public class EduProject implements Project<BufferedImage> {
 		/**
 		 * Tries to generate the thumbnail client-side.
 		 *
-		 * @return true when generating the thumbnail was a succes.
+		 * @return true when generating the thumbnail was a success.
 		 */
-		private void generateThumbnail() {
+		private boolean generateThumbnail() {
 			setThumbnail(null);
 
 			try {
 				setThumbnail(ProjectCommands.getThumbnailRGB(serverBuilder.build()));
+
+				return true;
 			} catch (Exception e) {
 				logger.error("Unable to generate thumbnail for {}", entryID, e);
 			}
+
+			return false;
 		}
 
 		@Override
@@ -776,5 +793,12 @@ public class EduProject implements Project<BufferedImage> {
 		public String getAnnotations() {
 			return annotations;
 		}
+	}
+
+	private enum ThumbnailState {
+		NOT_INITIALIZED,
+		LOADING,
+		LOADED,
+		FAILURE
 	}
 }
