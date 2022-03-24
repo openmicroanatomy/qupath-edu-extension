@@ -55,7 +55,6 @@ import java.util.stream.Collectors;
 public class EduProject implements Project<BufferedImage> {
 
 	public final static String IMAGE_ID = "PROJECT_ENTRY_ID";
-	public final static String PROJECT_INFORMATION = "PROJECT_INFORMATION";
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -66,6 +65,7 @@ public class EduProject implements Project<BufferedImage> {
 
 	private String name;
 	private String id;
+	private String projectInformation;
 
 	private boolean maskNames = false;
 	private LinkedHashMap<String, String> metadata = null;
@@ -80,6 +80,10 @@ public class EduProject implements Project<BufferedImage> {
 		id = element.get("id").getAsString();
 		creationTimestamp = element.get("createTimestamp").getAsLong();
 		modificationTimestamp = element.get("modifyTimestamp").getAsLong();
+
+		if (element.has("projectInformation")) {
+			projectInformation = element.get("projectInformation").getAsString();
+		}
 
 		if (element.has("version")) {
 			version = element.get("version").getAsString();
@@ -237,6 +241,10 @@ public class EduProject implements Project<BufferedImage> {
 			builder.addProperty("metadata", Base64.getEncoder().encodeToString(gson.toJson(metadata).getBytes(StandardCharsets.UTF_8)));
 		}
 
+		if (projectInformation != null) {
+			builder.addProperty("projectInformation", projectInformation);
+		}
+
 		builder.add("images", gson.toJsonTree(images));
 
 		syncChangesToServer(gson.toJson(builder));
@@ -342,6 +350,14 @@ public class EduProject implements Project<BufferedImage> {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public String getProjectInformation() {
+		return projectInformation;
+	}
+
+	public void setProjectInformation(String projectInformation) {
+		this.projectInformation = projectInformation;
 	}
 
 	@Override

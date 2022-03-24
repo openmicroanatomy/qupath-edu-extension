@@ -17,11 +17,11 @@ public class ProjectDescriptionEditorCommand {
 
     public static void openDescriptionEditor() {
         if (qupath.getProject() instanceof EduProject project) {
-            String initialInput = (String) project.retrieveMetadataValue(EduProject.PROJECT_INFORMATION);
+            String initialInput = project.getProjectInformation();
             Optional<String> result = CustomDialogs.showWYSIWYGEditor(initialInput);
 
             if (result.isPresent()) {
-                project.storeMetadataValue(EduProject.PROJECT_INFORMATION, result.get());
+                project.setProjectInformation(result.get());
                 EduExtension.setProjectInformation(result.get());
 
                 try {

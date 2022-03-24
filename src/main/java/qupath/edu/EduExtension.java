@@ -143,12 +143,12 @@ public class EduExtension implements QuPathExtension, GitHubProject {
             if (newProject == null) {
                 projectInformation.setContent("No project open");
             } else if (newProject instanceof EduProject project) {
-                Object informationText = project.retrieveMetadataValue(EduProject.PROJECT_INFORMATION);
+                String projectInformation = project.getProjectInformation();
 
-                if (informationText == null) {
-                    projectInformation.setContent("No information available for this project");
+                if (projectInformation == null) {
+                    EduExtension.projectInformation.setContent("No information available for this project");
                 } else {
-                    projectInformation.setContent((String) informationText);
+                    EduExtension.projectInformation.setContent(projectInformation);
                 }
             } else {
                 projectInformation.setContent("No information available for this project");
