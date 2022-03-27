@@ -77,6 +77,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         }
 
         initializePreferences();
+        notifyWhenEnablingOrDisablingExtension();
 
         if (!EduOptions.extensionEnabled().get()) {
             return;
@@ -341,6 +342,24 @@ public class EduExtension implements QuPathExtension, GitHubProject {
                 Dialogs.showErrorMessage("Sync error", "Error while syncing project");
             }
         }
+    }
+
+    /**
+     * Notify and prompt the user to exit QuPath when enabling or disabling the extension.
+     */
+    private void notifyWhenEnablingOrDisablingExtension() {
+        EduOptions.extensionEnabled().addListener((obs, o, isEnabled) -> {
+            var exit = Dialogs.showYesNoDialog(
+                "Restart required",
+                "QuPath must be restarted after " + (isEnabled ? "enabling" : "disabling") + " the Edu Extension." +
+                "\n\n" +
+                "Exit QuPath now?"
+            );
+
+            if (exit) {
+                Platform.exit();
+            }
+        });
     }
 
     /**
