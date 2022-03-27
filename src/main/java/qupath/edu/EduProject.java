@@ -63,7 +63,6 @@ public class EduProject implements Project<BufferedImage> {
 
 	private List<EduProjectImageEntry> images = new ArrayList<>();
 
-	private String LATEST_VERSION = GeneralTools.getVersion();
 	private String version;
 
 	private String name;
@@ -236,7 +235,7 @@ public class EduProject implements Project<BufferedImage> {
 
 		JsonObject builder = new JsonObject();
 		builder.addProperty("id", id);
-		builder.addProperty("version", LATEST_VERSION);
+		builder.addProperty("version", "1.0");
 		builder.addProperty("createTimestamp", getCreationTimestamp());
 		builder.addProperty("modifyTimestamp", System.currentTimeMillis());
 
