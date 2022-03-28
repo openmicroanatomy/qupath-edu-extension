@@ -271,7 +271,7 @@ public class EduAPI {
 	/* Master server API */
 
 	public static List<Server> fetchPublicServers() {
-		var response = get("/api/servers.json", MASTER_SERVER);
+		var response = get("/api/servers", MASTER_SERVER);
 
 		if (isInvalidResponse(response)) {
 			return Collections.emptyList();
