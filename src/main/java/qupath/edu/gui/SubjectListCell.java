@@ -39,7 +39,7 @@ public class SubjectListCell extends ListCell<ExternalSubject> {
 
         /* Buttons */
 
-        Button btnModify = IconButtons.createIconButton(FontAwesome.Glyph.EDIT, "Edit");
+        Button btnModify = IconButtons.createIconButton(FontAwesome.Glyph.EDIT, "Rename");
         btnModify.setOnAction(a -> workspaceManager.renameSubject(item));
 
         Button btnDelete = IconButtons.createIconButton(FontAwesome.Glyph.TRASH, "Delete");

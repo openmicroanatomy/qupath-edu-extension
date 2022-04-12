@@ -103,7 +103,7 @@ public class EditModeManager {
 
                     project.syncChanges();
                 } catch (IOException e) {
-                    Dialogs.showErrorNotification("Error while saving project", e.getMessage());
+                    Dialogs.showErrorNotification("Error while saving changes", e.getMessage());
                 }
 
                 qupath.setReadOnly(true);

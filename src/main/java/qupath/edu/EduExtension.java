@@ -142,17 +142,17 @@ public class EduExtension implements QuPathExtension, GitHubProject {
     private void onProjectChange() {
         qupath.projectProperty().addListener((obs, oldProject, newProject) -> {
             if (newProject == null) {
-                projectInformation.setContent("No project open");
+                projectInformation.setContent("No lesson open");
             } else if (newProject instanceof EduProject project) {
                 String projectInformation = project.getProjectInformation();
 
                 if (projectInformation == null) {
-                    EduExtension.projectInformation.setContent("No information available for this project");
+                    EduExtension.projectInformation.setContent("No information available for this lesson");
                 } else {
                     EduExtension.projectInformation.setContent(projectInformation);
                 }
             } else {
-                projectInformation.setContent("No information available for this project");
+                projectInformation.setContent("No information available for this lesson");
             }
         });
     }
@@ -193,7 +193,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
     }
 
     private void initializeMenus() {
-        Action action = createAction(ProjectDescriptionEditorCommand::openDescriptionEditor, "Edit project information");
+        Action action = createAction(ProjectDescriptionEditorCommand::openDescriptionEditor, "Edit lesson information");
         action.disabledProperty().bind(editModeManager.editModeEnabledProperty().not());
 
         qupath.getMenu("File>Project...", false).getItems().add(7,
@@ -287,7 +287,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         });
 
         tabbedPanel.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-        tabbedPanel.getTabs().add(new Tab("Project Information", projectInformation));
+        tabbedPanel.getTabs().add(new Tab("Lesson Information", projectInformation));
         tabbedPanel.getTabs().add(new Tab("Viewer", ReflectionUtil.getMainViewerPane()));
 
         ReflectionUtil.setMainViewerPane(tabbedPanel);
@@ -301,12 +301,12 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         ProjectBrowser projectBrowser = ReflectionUtil.getProjectBrowser();
 
         Button btnCreate = ActionTools.createButton(
-            ActionTools.createAction(EduExtension::showWorkspaceOrLoginDialog, "Create project"), false
+            ActionTools.createAction(EduExtension::showWorkspaceOrLoginDialog, "Create lesson"), false
         );
         btnCreate.disableProperty().bind(editModeManager.editModeEnabledProperty().not());
 
         Button btnOpen = ActionTools.createButton(
-            ActionTools.createAction(EduExtension::showWorkspaceOrLoginDialog, "Open project"), false
+            ActionTools.createAction(EduExtension::showWorkspaceOrLoginDialog, "Open lesson"), false
         );
 
         Button btnAdd = ActionTools.createButton(

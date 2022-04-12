@@ -27,7 +27,7 @@ public class ProjectDescriptionEditorCommand {
                 try {
                     project.syncChanges();
                 } catch (IOException e) {
-                    logger.error("Error while syncing project changes.");
+                    logger.error("Error while syncing changes.");
                 }
             }
         }

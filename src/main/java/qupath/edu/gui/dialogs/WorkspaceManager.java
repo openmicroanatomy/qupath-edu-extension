@@ -62,7 +62,7 @@ public class WorkspaceManager {
         WorkspaceManager manager = new WorkspaceManager(qupath);
 
         dialog = Dialogs.builder()
-                .title("Select project")
+                .title("Select lesson")
                 .content(manager.getPane())
                 .size(1000, 600)
                 .build();
@@ -117,7 +117,7 @@ public class WorkspaceManager {
         btnLogout.setFont(new Font(10));
         btnLogout.setOnAction(a -> logout());
 
-        MenuItem miOpenById = new MenuItem("Remote project");
+        MenuItem miOpenById = new MenuItem("Lesson or slide");
         miOpenById.setOnAction(this::openById);
 
         MenuItem miOpenLocalProject = new MenuItem("Local project");
@@ -148,11 +148,11 @@ public class WorkspaceManager {
         miCreateWorkspace.setOnAction(action -> createNewWorkspace());
         miCreateWorkspace.disableProperty().bind(hasAccessProperty.not());
 
-        MenuItem miCreateSubject = new MenuItem("Subject");
+        MenuItem miCreateSubject = new MenuItem("Course");
         miCreateSubject.setOnAction(action -> createNewSubject());
         miCreateSubject.disableProperty().bind(hasAccessProperty.not());
 
-        MenuItem miCreateProject = new MenuItem("Project");
+        MenuItem miCreateProject = new MenuItem("Lesson");
         miCreateProject.setOnAction(action -> createNewProject());
         miCreateProject.disableProperty().bind(hasAccessProperty.not());
 
@@ -256,7 +256,7 @@ public class WorkspaceManager {
 
     private void openById(ActionEvent actionEvent) {
         String id = Dialogs.showInputDialog(
-            "Project or slide ID",
+            "Lesson or slide ID",
             "All IDs are similar to 6ce7a026-e023-47b5-9b2e-0fc5eb523e49",
             ""
         );

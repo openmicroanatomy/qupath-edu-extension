@@ -55,7 +55,7 @@ public class BackupManager {
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.setPlaceholder(new Text("No backups, none match search criteria or no permissions."));
 
-        TableColumn<ExternalBackup, String> backupNameColumn = new TableColumn<>("Project / File name");
+        TableColumn<ExternalBackup, String> backupNameColumn = new TableColumn<>("Lesson / File name");
         backupNameColumn.setCellValueFactory(new PropertyValueFactory<>("readable"));
         backupNameColumn.setReorderable(false);
 
@@ -148,7 +148,7 @@ public class BackupManager {
 
         Dialogs.showMessageDialog(
             "Viewing a backup",
-            "You're currently viewing a backup of a project. Any changes you make here will be lost once you close the project." +
+            "You're currently viewing a backup of a lesson. Any changes you make here will be lost once you close the lesson." +
             "\n\n" +
             "If you wish to restore this backup, you can do that via the Backup Manager."
         );

@@ -233,7 +233,11 @@ public class WorkspacePermissionManager {
 
         @Override
         public void initialize(ListView<ExternalOwner> available, ListView<ExternalOwner> selected) {
-            selected.setPlaceholder(new Label("Everyone"));
+            if (write) {
+                selected.setPlaceholder(new Label("Administrators"));
+            } else {
+                selected.setPlaceholder(new Label("Everyone"));
+            }
 
             setEventHandler(ae -> {
                 StringBuilder message = new StringBuilder();
@@ -247,7 +251,11 @@ public class WorkspacePermissionManager {
                 message.append("\n\n");
 
                 if (selected.getItems().isEmpty()) {
-                    message.append("Everyone");
+                    if (write) {
+                        message.append("Administrators");
+                    } else {
+                        message.append("Everyone");
+                    }
                 }
 
                 for (ExternalOwner owner : selected.getItems()) {

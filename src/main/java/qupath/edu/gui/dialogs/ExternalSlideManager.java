@@ -148,12 +148,12 @@ public class ExternalSlideManager {
         BooleanBinding canManageSlides = new SimpleBooleanProperty(EduAPI.hasRole(Roles.MANAGE_SLIDES)).not();
 
         Button btnAddRemote = new Button("Add selected");
-        btnAddRemote.setTooltip(new Tooltip("Add selected slides to current project"));
+        btnAddRemote.setTooltip(new Tooltip("Add selected slides to current lesson"));
         btnAddRemote.disableProperty().bind(qupath.projectProperty().isNull());
         btnAddRemote.setOnAction(e -> addImages());
 
         Button btnAddLocal = new Button("Add local slide");
-        btnAddLocal.setTooltip(new Tooltip("Add a slide stored locally to current project"));
+        btnAddLocal.setTooltip(new Tooltip("Add a slide stored locally to current lesson"));
         btnAddLocal.disableProperty().bind(qupath.projectProperty().isNull());
         btnAddLocal.setOnAction(e -> ProjectCommands.promptToImportImages(qupath));
 
@@ -246,16 +246,16 @@ public class ExternalSlideManager {
 
     public static void openSlide(ExternalSlide slide) {
         if (qupath.getProject() != null) {
-            ButtonType closeProject = new ButtonType("Close project and continue", ButtonBar.ButtonData.FINISH);
-            ButtonType addToProject = new ButtonType("Add slide to project",       ButtonBar.ButtonData.OK_DONE);
+            ButtonType closeProject = new ButtonType("Close lesson and continue", ButtonBar.ButtonData.FINISH);
+            ButtonType addToProject = new ButtonType("Add slide to lesson",       ButtonBar.ButtonData.OK_DONE);
 
 
             Optional<ButtonType> confirm = Dialogs.builder()
-                .title("Proceed with adding slide to project")
+                .title("Proceed with adding slide to lesson")
                 .contentText(
-                    "Opening an slide with a project open will try to add that slide to the current project." +
+                    "Opening an slide with a lesson open will try to add that slide to the current lesson." +
                     "\n\n" +
-                    "Do you wish to close your project and continue or add this slide to your current project?"
+                    "Do you wish to close your lesson and continue or add this slide to your current lesson?"
                 ).buttons(closeProject, ButtonType.CANCEL, addToProject)
                 .build()
                 .showAndWait();

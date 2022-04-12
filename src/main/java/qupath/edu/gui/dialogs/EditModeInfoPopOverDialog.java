@@ -12,7 +12,7 @@ public final class EditModeInfoPopOverDialog {
 
     private static final int PANE_WIDTH = 250;
 
-    private final static String CONNECTED    = "If you wish to make any changes to this project, enable editing first. Changes made by guests are discarded.";
+    private final static String CONNECTED    = "If you wish to make any changes to this lesson, enable editing first. Changes made by guests are discarded.";
     private final static String DISCONNECTED = "You're not connected to any server. Edit mode is only available when connected to a server.";
 
     public static Pane getPane() {

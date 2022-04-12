@@ -231,7 +231,7 @@ public class OrganizationManager {
     private void deleteOrganization() {
         var confirm = Dialogs.showInputDialog(
             "WARNING!",
-            "Deleting this organization will also delete *all* workspaces, users, slides and projects belonging to this organization. This action is irreversible." +
+            "Deleting this organization will also delete *all* workspaces, users, slides and lessons belonging to this organization. This action is irreversible." +
             "\n\n" +
             "If you wish to continue, type DELETE in the box below and continue.",
             ""
