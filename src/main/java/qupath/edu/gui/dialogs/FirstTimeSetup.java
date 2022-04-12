@@ -126,7 +126,14 @@ public class FirstTimeSetup {
     }
 
     private void savePreferences() {
-        EduOptions.host().set(hostProperty.getValue());
+        String host = hostProperty.getValue();
+
+        // A host must end with a / for it to be valid
+        if (!(host.endsWith("/"))) {
+            host = host + "/";
+        }
+
+        EduOptions.host().set(host);
         dialog.close();
     }
 
