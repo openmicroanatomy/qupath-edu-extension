@@ -207,7 +207,7 @@ public class ExternalSlideManager {
         List<String> urls = new ArrayList<>();
 
         table.getItems().stream().filter(ExternalSlide::isSelected).forEach(slide -> {
-            urls.add(EduAPI.getHost() + "/" + EduAPI.e(slide.getId()) + "#" + EduAPI.e(slide.getName()));
+            urls.add(EduAPI.getHost() + EduAPI.e(slide.getId()) + "#" + EduAPI.e(slide.getName()));
         });
 
         // Only add slides which have its' checkbox selected.
@@ -321,16 +321,16 @@ public class ExternalSlideManager {
         }
 
         try {
-            ImageServerBuilder<?> openSlideBuilder = ImageServerProvider.getInstalledImageServerBuilders().stream().filter(
-                imageServerBuilder -> imageServerBuilder.getName().equalsIgnoreCase("OpenSlide builder")
-            ).collect(MoreCollectors.onlyElement());
-
-            ImageServerBuilder.UriImageSupport<?> support = openSlideBuilder.checkImageSupport(file.toURI());
-
-            if (support.getSupportLevel() == 0) {
-                Dialogs.showWarningNotification("Error uploading slide", "Given file is not supported by OpenSlide.");
-                return;
-            }
+//            ImageServerBuilder<?> openSlideBuilder = ImageServerProvider.getInstalledImageServerBuilders().stream().filter(
+//                imageServerBuilder -> imageServerBuilder.getName().equalsIgnoreCase("OpenSlide builder")
+//            ).collect(MoreCollectors.onlyElement());
+//
+//            ImageServerBuilder.UriImageSupport<?> support = openSlideBuilder.checkImageSupport(file.toURI());
+//
+//            if (support.getSupportLevel() == 0) {
+//                Dialogs.showWarningNotification("Error uploading slide", "Given file is not supported by OpenSlide.");
+//                return;
+//            }
 
             Task<Void> task = new UploadSlideTask(file);
             ProgressDialog progress = new ProgressDialog(task);
@@ -359,9 +359,9 @@ public class ExternalSlideManager {
             refreshDialog();
         } catch (NoSuchElementException e) {
             Dialogs.showErrorNotification("Missing OpenSlide", "Please install the OpenSlide extension to import slides.");
-        } catch (IOException e) {
+        }/* catch (IOException e) {
             logger.error("Error while reading file", e);
-        }
+        }*/
     }
 
     private void deleteSlide() {
@@ -438,7 +438,8 @@ public class ExternalSlideManager {
                         return null;
                     }
 
-                    updateMessage(String.format("Uploading chunk %s out of %s", chunkIndex, chunks));
+                    double progress = (chunkIndex * 1.0 / chunks) * 100;
+                    updateMessage(String.format("Uploading %.1f%%", progress));
                     updateProgress(chunkIndex, chunks);
                     chunkIndex++;
                 }
