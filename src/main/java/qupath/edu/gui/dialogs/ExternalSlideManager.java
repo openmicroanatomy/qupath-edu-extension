@@ -405,12 +405,12 @@ public class ExternalSlideManager {
 
     private static class UploadSlideTask extends Task<Void> {
 
-        private File file;
-        private String filename;
-        private long fileSize;
+        private final File file;
+        private final String filename;
+        private final long fileSize;
 
         private int chunkIndex = 0;
-        private long chunks;
+        private final long chunks;
 
         public UploadSlideTask(File file) {
             this.file = file;
@@ -425,13 +425,18 @@ public class ExternalSlideManager {
                 byte[] buffer = new byte[CHUNK_BUFFER_SIZE];
                 int read;
                 while ((read = is.read(buffer)) > 0) {
-                    EduAPI.uploadSlideChunk(
+                    var result = EduAPI.uploadSlideChunk(
                         filename,
                         fileSize,
                         Arrays.copyOf(buffer, read),
                         CHUNK_BUFFER_SIZE,
                         chunkIndex
                     );
+
+                    if (result != Result.OK) {
+                        updateMessage("Error while uploading slide, see log for possibly more details.");
+                        return null;
+                    }
 
                     updateMessage(String.format("Uploading chunk %s out of %s", chunkIndex, chunks));
                     updateProgress(chunkIndex, chunks);
