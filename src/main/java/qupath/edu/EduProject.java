@@ -645,8 +645,16 @@ public class EduProject implements Project<BufferedImage> {
 			}
 		}
 
+		public boolean hasSlideTour() {
+			return slideTour != null && slideTour.length > 0;
+		}
+
 		public List<SlideTourEntry> getSlideTour() {
-			return List.of(GsonTools.getInstance().fromJson(new String(Base64.getDecoder().decode(slideTour)), SlideTourEntry[].class));
+			if (hasSlideTour()) {
+				return List.of(GsonTools.getInstance().fromJson(new String(Base64.getDecoder().decode(slideTour)), SlideTourEntry[].class));
+			}
+
+			return List.of();
 		}
 
 		public void setSlideTour(List<SlideTourEntry> entries) {

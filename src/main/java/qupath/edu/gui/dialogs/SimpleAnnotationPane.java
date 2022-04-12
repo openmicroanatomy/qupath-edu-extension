@@ -49,7 +49,7 @@ public class SimpleAnnotationPane implements PathObjectSelectionListener, Change
 
     private final static Logger logger = LoggerFactory.getLogger(SimpleAnnotationPane.class);
 
-    public static final String ANSWER_KEY = "EDU_ANSWER";
+    public static final String ANSWER_KEY = "Answer";
 
     private QuPathGUI qupath;
     private ImageData<BufferedImage> imageData;
@@ -190,6 +190,7 @@ public class SimpleAnnotationPane implements PathObjectSelectionListener, Change
         slideDescription.setMinHeight(0);
         slideDescription.setWrapText(true);
         slideDescription.setDisable(true);
+        slideDescription.setManaged(false); // Initially false; value is managed by setSlideDescription()
         slideDescription.setStyle("-fx-opacity: 1.0;"); // Disabled text fields are gray because of lower opacity
 
         panelObjects.setTop(slideDescription);
