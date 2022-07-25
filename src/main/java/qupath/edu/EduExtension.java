@@ -233,6 +233,9 @@ public class EduExtension implements QuPathExtension, GitHubProject {
             "Check for updates on startup",
             "Edu",
             "If enabled, checks for updates on startup.");
+
+        // Hide annotation names in viewer by default for visual reasons
+        qupath.getOverlayOptions().showNamesProperty().set(false);
     }
 
     public static void setWriteAccess(boolean hasWriteAccess) {
