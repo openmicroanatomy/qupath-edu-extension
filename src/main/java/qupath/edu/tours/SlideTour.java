@@ -76,6 +76,8 @@ public class SlideTour implements QuPathViewerListener {
 
 	private boolean isTourActive = false;
 
+	private boolean hasWritePermission = false;
+
 	public SlideTour(QuPathViewer viewer) {
 		this.viewer = viewer;
 
@@ -167,7 +169,6 @@ public class SlideTour implements QuPathViewerListener {
 		pane.setVisible(viewer.getImageData() != null);
 
 		EduProject project = (EduProject) QuPathGUI.getInstance().getProject();
-		boolean hasWritePermission = false;
 
 		if (project != null) {
 			hasWritePermission = EduAPI.hasWritePermission(project.getId());
@@ -236,14 +237,18 @@ public class SlideTour implements QuPathViewerListener {
 		btnPrevious.setOnAction(a -> currentIndexProperty.set(currentIndexProperty.get() - 1));
 		btnPrevious.disableProperty().bind(currentIndexProperty.lessThanOrEqualTo(0));
 
-		MenuItem btnNew = new MenuItem("Create New");
+		MenuItem btnNew = new MenuItem("Create new frame");
 		btnNew.setOnAction(a -> createNewEntry());
 
-		MenuItem btnEdit = new MenuItem("Edit Current");
-		btnEdit.setOnAction(a -> editCurrentEntry());
-		btnEdit.disableProperty().bind(currentIndexProperty.isEqualTo(-1));
+		MenuItem btnEditText = new MenuItem("Edit text");
+		btnEditText.setOnAction(a -> editText(tourEntries.get(currentIndexProperty.get())));
+		btnEditText.disableProperty().bind(currentIndexProperty.lessThanOrEqualTo(-1));
 
-		MenuItem btnDelete = new MenuItem("Delete Current");
+		MenuItem btnSave = new MenuItem("Save changes");
+		btnSave.setOnAction(a -> editCurrentEntry());
+		btnSave.disableProperty().bind(currentIndexProperty.isEqualTo(-1));
+
+		MenuItem btnDelete = new MenuItem("Delete current frame");
 		btnDelete.setOnAction(a -> deleteCurrentEntry());
 		btnDelete.disableProperty().bind(currentIndexProperty.isEqualTo(-1));
 
@@ -252,7 +257,7 @@ public class SlideTour implements QuPathViewerListener {
 
 		MenuButton btnMore = new MenuButton("More \u22ee");
 		btnMore.disableProperty().bind(EduExtension.getEditModeManager().editModeEnabledProperty().not());
-		btnMore.getItems().addAll(btnNew, btnEdit, btnDelete, btnViewAll);
+		btnMore.getItems().addAll(btnNew, btnEditText, btnSave, btnDelete, btnViewAll);
 
 		GridPane buttons = PaneTools.createColumnGridControls(btnExit, btnPrevious, btnNext, btnMore);
 		buttons.setHgap(5);
@@ -281,31 +286,21 @@ public class SlideTour implements QuPathViewerListener {
 	private void editCurrentEntry() {
 		SlideTourEntry entry = tourEntries.get(currentIndexProperty.get());
 
-		String[] choices = { "Everything", "Viewer position", "Annotations", "Text" };
-		String edit = Dialogs.showChoiceDialog("Edit ...", "Choose what to edit", choices, choices[0]);
+		var confirm = Dialogs.showConfirmDialog(
+			"Are you sure?",
+			"This will save your current viewer position, annotations and text."
+		);
 
-		if (edit == null) {
-			return;
+		if (confirm) {
+			editLocation(entry);
+			editAnnotations(entry);
+
+			syncSlideTours();
 		}
-
-		switch (edit) {
-			case "Everything" -> {
-				editLocation(entry);
-				editAnnotations(entry);
-				editText(entry);
-			}
-			case "Viewer position" -> editLocation(entry);
-			case "Annotations" -> editAnnotations(entry);
-			case "Text" -> editText(entry);
-		}
-
-		syncSlideTours();
 	}
 
 	private void editLocation(SlideTourEntry entry) {
 		entry.setLocation(viewer.getCenterPixelX(), viewer.getCenterPixelY(), viewer.getMagnification(), viewer.getRotation());
-
-		Dialogs.showInfoNotification("Updated", "Viewer location updated");
 	}
 
 	private void editText(SlideTourEntry entry) {
@@ -315,14 +310,10 @@ public class SlideTour implements QuPathViewerListener {
 			entry.setText(text);
 			entryTextProperty.set(text);
 		}
-
-		Dialogs.showInfoNotification("Updated", "Text updated");
 	}
 
 	private void editAnnotations(SlideTourEntry entry) {
 		entry.setAnnotations(viewer.getImageData().getHierarchy().getAnnotationObjects());
-
-		Dialogs.showInfoNotification("Updated", "Annotations updated");
 	}
 
 	private void createNewEntry() {
@@ -435,7 +426,7 @@ public class SlideTour implements QuPathViewerListener {
 		btnDelete.disableProperty().bind(table.getSelectionModel().selectedItemProperty().isNull());
 		btnDelete.setOnAction(a -> deleteCurrentEntry());
 
-		Button btnNew = new Button("Create new entry");
+		Button btnNew = new Button("Create new frame");
 		btnNew.setOnAction(a -> createNewEntry());
 
 		GridPane buttons = PaneTools.createColumnGridControls(btnEdit, btnDelete, btnNew);
