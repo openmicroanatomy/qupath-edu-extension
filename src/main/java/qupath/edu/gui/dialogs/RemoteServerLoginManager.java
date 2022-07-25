@@ -19,7 +19,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.dialog.ProgressDialog;
 import org.slf4j.Logger;
@@ -33,6 +32,7 @@ import qupath.lib.gui.QuPathGUI;
 import qupath.lib.gui.dialogs.Dialogs;
 import qupath.lib.gui.tools.PaneTools;
 
+import javax.annotation.Nonnull;
 import java.awt.*;
 import java.net.URI;
 import java.net.URL;
@@ -174,10 +174,15 @@ public class RemoteServerLoginManager {
     }
 
     private void showAuthDialog() {
+        showAuthDialog("");
+    }
+
+    private void showAuthDialog(@Nonnull String email) {
         /* Textfields */
 
         Label labEmail = new Label("Email");
         TextField tfEmail = new TextField();
+        tfEmail.setText(email);
         labEmail.setLabelFor(tfEmail);
         tfEmail.setPromptText("Email");
         Platform.runLater(tfEmail::requestFocus);
@@ -233,7 +238,7 @@ public class RemoteServerLoginManager {
                 EduExtension.showWorkspaceOrLoginDialog();
             } else {
                 Dialogs.showErrorNotification("Error", "Wrong username, password or host");
-                showAuthDialog();
+                showAuthDialog(tfEmail.getText());
             }
         }
     }
