@@ -483,6 +483,10 @@ public class EduProject implements Project<BufferedImage> {
 			if (metadataMap != null) {
 				metadata.putAll(metadataMap);
 			}
+
+			try {
+				readAnnotations(readImageData());
+			} catch (Exception ignored) {}
 		}
 
 		public EduProjectImageEntry(EduProjectImageEntry entry) {
@@ -494,6 +498,7 @@ public class EduProject implements Project<BufferedImage> {
 			this.imageData = entry.imageData;
 			this.thumbnail = entry.thumbnail;
 			this.slideTour = entry.slideTour;
+			this.annotations = entry.annotations;
 		}
 
 		@Override
@@ -632,17 +637,21 @@ public class EduProject implements Project<BufferedImage> {
 			try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
 				PathIO.writeImageData(os, imageData);
 
-				// TODO: Temporary fix until resolved in upstream
-				Collection<PathAnnotationObjectWithMetadata> annotations = imageData.getHierarchy().getAnnotationObjects()
-						.stream()
-						.map(annotation -> new PathAnnotationObjectWithMetadata((PathAnnotationObject) annotation))
-						.collect(Collectors.toList());
-
-				this.annotations = GsonTools.getInstance().toJson(annotations);
+				readAnnotations(imageData);
 				this.imageData = Base64.getEncoder().encodeToString(os.toByteArray());
 			} catch (IOException e) {
 				Dialogs.showErrorNotification("Error while saving image data", e);
 			}
+		}
+
+		private void readAnnotations(ImageData<BufferedImage> imageData) {
+			// TODO: Temporary fix until resolved in upstream
+			Collection<PathAnnotationObjectWithMetadata> annotations = imageData.getHierarchy().getAnnotationObjects()
+					.stream()
+					.map(annotation -> new PathAnnotationObjectWithMetadata((PathAnnotationObject) annotation))
+					.collect(Collectors.toList());
+
+			this.annotations = GsonTools.getInstance().toJson(annotations);
 		}
 
 		public boolean hasSlideTour() {
