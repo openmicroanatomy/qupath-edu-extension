@@ -9,6 +9,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import qupath.edu.EduExtension;
 import qupath.edu.api.EduAPI;
 import qupath.edu.models.ExternalBackup;
@@ -16,11 +18,16 @@ import qupath.edu.models.ExternalProject;
 import qupath.lib.gui.dialogs.Dialogs;
 import qupath.lib.gui.tools.PaneTools;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 
 public class BackupManager {
 
     private BackupManager() {}
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private BorderPane pane;
     private static Dialog<ButtonType> dialog;
@@ -53,9 +60,9 @@ public class BackupManager {
 
         table = new TableView<>();
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        table.setPlaceholder(new Text("No backups, none match search criteria or no permissions."));
+        table.setPlaceholder(new Text("No backups or no permissions."));
 
-        TableColumn<ExternalBackup, String> backupNameColumn = new TableColumn<>("Lesson / File name");
+        TableColumn<ExternalBackup, String> backupNameColumn = new TableColumn<>("Lesson");
         backupNameColumn.setCellValueFactory(new PropertyValueFactory<>("readable"));
         backupNameColumn.setReorderable(false);
 
@@ -67,10 +74,25 @@ public class BackupManager {
         timestampColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getFormattedTimestamp()));
         timestampColumn.setReorderable(false);
         timestampColumn.setSortType(TableColumn.SortType.DESCENDING);
+        timestampColumn.setComparator((s1, s2) -> {
+            SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH.mm.ss");
+
+            try {
+                Date d1 = formatter.parse(s1);
+                Date d2 = formatter.parse(s2);
+
+                return Long.compare(d1.getTime(), d2.getTime());
+            } catch (ParseException e) {
+                logger.error("Invalid date format", e);
+            }
+
+            return -1;
+        });
 
         table.getColumns().addAll(backupNameColumn, filenameColumn, timestampColumn);
 
         table.setItems(FXCollections.observableArrayList(EduAPI.getAllBackups().orElse(Collections.emptyList())));
+        table.getSortOrder().add(timestampColumn);
 
         /* Bindings */
 
@@ -119,8 +141,8 @@ public class BackupManager {
 
         if (success) {
             Dialogs.showInfoNotification(
-            "Backup restored",
-            "Successfully restored backup"
+                "Backup restored",
+                "Successfully restored backup"
             );
 
             dialog.close();
@@ -128,8 +150,8 @@ public class BackupManager {
             EduExtension.showWorkspaceOrLoginDialog();
         } else {
             Dialogs.showErrorNotification(
-            "Backup restoring aborted",
-            "Error while restoring backup. The error was logged and acted accordingly."
+                "Backup restoring aborted",
+                "Error while restoring backup. The error was logged and acted accordingly."
             );
         }
     }
