@@ -24,6 +24,10 @@ public class ExternalWorkspace {
         return id;
     }
 
+    public String getOwnerName() {
+        return owner.getName();
+    }
+
     public String getOwnerId() {
         return owner.getId();
     }

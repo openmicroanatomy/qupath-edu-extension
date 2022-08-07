@@ -194,7 +194,7 @@ public class WorkspacePermissionManager {
                 setGraphic(null);
                 setText(null);
             } else {
-                setText(workspace.getName());
+                setText(String.format("%s (%s)", workspace.getName(), workspace.getOwnerName()));
             }
         }
     }
