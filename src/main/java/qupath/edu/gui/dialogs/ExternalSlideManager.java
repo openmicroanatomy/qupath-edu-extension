@@ -1,6 +1,5 @@
 package qupath.edu.gui.dialogs;
 
-import com.google.common.collect.MoreCollectors;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -25,15 +24,15 @@ import javafx.scene.text.Text;
 import org.controlsfx.dialog.ProgressDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import qupath.edu.EduExtension;
 import qupath.edu.api.EduAPI;
 import qupath.edu.api.Roles;
 import qupath.edu.server.EduServerBuilder;
+import qupath.edu.util.EditModeManager;
 import qupath.lib.gui.QuPathGUI;
 import qupath.lib.gui.commands.ProjectCommands;
 import qupath.lib.gui.dialogs.Dialogs;
 import qupath.lib.gui.tools.PaneTools;
-import qupath.lib.images.servers.ImageServerBuilder;
-import qupath.lib.images.servers.ImageServerProvider;
 import qupath.edu.models.ExternalSlide;
 
 import java.awt.*;
@@ -55,6 +54,8 @@ public class ExternalSlideManager {
 
     private BorderPane pane;
     private TableView<ExternalSlide> table;
+
+    private final EditModeManager editModeManager = EduExtension.getEditModeManager();
 
     public static void showExternalSlideManager() {
         ExternalSlideManager manager = new ExternalSlideManager();
@@ -149,12 +150,12 @@ public class ExternalSlideManager {
 
         Button btnAddRemote = new Button("Add selected");
         btnAddRemote.setTooltip(new Tooltip("Add selected slides to current lesson"));
-        btnAddRemote.disableProperty().bind(qupath.projectProperty().isNull());
+        btnAddRemote.disableProperty().bind(qupath.projectProperty().isNull().or(editModeManager.editModeEnabledProperty().not()));
         btnAddRemote.setOnAction(e -> addImages());
 
         Button btnAddLocal = new Button("Add local slide");
         btnAddLocal.setTooltip(new Tooltip("Add a slide stored locally to current lesson"));
-        btnAddLocal.disableProperty().bind(qupath.projectProperty().isNull());
+        btnAddLocal.disableProperty().bind(qupath.projectProperty().isNull().or(editModeManager.editModeEnabledProperty().not()));
         btnAddLocal.setOnAction(e -> ProjectCommands.promptToImportImages(qupath));
 
         Button btnOpen = new Button("Open selected");
@@ -218,7 +219,7 @@ public class ExternalSlideManager {
             }
 
             ExternalSlide selected = table.getSelectionModel().getSelectedItem();
-            urls.add(EduAPI.getHost() + "/" + EduAPI.e(selected.getId()) + "#" + EduAPI.e(selected.getName()));
+            urls.add(EduAPI.getHost() + EduAPI.e(selected.getId()) + "#" + EduAPI.e(selected.getName()));
         }
 
         dialog.close();
@@ -227,7 +228,7 @@ public class ExternalSlideManager {
     }
 
     private void copySlideURL() {
-        Dialogs.showInputDialog("Slide URL", "", EduAPI.getHost() + "/" + table.getSelectionModel().getSelectedItem().getId());
+        Dialogs.showInputDialog("Slide URL", "", EduAPI.getHost() + table.getSelectionModel().getSelectedItem().getId());
     }
 
     private void copySlideID() {
