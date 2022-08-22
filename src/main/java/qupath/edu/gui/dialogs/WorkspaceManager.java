@@ -2,9 +2,10 @@ package qupath.edu.gui.dialogs;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
@@ -46,8 +47,8 @@ public class WorkspaceManager {
     private final static Logger logger = LoggerFactory.getLogger(WorkspaceManager.class);
 
     private final SimpleBooleanProperty hasAccessProperty = new SimpleBooleanProperty(false);
-    private final SimpleStringProperty  currentWorkspace  = new SimpleStringProperty();
-    private final SimpleStringProperty  currentSubject    = new SimpleStringProperty();
+    private final SimpleObjectProperty<ExternalWorkspace> currentWorkspace  = new SimpleObjectProperty<>();
+    private final SimpleObjectProperty<ExternalSubject>   currentSubject    = new SimpleObjectProperty<>();
 
     private static Dialog<ButtonType> dialog;
     private final QuPathGUI qupath;
@@ -56,7 +57,7 @@ public class WorkspaceManager {
     private SplitPane splitPane;
 
     private final Accordion accordion = new Accordion();
-    private final GridView<ExternalProject> gvProjects = new GridView<>();
+    private final ObservableList<ExternalProject> currentProjects = FXCollections.observableArrayList();
 
     public static void showWorkspace(QuPathGUI qupath) {
         WorkspaceManager manager = new WorkspaceManager(qupath);
@@ -72,9 +73,6 @@ public class WorkspaceManager {
         dialog.show();
 
         manager.getSplitPane().setDividerPositions(0.2);
-
-        // GridView adds a fixed 18px for the scrollbar and each cell has padding of 10px left and right.
-        manager.getGridViewProjects().cellWidthProperty().bind(manager.getGridViewProjects().widthProperty().subtract(18).divide(2).subtract(20));
 
         // Disable SplitPane divider
         manager.getSplitPane().lookupAll(".split-pane-divider").stream().forEach(div -> div.setMouseTransparent(true));
@@ -100,10 +98,6 @@ public class WorkspaceManager {
         return splitPane;
     }
 
-    public GridView<ExternalProject> getGridViewProjects() {
-        return gvProjects;
-    }
-
     private synchronized void initializePane() {
         pane = new BorderPane();
 
@@ -120,7 +114,7 @@ public class WorkspaceManager {
         MenuItem miOpenById = new MenuItem("Lesson or slide");
         miOpenById.setOnAction(this::openById);
 
-        MenuItem miOpenLocalProject = new MenuItem("Local project");
+        MenuItem miOpenLocalProject = new MenuItem("QuPath project");
         miOpenLocalProject.setOnAction(qupath.lookupActionByText("Open project"));
 
         MenuButton btnOpen = new MenuButton("Open ...");
@@ -146,17 +140,17 @@ public class WorkspaceManager {
 
         MenuItem miCreateWorkspace = new MenuItem("Workspace");
         miCreateWorkspace.setOnAction(action -> createNewWorkspace());
-        miCreateWorkspace.disableProperty().bind(hasAccessProperty.not());
+        miCreateWorkspace.disableProperty().bind(hasAccessProperty.not().and(currentWorkspace.isNotNull()));
 
         MenuItem miCreateSubject = new MenuItem("Course");
-        miCreateSubject.setOnAction(action -> createNewSubject());
-        miCreateSubject.disableProperty().bind(hasAccessProperty.not());
+        miCreateSubject.setOnAction(action -> createNewCourse());
+        miCreateSubject.disableProperty().bind(hasAccessProperty.not().or(currentWorkspace.isNull()));
 
         MenuItem miCreateProject = new MenuItem("Lesson");
-        miCreateProject.setOnAction(action -> createNewProject());
-        miCreateProject.disableProperty().bind(hasAccessProperty.not());
+        miCreateProject.setOnAction(action -> createNewLesson());
+        miCreateProject.disableProperty().bind(hasAccessProperty.not().or(currentSubject.isNull()));
 
-        MenuItem miCreateLocalProject = new MenuItem("Local project");
+        MenuItem miCreateLocalProject = new MenuItem("QuPath project");
         miCreateLocalProject.setOnAction(qupath.lookupActionByText("Create project"));
 
         MenuButton menuCreate = new MenuButton("Create ...");
@@ -176,11 +170,15 @@ public class WorkspaceManager {
 
         /* Content */
 
+        GridView<ExternalProject> gvProjects = new GridView<>();
         gvProjects.setCellFactory(f -> new WorkspaceProjectListCell(this));
         gvProjects.setPadding(new Insets(0));
         gvProjects.setHorizontalCellSpacing(10);
         gvProjects.setCellWidth(360); // TODO: Bind to parent width
-        gvProjects.setItems(FXCollections.emptyObservableList());
+        gvProjects.setItems(currentProjects);
+
+        // GridView adds a fixed 18px for the scrollbar and each cell has padding of 10px left and right.
+        gvProjects.cellWidthProperty().bind(gvProjects.widthProperty().subtract(18).divide(2).subtract(20));
 
         splitPane = new SplitPane();
         splitPane.setPrefWidth(1000);
@@ -205,7 +203,7 @@ public class WorkspaceManager {
 
     private void createAccordion(Accordion accordion, List<ExternalWorkspace> workspaces) {
         accordion.getPanes().clear();
-        gvProjects.getItems().clear();
+        currentProjects.clear();
 
         for (ExternalWorkspace workspace : workspaces) {
             if (!belongsToSameOrganizationAsUser(workspace)) {
@@ -225,8 +223,8 @@ public class WorkspaceManager {
                 }
 
                 if (e.getButton() == MouseButton.PRIMARY) {
-                    currentSubject.set(selectedSubject.getId());
-                    gvProjects.setItems(FXCollections.observableArrayList(selectedSubject.getProjects()));
+                    currentSubject.set(selectedSubject);
+                    currentProjects.setAll(selectedSubject.getProjects());
                 }
             });
 
@@ -308,11 +306,18 @@ public class WorkspaceManager {
             ExternalWorkspace workspace = (ExternalWorkspace) newWorkspace.getUserData();
 
             if (workspace.getId() != null) {
-                currentWorkspace.set(workspace.getId());
+                currentWorkspace.set(workspace);
 
                 var hasWritePermission = EduAPI.hasWritePermission(workspace.getId());
                 hasAccessProperty.set(hasWritePermission);
                 EduExtension.setWriteAccess(hasWritePermission);
+
+                // Open the first course from this workspace.
+                if (workspace.getSubjects().size() > 0) {
+                    ExternalSubject subject = workspace.getSubjects().get(0);
+                    currentSubject.set(subject);
+                    currentProjects.setAll(subject.getProjects());
+                }
             }
         };
     }
@@ -349,28 +354,28 @@ public class WorkspaceManager {
                 .filter(workspace -> workspace.getId().equals(previousWorkspace.getId()))
                 .findFirst()
                 .flatMap(workspace -> workspace.findSubject(currentSubject.get()))
-                .ifPresent(subject -> gvProjects.getItems().setAll(subject.getProjects()));
+                .ifPresent(subject -> currentProjects.setAll(subject.getProjects()));
     }
 
-    private void createNewProject() {
-        String name = Dialogs.showInputDialog("Project name", "", "");
+    private void createNewLesson() {
+        String name = Dialogs.showInputDialog("Lesson name", "", "");
 
         if (name == null) {
             return;
         }
 
-        Result result = EduAPI.createProject(currentSubject.get(), name);
+        Result result = EduAPI.createProject(currentSubject.get().getId(), name);
 
         if (result == Result.OK) {
             refreshDialog();
-            Dialogs.showInfoNotification("Success", "Successfully created project.");
+            Dialogs.showInfoNotification("Success", "Successfully created lesson.");
         } else {
-            Dialogs.showErrorNotification("Error", "Error when creating project. See log for possibly more details.");
+            Dialogs.showErrorNotification("Error", "Error when creating lesson. See log for possibly more details.");
         }
     }
 
-    public void createNewSubject() {
-        String name = Dialogs.showInputDialog("Subject name", "", "");
+    public void createNewCourse() {
+        String name = Dialogs.showInputDialog("Course name", "", "");
 
         if (name == null) {
             return;
@@ -380,9 +385,9 @@ public class WorkspaceManager {
 
         if (result == Result.OK) {
             refreshDialog();
-            Dialogs.showInfoNotification("Success", "Successfully created subject.");
+            Dialogs.showInfoNotification("Success", "Successfully created course.");
         } else {
-            Dialogs.showErrorNotification("Error", "Error when creating subject. See log for possibly more details.");
+            Dialogs.showErrorNotification("Error", "Error when creating course. See log for possibly more details.");
         }
     }
 
@@ -426,7 +431,7 @@ public class WorkspaceManager {
             "Are you sure?",
             "Do you wish to delete this workspace?" +
             "\n\n" +
-            "This will also delete all the subjects and their projects that belong to this workspace. This action is irreversible."
+            "This will also delete all the courses and lessons that belong to this workspace. This action is irreversible."
         );
 
         if (!confirm) {
@@ -444,7 +449,7 @@ public class WorkspaceManager {
     }
 
     public void renameSubject(ExternalSubject subject) {
-        String name = Dialogs.showInputDialog("Subject name", "", subject.getName());
+        String name = Dialogs.showInputDialog("Course name", "", subject.getName());
 
         if (name == null) {
             return;
@@ -454,18 +459,18 @@ public class WorkspaceManager {
 
         if (result == Result.OK) {
             refreshDialog();
-            Dialogs.showInfoNotification("Success", "Successfully renamed subject.");
+            Dialogs.showInfoNotification("Success", "Successfully course course.");
         } else {
-            Dialogs.showErrorNotification("Error", "Error when renaming subject. See log for possibly more details.");
+            Dialogs.showErrorNotification("Error", "Error when renaming course. See log for possibly more details.");
         }
     }
 
     public void deleteSubject(ExternalSubject subject) {
         boolean confirm = Dialogs.showConfirmDialog(
             "Are you sure?",
-            "Do you wish to delete this subject?" +
+            "Do you wish to delete this course?" +
             "\n\n" +
-            "This will also delete all the projects belonging to this subject. This action is irreversible."
+            "This will also delete all the projects belonging to this course. This action is irreversible."
         );
 
         if (!confirm) {
@@ -476,9 +481,9 @@ public class WorkspaceManager {
 
         if (result == Result.OK) {
             refreshDialog();
-            Dialogs.showInfoNotification("Success", "Successfully deleted subject.");
+            Dialogs.showInfoNotification("Success", "Successfully deleted course.");
         } else {
-            Dialogs.showErrorNotification("Error", "Error when deleting subject. See log for possibly more details.");
+            Dialogs.showErrorNotification("Error", "Error when deleting course. See log for possibly more details.");
         }
     }
 
@@ -522,22 +527,22 @@ public class WorkspaceManager {
             Task<Optional<String>> worker = new Task<>() {
                 @Override
                 protected Optional<String> call() {
-                    updateMessage("Downloading project");
+                    updateMessage("Downloading lesson");
                     Optional<String> projectData = EduAPI.downloadProject(extProject.getIdWithTimestamp());
 
                     if (projectData.isEmpty()) {
-                        Dialogs.showErrorNotification("Error", "Error when downloading project, see log for possibly more details.");
+                        Dialogs.showErrorNotification("Error", "Error when downloading lesson, see log for possibly more details.");
                         return Optional.empty();
                     }
 
-                    updateMessage("Downloaded. Opening project...");
+                    updateMessage("Downloaded. Opening lesson...");
 
                     return projectData;
                 }
             };
 
             ProgressDialog progress = new ProgressDialog(worker);
-            progress.setTitle("Project import");
+            progress.setTitle("Lesson import");
             qupath.submitShortTask(worker);
             progress.showAndWait();
 
@@ -559,11 +564,11 @@ public class WorkspaceManager {
             }
         } catch (IOException e) {
             Dialogs.showErrorMessage(
-                "Error when trying to load project. ",
+                "Error when trying to load lesson. ",
                 "See log for more information."
             );
 
-            logger.error("Error when loading external project", e);
+            logger.error("Error when loading external lesson", e);
         }
     }
 
