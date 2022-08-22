@@ -402,6 +402,10 @@ public class EduAPI {
 
 	/* Subjects */
 
+	public static Result createSubject(ExternalWorkspace workspace, String name) {
+		return createSubject(workspace.getId(), name);
+	}
+
 	public static Result createSubject(String workspaceId, String name) {
 		var response = post(
 			"/api/v0/subjects",

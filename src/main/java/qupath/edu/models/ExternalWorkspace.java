@@ -36,6 +36,10 @@ public class ExternalWorkspace {
         return subjects;
     }
 
+    public Optional<ExternalSubject> findSubject(ExternalSubject subject) {
+        return findSubject(subject.getId());
+    }
+
     public Optional<ExternalSubject> findSubject(String id) {
         return subjects.stream()
                 .filter(subject -> subject.getId().equalsIgnoreCase(id))
