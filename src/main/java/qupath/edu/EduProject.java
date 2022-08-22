@@ -327,8 +327,7 @@ public class EduProject implements Project<BufferedImage> {
 
 			EduAPI.uploadProject(id, projectData);
 
-			Dialogs.showInfoNotification("[Debug]", "Changes synced to server.");
-			logger.debug("Uploaded to server");
+			logger.info("Changes synced to server.");
 		}
 	}
 
@@ -639,6 +638,8 @@ public class EduProject implements Project<BufferedImage> {
 
 				readAnnotations(imageData);
 				this.imageData = Base64.getEncoder().encodeToString(os.toByteArray());
+
+				syncChanges();
 			} catch (IOException e) {
 				Dialogs.showErrorNotification("Error while saving image data", e);
 			}
