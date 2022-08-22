@@ -27,18 +27,20 @@ import org.slf4j.LoggerFactory;
 import qupath.edu.EduExtension;
 import qupath.edu.api.EduAPI;
 import qupath.edu.api.Roles;
-import qupath.edu.server.EduServerBuilder;
+import qupath.edu.server.EduImageServer;
 import qupath.edu.util.EditModeManager;
 import qupath.lib.gui.QuPathGUI;
 import qupath.lib.gui.commands.ProjectCommands;
 import qupath.lib.gui.dialogs.Dialogs;
 import qupath.lib.gui.tools.PaneTools;
 import qupath.edu.models.ExternalSlide;
+import qupath.lib.images.ImageData;
 
 import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.*;
 import java.util.List;
 
@@ -224,7 +226,27 @@ public class ExternalSlideManager {
 
         dialog.close();
 
-        Platform.runLater(() -> ProjectCommands.promptToImportImages(qupath, new EduServerBuilder(), urls.toArray(new String[0])));
+        Platform.runLater(() -> {
+            // TODO: Add ProgressDialog
+            for (String url : urls) {
+                try {
+                    ProjectCommands.addSingleImageToProject(
+                        qupath.getProject(),
+                        new EduImageServer(URI.create(url)),
+                        ImageData.ImageType.OTHER
+                    );
+                } catch (IOException e) {
+                    logger.error("Error while adding slide", e);
+
+                    Dialogs.showErrorNotification(
+                        "Error while adding slide",
+                        "See log for possibly additional information."
+                    );
+                }
+            }
+
+            qupath.refreshProject();
+        });
     }
 
     private void copySlideURL() {
