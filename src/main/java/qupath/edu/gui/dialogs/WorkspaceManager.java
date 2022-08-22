@@ -240,7 +240,14 @@ public class WorkspaceManager {
                 MenuItem miDelete = new MenuItem("Delete workspace");
                 miDelete.setOnAction(e -> deleteWorkspace(workspace));
 
-                tpWorkspace.setContextMenu(new ContextMenu(miRename, miDelete));
+                // setContextMenu(...) would show up on everywhere on the TitlePane,
+                // setOnMouseClicked(...) only registers when clicking on the header i.e. workspace name
+                tpWorkspace.setOnMouseClicked(e -> {
+                    if (e.getButton() == MouseButton.SECONDARY) {
+                        ContextMenu menu = new ContextMenu(miRename, miDelete);
+                        menu.show(tpWorkspace, e.getScreenX(), e.getScreenY());
+                    }
+                });
             }
 
             accordion.getPanes().add(tpWorkspace);
