@@ -297,7 +297,7 @@ public class ExternalSlideManager {
         }
 
         Platform.runLater(() -> {
-            qupath.openImage(EduAPI.getHost() + "/" + slide.getId(), true, true);
+            qupath.openImage(EduAPI.getHost() + slide.getId(), true, true);
 // TODO:           qupath.getTabbedPanel().getSelectionModel().select(1);
 
             // Loading a slide will prompt to set ImageType. This marks ImageData as changed prompts and prompts pointlessly to save changes.
