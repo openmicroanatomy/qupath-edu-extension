@@ -387,7 +387,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
             }
         }
 
-        List<String> menuItemsToDisable = List.of("Delete image(s)", "Rename image", "Refresh thumbnail",
+        List<String> menuItemsToDisable = List.of("Remove image(s)", "Delete image(s)", "Rename image", "Refresh thumbnail",
                 "Edit description", "Add metadata", "Duplicate image(s)");
 
         TreeView<Object> tree = ReflectionUtil.getProjectBrowserTree();
