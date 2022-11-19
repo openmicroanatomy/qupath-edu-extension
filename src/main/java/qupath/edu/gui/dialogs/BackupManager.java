@@ -118,6 +118,7 @@ public class BackupManager {
         pane = new BorderPane();
         pane.setPrefWidth(800);
         pane.setPrefHeight(400);
+        pane.setTop(new Text("Backups are removed automatically after one year."));
         pane.setCenter(table);
         pane.setBottom(buttons);
         pane.setPadding(new Insets(10));

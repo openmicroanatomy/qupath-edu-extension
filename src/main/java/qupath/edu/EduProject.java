@@ -231,6 +231,12 @@ public class EduProject implements Project<BufferedImage> {
 			return;
 		}
 
+		// Check if we're previewing a backup -- skip saving changes as backups are restored manually via the
+		// Backup Manager interface. Without this check any changes are persisted to the original project.
+		if (name.startsWith("Backup of")) {
+			return;
+		}
+
 		Gson gson = GsonTools.getInstance(true);
 
 		JsonObject builder = new JsonObject();
