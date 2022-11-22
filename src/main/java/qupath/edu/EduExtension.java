@@ -180,7 +180,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
 
     @Override
     public GitHubRepo getRepository() {
-        return GitHubRepo.create("QuPath Edu Extension", "yli-hallila", "qupath-edu-extension");
+        return GitHubRepo.create("QuPath Edu Extension", "openmicroanatomy", "qupath-extension");
     }
 
     @Override
