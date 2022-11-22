@@ -339,7 +339,10 @@ public class EduProject implements Project<BufferedImage> {
 
 	@Override
 	public List<ProjectImageEntry<BufferedImage>> getImageList() {
-		return new ArrayList<>(images);
+		List<ProjectImageEntry<BufferedImage>> list = new ArrayList<>(images);
+		list.sort(Comparator.comparing(ProjectImageEntry::getImageName, String.CASE_INSENSITIVE_ORDER));
+
+		return list;
 	}
 
 	@Override
@@ -514,6 +517,7 @@ public class EduProject implements Project<BufferedImage> {
 		@Override
 		public void setImageName(String name) {
 			this.imageName = name;
+			QuPathGUI.getInstance().refreshProject();
 		}
 
 		@Override

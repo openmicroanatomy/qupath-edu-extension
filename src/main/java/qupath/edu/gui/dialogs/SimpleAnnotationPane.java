@@ -133,7 +133,7 @@ public class SimpleAnnotationPane implements PathObjectSelectionListener, Change
 
         listAnnotations.setCellFactory(v -> new PathObjectListCell());
 
-        listAnnotations.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        listAnnotations.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         listAnnotations.getSelectionModel().getSelectedItems().addListener(
                 (ListChangeListener.Change<? extends PathObject> c) -> synchronizeHierarchySelectionToListSelection()
         );
@@ -272,7 +272,13 @@ public class SimpleAnnotationPane implements PathObjectSelectionListener, Change
             hierarchy.getSelectionModel().addPathObjectSelectionListener(this);
             hierarchy.addPathObjectListener(this);
             PathObject selected = hierarchy.getSelectionModel().getSelectedObject();
-            listAnnotations.getItems().setAll(hierarchy.getAnnotationObjects());
+
+            var sorted = hierarchy.getAnnotationObjects()
+                    .stream()
+                    .sorted(Comparator.comparing(PathObject::getDisplayedName, String.CASE_INSENSITIVE_ORDER))
+                    .collect(Collectors.toList());
+
+            listAnnotations.getItems().setAll(sorted);
             hierarchy.getSelectionModel().setSelectedObject(selected);
         } else {
             listAnnotations.getItems().clear();
@@ -522,11 +528,14 @@ public class SimpleAnnotationPane implements PathObjectSelectionListener, Change
             return;
         }
 
-        Collection<PathObject> newList = hierarchy.getObjects(new HashSet<>(), PathAnnotationObject.class);
+        var sorted = hierarchy.getAnnotationObjects()
+                .stream()
+                .sorted(Comparator.comparing(PathObject::getDisplayedName, String.CASE_INSENSITIVE_ORDER))
+                .toList();
         // If the lists are the same, we just need to refresh the appearance (because e.g. classifications or measurements now differ)
         // For some reason, 'equals' alone wasn't behaving nicely (perhaps due to ordering?)... so try a more manual test instead
 //		if (newList.equals(listAnnotations.getItems())) {
-        if (newList.size() == listAnnotations.getItems().size() && newList.containsAll(listAnnotations.getItems())) {
+        if (sorted.size() == listAnnotations.getItems().size() && sorted.equals(listAnnotations.getItems())) {
             // Don't refresh unless there is good reason to believe the list should appear different now
             // This was introduced due to flickering as annotations were dragged
             // TODO: Reconsider when annotation list is refreshed
@@ -542,7 +551,7 @@ public class SimpleAnnotationPane implements PathObjectSelectionListener, Change
 //		listAnnotations.getSelectionModel().clearSelection(); // Clearing the selection would cause annotations to disappear when interactively training a classifier!
         boolean lastChanging = suppressSelectionChanges;
         suppressSelectionChanges = true;
-        listAnnotations.getItems().setAll(newList);
+        listAnnotations.getItems().setAll(sorted);
         suppressSelectionChanges = lastChanging;
     }
 }
