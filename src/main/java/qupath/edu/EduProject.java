@@ -2,6 +2,7 @@ package qupath.edu;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import javafx.scene.control.ButtonType;
 import org.slf4j.Logger;
@@ -671,14 +672,19 @@ public class EduProject implements Project<BufferedImage> {
 
 		public List<SlideTourEntry> getSlideTour() {
 			if (hasSlideTour()) {
-				return List.of(GsonTools.getInstance().fromJson(new String(Base64.getDecoder().decode(slideTour)), SlideTourEntry[].class));
+				// TODO: Remove legacy support for older projects where slide tours were stored as Base64 encoded strings causing double UTF-8 encoding
+				try {
+					return List.of(GsonTools.getInstance().fromJson(new String(slideTour, StandardCharsets.UTF_8), SlideTourEntry[].class));
+				} catch (JsonSyntaxException e) {
+					return List.of(GsonTools.getInstance().fromJson(new String(Base64.getDecoder().decode(slideTour), StandardCharsets.UTF_8), SlideTourEntry[].class));
+				}
 			}
 
 			return List.of();
 		}
 
 		public void setSlideTour(List<SlideTourEntry> entries) {
-			this.slideTour = Base64.getEncoder().encode(GsonTools.getInstance().toJson(entries).getBytes(StandardCharsets.UTF_8));
+			this.slideTour = GsonTools.getInstance().toJson(entries).getBytes(StandardCharsets.UTF_8);
 		}
 
 		@Override
