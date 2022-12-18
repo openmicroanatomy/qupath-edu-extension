@@ -164,6 +164,10 @@ public class EduAPI {
 		return authType != AuthType.UNAUTHENTICATED;
 	}
 
+	public static boolean isGuest() {
+		return authType == AuthType.GUEST;
+	}
+
 	public static void setCredentials(String username, String password) {
 		if (username == null || password == null) {
 			setAuthType(AuthType.UNAUTHENTICATED);
@@ -222,13 +226,10 @@ public class EduAPI {
 
 	public static boolean hasRole(Roles role) {
 		// Check if we're on a local project, where everyone has all roles.
-		Project project = QuPathGUI.getInstance().getProject();
+		Project<BufferedImage> project = QuPathGUI.getInstance().getProject();
+		if (project != null && project.getPath() != null) return true;
 
-		if (project != null) {
-			if (project.getPath() != null) {
-				return true;
-			}
-		}
+		if (isGuest()) return false;
 
 		return roles.contains(Roles.ADMIN) || roles.contains(role);
 	}
