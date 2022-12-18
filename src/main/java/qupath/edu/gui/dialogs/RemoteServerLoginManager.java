@@ -164,10 +164,11 @@ public class RemoteServerLoginManager {
     }
 
     private void loginAsGuest() {
+        dialog.close();
+
         EduAPI.setAuthType(EduAPI.AuthType.GUEST);
         EduAPI.setOrganizationId(selectedOrganizationProperty.get());
-
-        dialog.close();
+        EduAPI.setUserOrganizationId(null);
 
         EduExtension.setWriteAccess(false);
         EduExtension.showWorkspaceOrLoginDialog();
@@ -235,6 +236,8 @@ public class RemoteServerLoginManager {
             if (EduAPI.login(tfEmail.getText(), tfPassword.getText())) {
                 dialog.close();
 
+                EduAPI.setOrganizationId(selectedOrganizationProperty.get());
+
                 EduExtension.showWorkspaceOrLoginDialog();
             } else {
                 Dialogs.showErrorNotification("Error", "Wrong username, password or host");
@@ -274,7 +277,7 @@ public class RemoteServerLoginManager {
                             // TODO: Implement Refresh Tokens [MSAL4J has acquireToken(RefreshTokenParameters parameters)]
                             String[] split = result.account().homeAccountId().split("\\.");
                             EduAPI.setUserId(split[0]);
-                            EduAPI.setOrganizationId(split[1]);
+                            EduAPI.setUserOrganizationId(split[1]);
 
                             Platform.runLater(() -> {
                                 dialog.close();

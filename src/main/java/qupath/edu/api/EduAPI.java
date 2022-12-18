@@ -16,6 +16,8 @@ import qupath.lib.gui.dialogs.Dialogs;
 import qupath.lib.io.GsonTools;
 import qupath.lib.projects.Project;
 
+import javax.annotation.Nullable;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -76,11 +78,6 @@ public class EduAPI {
 	 */
 	private static String userId;
 
-	/**
-	 * The GUID of the Azure AD Tenant this user belongs to.
-	 */
-	private static String organizationId;
-
 	public static String getUserId() {
 		return userId;
 	}
@@ -90,10 +87,32 @@ public class EduAPI {
 	}
 
 	/**
-	 * Returns the users organization id. Null if not logged in.
-	 * @return String Organization UUID
+	 * The UUID of the organization this user belongs to; null if the user is unauthenticated (i.e. a guest).
 	 */
-	public static String getOrganizationId() {
+	private static String userOrganizationId;
+
+	/**
+	 * See {@link #userOrganizationId} for details.
+	 * @return Users Organization UUID or null if unauthenticated.
+	 */
+	@Nullable public static String getUserOrganizationId() {
+		return userOrganizationId;
+	}
+
+	public static void setUserOrganizationId(String userOrganizationId) {
+		EduAPI.userOrganizationId = userOrganizationId;
+	}
+
+	/**
+	 * The UUID of the organization the user is viewing.
+	 */
+	private static String organizationId;
+
+	/**
+	 * See {@link #organizationId} for details.
+	 * @return UUID of Organization currently viewed.
+	 */
+	@Nullable public static String getOrganizationId() {
 		return organizationId;
 	}
 
@@ -114,7 +133,7 @@ public class EduAPI {
 		}
 
 		return organizations.get().stream()
-				.filter(organization -> organization.getId().equals(getOrganizationId()))
+				.filter(organization -> organization.getId().equals(getUserOrganizationId()))
 				.findFirst();
 	}
 
@@ -176,7 +195,7 @@ public class EduAPI {
 
 	private static void setUser(ExternalUser user) {
 		setUserId(user.getId());
-		setOrganizationId(user.getOrganizationId());
+		setUserOrganizationId(user.getOrganizationId());
 
 		if (user.getOrganizationId() == null) {
 			Dialogs.showWarningNotification(
@@ -328,7 +347,7 @@ public class EduAPI {
 	public static void logout() {
 		setToken(null);
 		setCredentials(null, null);
-		setOrganizationId(null);
+		setUserOrganizationId(null);
 		setUserId(null);
 		roles.clear();
 		writePermissionCache.clear();

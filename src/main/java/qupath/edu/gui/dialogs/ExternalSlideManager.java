@@ -140,11 +140,10 @@ public class ExternalSlideManager {
         BooleanBinding hasWriteAccess = Bindings.createBooleanBinding(() -> {
             ExternalSlide selectedItem = table.getSelectionModel().getSelectedItem();
 
-            if (selectedItem == null) {
-                return false;
-            } else {
-                return EduAPI.hasRole(Roles.MANAGE_SLIDES) && EduAPI.getOrganizationId().equals(selectedItem.getOwner().getId());
-            }
+            if (selectedItem == null) return false;
+
+            return EduAPI.hasRole(Roles.ADMIN) ||
+                    (EduAPI.hasRole(Roles.MANAGE_SLIDES) && Objects.equals(EduAPI.getUserOrganizationId(), selectedItem.getOwner().getId()));
         }, table.getSelectionModel().selectedItemProperty());
 
         BooleanBinding slideSelected = table.getSelectionModel().selectedItemProperty().isNull();
