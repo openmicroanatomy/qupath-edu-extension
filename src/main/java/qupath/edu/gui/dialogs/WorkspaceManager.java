@@ -3,7 +3,7 @@ package qupath.edu.gui.dialogs;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -130,7 +130,7 @@ public class WorkspaceManager {
         header.getColumnConstraints().addAll(constraint, constraint);
         header.addRow(0, btnOpen, btnLogout);
 
-        GridPane.setHalignment(btnOpen, HPos.LEFT);
+        GridPane.setHalignment(btnOpen,   HPos.LEFT);
         GridPane.setHalignment(btnLogout, HPos.RIGHT);
 
         /* Footer Buttons */
@@ -185,11 +185,9 @@ public class WorkspaceManager {
         splitPane.setOrientation(Orientation.HORIZONTAL);
         splitPane.getItems().addAll(accordion, gvProjects);
 
-        createAccordion(accordion, workspaces);
+        createWorkspaceAccordion(workspaces);
 
-        accordion.expandedPaneProperty().addListener(onWorkspaceChange());
-
-        selectPreviousWorkspace(accordion);
+        accordion.expandedPaneProperty().addListener(this::onWorkspaceChange);
 
         pane.setPadding(new Insets(0));
         pane.setPrefHeight(600);
@@ -199,14 +197,17 @@ public class WorkspaceManager {
 
         BorderPane.setMargin(footer, new Insets(10));
         BorderPane.setMargin(header, new Insets(10));
+
+        // Need to wait for Pane to initialize, otherwise GridView is unable to render any items causing an error.
+        Platform.runLater(this::expandPreviousWorkspace);
     }
 
-    private void createAccordion(Accordion accordion, List<ExternalWorkspace> workspaces) {
+    private void createWorkspaceAccordion(List<ExternalWorkspace> workspaces) {
         accordion.getPanes().clear();
         currentProjects.clear();
 
         for (ExternalWorkspace workspace : workspaces) {
-            if (!belongsToSameOrganizationAsUser(workspace)) {
+            if (!belongsToCurrentOrganization(workspace)) {
                 continue;
             }
 
@@ -236,7 +237,7 @@ public class WorkspaceManager {
                 miRename.setOnAction(a -> renameWorkspace(workspace));
 
                 MenuItem miDelete = new MenuItem("Delete workspace");
-                miDelete.setOnAction(e -> deleteWorkspace(workspace));
+                miDelete.setOnAction(a -> deleteWorkspace(workspace));
 
                 // setContextMenu(...) would show up on everywhere on the TitlePane,
                 // setOnMouseClicked(...) only registers when clicking on the header i.e. workspace name
@@ -255,7 +256,7 @@ public class WorkspaceManager {
     /**
      * Check if the given workspace belongs to the same organization as the user.
      */
-    private boolean belongsToSameOrganizationAsUser(ExternalWorkspace workspace) {
+    private boolean belongsToCurrentOrganization(ExternalWorkspace workspace) {
         return workspace.getOwnerId().equals(EduAPI.getOrganizationId()) || workspace.getOwnerId().equals(EduAPI.getUserId());
     }
 
@@ -285,41 +286,43 @@ public class WorkspaceManager {
         closeDialog();
     }
 
-    private void selectPreviousWorkspace(Accordion accordion) {
-        if (EduOptions.previousWorkspace().get() != null) {
-            accordion.getPanes().forEach(workspace -> {
-                String id = ((ExternalWorkspace) workspace.getUserData()).getId();
+    private void expandPreviousWorkspace() {
+        String previousWorkspaceId = EduOptions.previousWorkspace().get();
 
-                if (id != null && id.equals(EduOptions.previousWorkspace().get())) {
-                    accordion.setExpandedPane(workspace);
-                }
-            });
-        }
+        if (previousWorkspaceId == null) return;
+
+        accordion.getPanes()
+                .stream()
+                .filter(workspace -> previousWorkspaceId.equals(((ExternalWorkspace) workspace.getUserData()).getId()))
+                .findFirst()
+                .ifPresent(accordion::setExpandedPane);
     }
 
-    private ChangeListener<TitledPane> onWorkspaceChange() {
-        return (obs, oldWorkspace, newWorkspace) -> {
-            if (newWorkspace == null) {
-                return;
-            }
+    private void onWorkspaceChange(ObservableValue<? extends TitledPane> obs, TitledPane oldWorkspace, TitledPane newWorkspace) {
+        if (newWorkspace == null) {
+            return;
+        }
 
-            ExternalWorkspace workspace = (ExternalWorkspace) newWorkspace.getUserData();
+        ExternalWorkspace workspace = (ExternalWorkspace) newWorkspace.getUserData();
+        if (workspace.getId() == null) {
+            return;
+        }
 
-            if (workspace.getId() != null) {
-                currentWorkspace.set(workspace);
+        currentWorkspace.set(workspace);
+        EduOptions.previousWorkspace().set(workspace.getId());
 
-                var hasWritePermission = EduAPI.hasWritePermission(workspace.getId());
-                hasAccessProperty.set(hasWritePermission);
-                EduExtension.setWriteAccess(hasWritePermission);
+        var hasWritePermission = EduAPI.hasWritePermission(workspace.getId());
+        hasAccessProperty.set(hasWritePermission);
+        EduExtension.setWriteAccess(hasWritePermission);
 
-                // Open the first course from this workspace.
-                if (workspace.getSubjects().size() > 0) {
-                    ExternalSubject subject = workspace.getSubjects().get(0);
+        // Try to open the first course from this workspace.
+        workspace.getSubjects()
+                .stream()
+                .findFirst()
+                .ifPresent(subject -> {
                     currentSubject.set(subject);
                     currentProjects.setAll(subject.getProjects());
-                }
-            }
-        };
+                });
     }
 
     public void refreshDialog() {
@@ -337,7 +340,7 @@ public class WorkspaceManager {
         }
 
         List<ExternalWorkspace> workspaces = EduAPI.getAllWorkspaces();
-        createAccordion(accordion, workspaces);
+        createWorkspaceAccordion(workspaces);
 
         // Restore the previously open TitlePane
 
@@ -345,16 +348,16 @@ public class WorkspaceManager {
             return;
         }
 
-        accordion.getPanes().stream()
+        accordion.getPanes()
+                .stream()
                 .filter(pane -> previousWorkspace.getId().equals(((ExternalWorkspace) pane.getUserData()).getId()))
                 .findFirst()
-                .ifPresent(accordion::setExpandedPane);
+                .ifPresent(pane -> {
+                    accordion.setExpandedPane(pane);
 
-        workspaces.stream()
-                .filter(workspace -> workspace.getId().equals(previousWorkspace.getId()))
-                .findFirst()
-                .flatMap(workspace -> workspace.findSubject(currentSubject.get()))
-                .ifPresent(subject -> currentProjects.setAll(subject.getProjects()));
+                    // Triggers onWorkspaceChange(); and sets any lessons visible.
+                    currentWorkspace.set(previousWorkspace);
+                });
     }
 
     private void createNewLesson() {
@@ -505,6 +508,18 @@ public class WorkspaceManager {
         dialog.close();
     }
 
+    public static void loadProject(String id, String name) {
+        ExternalProject project = new ExternalProject();
+        project.setId(id);
+        project.setName(name);
+
+        loadProject(project);
+    }
+
+    public static void loadProject(ExternalProject project) {
+        loadProject(project, null);
+    }
+
     /**
      * Loads an external project based on ExternalProject. If manager is defined, it tries to close the workspace
      * manager dialog, but this method can be used without it to load projects manually.
@@ -570,17 +585,5 @@ public class WorkspaceManager {
 
             logger.error("Error when loading external lesson", e);
         }
-    }
-
-    public static void loadProject(String id, String name) {
-        ExternalProject project = new ExternalProject();
-        project.setId(id);
-        project.setName(name);
-
-        loadProject(project);
-    }
-
-    public static void loadProject(ExternalProject project) {
-        loadProject(project, null);
     }
 }
