@@ -22,6 +22,7 @@ import qupath.edu.models.ExternalWorkspace;
 import qupath.lib.gui.dialogs.Dialogs;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -53,31 +54,38 @@ public class WorkspacePermissionManager {
 
     private synchronized void initializePane() {
         MasterDetailPane mdPane = new MasterDetailPane();
+        Accordion accordion = new Accordion();
 
         // Only list workspaces which belong to the users current organization.
         // Admins can edit all workspaces regardless of the organization.
-        List<ExternalWorkspace> workspaces = EduAPI.getAllWorkspaces()
+        Map<String, List<ExternalWorkspace>> grouped = EduAPI.getAllWorkspaces()
                 .stream()
-                .filter(workspace -> EduAPI.hasRole(Roles.ADMIN) || workspace.getOwnerId().equals(EduAPI.getOrganizationId()))
-                .collect(Collectors.toList());
+                .filter(workspace -> EduAPI.hasRole(Roles.ADMIN) || workspace.getOwnerId().equals(EduAPI.getUserOrganizationId()))
+                .filter(workspace -> !workspace.getOwnerId().equals(EduAPI.getUserId()))
+                .collect(Collectors.groupingBy(ExternalWorkspace::getOwnerName));
 
-        ListView<ExternalWorkspace> lvWorkspaces = new ListView<>();
-        lvWorkspaces.setCellFactory(param -> new WorkspaceNameListCell());
-        lvWorkspaces.setItems(FXCollections.observableArrayList(workspaces));
-        lvWorkspaces.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        lvWorkspaces.setPlaceholder(new Label("No workspaces available"));
-        lvWorkspaces.getSelectionModel().selectedItemProperty().addListener((o, old, workspace) -> {
-            createReadWriteTabs(mdPane, workspace.getId());
+        grouped.forEach((name, workspaces) -> {
+            ListView<ExternalWorkspace> lvWorkspaces = new ListView<>();
+            lvWorkspaces.setCellFactory(param -> new WorkspaceNameListCell());
+            lvWorkspaces.setItems(FXCollections.observableArrayList(workspaces));
+            lvWorkspaces.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+            lvWorkspaces.setPlaceholder(new Label("No workspaces available"));
+            lvWorkspaces.setOnMouseClicked(event -> {
+                var selected = lvWorkspaces.getSelectionModel().getSelectedItem();
+                createReadWriteTabs(mdPane, selected.getId());
+            });
+
+            accordion.getPanes().add(new TitledPane(name, lvWorkspaces));
         });
 
         mdPane.setPrefWidth(1400);
         mdPane.setPrefHeight(600);
-        mdPane.setMasterNode(lvWorkspaces);
+        mdPane.setMasterNode(accordion);
         mdPane.setDetailSide(Side.RIGHT);
+        mdPane.setDetailNode(new Placeholder("Select a workspace to continue"));
 
         // Bug with ControlsFX: setDividerPosition(); requires the pane to be rendered first.
         Platform.runLater(() -> {
-            mdPane.setDetailNode(new Placeholder("Select a workspace to continue"));
             mdPane.setDividerPosition(0.2);
         });
 
@@ -194,7 +202,7 @@ public class WorkspacePermissionManager {
                 setGraphic(null);
                 setText(null);
             } else {
-                setText(String.format("%s (%s)", workspace.getName(), workspace.getOwnerName()));
+                setText(workspace.getName());
             }
         }
     }
