@@ -412,7 +412,6 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         PopOver infoPopOver = new PopOver(EditModeInfoPopOverDialog.getPane());
         infoPopOver.setDetachable(false);
         infoPopOver.setArrowLocation(PopOver.ArrowLocation.TOP_CENTER);
-        infoPopOver.getRoot().getStylesheets().add(EduExtension.class.getClassLoader().getResource("css/popover.css").toExternalForm());
 
         Button btnEditModeInfo = IconButtons.createIconButton(FontAwesome.Glyph.QUESTION, 10);
         btnEditModeInfo.setFont(Font.font(10));
