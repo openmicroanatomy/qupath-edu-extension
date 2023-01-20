@@ -350,6 +350,7 @@ public class EduAPI {
 		setCredentials(null, null);
 		setUserOrganizationId(null);
 		setUserId(null);
+		setOrganizationId(null);
 		roles.clear();
 		writePermissionCache.clear();
 		readPermissionCache.clear();
