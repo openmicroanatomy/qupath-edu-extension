@@ -23,6 +23,7 @@ import qupath.lib.gui.dialogs.Dialogs;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,8 +61,8 @@ public class WorkspacePermissionManager {
         // Admins can edit all workspaces regardless of the organization.
         Map<String, List<ExternalWorkspace>> grouped = EduAPI.getAllWorkspaces()
                 .stream()
-                .filter(workspace -> EduAPI.hasRole(Roles.ADMIN) || workspace.getOwnerId().equals(EduAPI.getUserOrganizationId()))
-                .filter(workspace -> !workspace.getOwnerId().equals(EduAPI.getUserId()))
+                .filter(workspace -> EduAPI.hasRole(Roles.ADMIN) || Objects.equals(workspace.getOwnerId(), EduAPI.getUserOrganizationId()))
+                .filter(workspace -> !Objects.equals(workspace.getOwnerId(), EduAPI.getUserId()))
                 .collect(Collectors.groupingBy(ExternalWorkspace::getOwnerName));
 
         grouped.forEach((name, workspaces) -> {

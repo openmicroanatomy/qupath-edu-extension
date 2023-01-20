@@ -37,6 +37,7 @@ import qupath.lib.gui.dialogs.Dialogs;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -257,7 +258,7 @@ public class WorkspaceManager {
      * Check if the given workspace belongs to the same organization as the user.
      */
     private boolean belongsToCurrentOrganization(ExternalWorkspace workspace) {
-        return workspace.getOwnerId().equals(EduAPI.getOrganizationId()) || workspace.getOwnerId().equals(EduAPI.getUserId());
+        return Objects.equals(workspace.getOwnerId(), EduAPI.getOrganizationId()) || Objects.equals(workspace.getOwnerId(), EduAPI.getUserId());
     }
 
     private void openById(ActionEvent actionEvent) {

@@ -29,7 +29,7 @@ public class ExternalWorkspace {
     }
 
     public String getOwnerId() {
-        return owner.getId();
+        return owner == null ? null : owner.getId();
     }
 
     public List<ExternalSubject> getSubjects() {
