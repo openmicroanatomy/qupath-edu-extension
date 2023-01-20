@@ -72,6 +72,12 @@ public class WorkspacePermissionManager {
             lvWorkspaces.setPlaceholder(new Label("No workspaces available"));
             lvWorkspaces.setOnMouseClicked(event -> {
                 var selected = lvWorkspaces.getSelectionModel().getSelectedItem();
+
+                // Clicked on empty space?
+                if (selected == null) {
+                    return;
+                }
+
                 createReadWriteTabs(mdPane, selected.getId());
             });
 
