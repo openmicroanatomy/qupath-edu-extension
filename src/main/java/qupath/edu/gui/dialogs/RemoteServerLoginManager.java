@@ -273,17 +273,27 @@ public class RemoteServerLoginManager {
                     try {
                         IAuthenticationResult result = future.get();
 
-                        if (EduAPI.validate(result.idToken())) {
+                        // EduAPI requires callee to be from FXApplicationThread
+                        Platform.runLater(() -> {
+                            if (!EduAPI.validate(result.idToken())) {
+                                Dialogs.showErrorMessage(
+                                    "Authentication error",
+                                    "Session validation failed; please try again later."
+                                );
+
+                                return;
+                            }
+
                             // TODO: Implement Refresh Tokens [MSAL4J has acquireToken(RefreshTokenParameters parameters)]
                             String[] split = result.account().homeAccountId().split("\\.");
+
+                            dialog.close();
+
                             EduAPI.setUserId(split[0]);
                             EduAPI.setUserOrganizationId(split[1]);
 
-                            Platform.runLater(() -> {
-                                dialog.close();
-                                EduExtension.showWorkspaceOrLoginDialog();
-                            });
-                        }
+                            EduExtension.showWorkspaceOrLoginDialog();
+                        });
                     } catch (CancellationException e) {
                         Dialogs.showInfoNotification(
                             "Authentication cancelled",
