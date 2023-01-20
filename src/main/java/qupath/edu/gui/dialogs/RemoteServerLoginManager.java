@@ -291,6 +291,7 @@ public class RemoteServerLoginManager {
 
                             EduAPI.setUserId(split[0]);
                             EduAPI.setUserOrganizationId(split[1]);
+                            EduAPI.setOrganizationId(selectedOrganizationProperty.get());
 
                             EduExtension.showWorkspaceOrLoginDialog();
                         });
