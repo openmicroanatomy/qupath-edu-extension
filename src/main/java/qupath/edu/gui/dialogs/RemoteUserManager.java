@@ -14,6 +14,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.slf4j.Logger;
@@ -242,18 +244,20 @@ public class RemoteUserManager {
         pane.add(separator, 0, ++row);
         GridPane.setColumnSpan(separator, 2);
 
-        /* Checkboxes */
-
-        pane.add(new Label("Roles"), 0, ++row);
+        /* Roles */
 
         Map<Roles, CheckBox> checkboxes = new HashMap<>();
         for (Roles role : Roles.getModifiableRoles()) {
             CheckBox checkbox = new CheckBox();
             checkbox.setSelected(user.getRoles().contains(role));
 
-            Label label = new Label(role.getDescription());
+            Label label = new Label(role.getName());
+            label.setFont(Font.font(null, FontWeight.BOLD, -1));
             label.setLabelFor(checkbox);
             label.setAlignment(Pos.BASELINE_RIGHT);
+
+            Label details = new Label(role.getDescription());
+            details.setFont(Font.font(null, FontWeight.NORMAL, 10));
 
             // Prohibit removing MANAGE_USERS permission from themselves
             if (role.equals(Roles.MANAGE_USERS) && user.getId().equals(EduAPI.getUserId())) {
@@ -263,6 +267,7 @@ public class RemoteUserManager {
 
             pane.add(label, 0, ++row);
             pane.add(checkbox, 1, row);
+            pane.add(details, 0, ++row);
 
             checkboxes.put(role, checkbox);
         }

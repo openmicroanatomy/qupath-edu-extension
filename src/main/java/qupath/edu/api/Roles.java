@@ -6,16 +6,18 @@ import java.util.Set;
 
 public enum Roles {
 
-    ANYONE("Anyone"),
-    ADMIN("Administrative tasks"),
-    MODERATOR("Moderator tasks"),
+    ANYONE("Anyone", ""),
+    ADMIN("Administrator", "Do anything in any organization."),
+    MODERATOR("Moderator", "Create new workspaces in user's' organization."),
 
-    MANAGE_USERS("Manage users"),
-    MANAGE_SLIDES("Manage slides");
+    MANAGE_USERS("Manage users", "Create / edit / delete users in user's' organization."),
+    MANAGE_SLIDES("Manage slides", "Upload / edit / delete slides in user's' organization.");
 
+    private String name;
     private String description;
 
-    Roles(String description) {
+    Roles(String name, String description) {
+        this.name = name;
         this.description = description;
     }
 
@@ -32,6 +34,10 @@ public enum Roles {
         }
 
         return MODIFIABLE_ROLES;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getDescription() {
