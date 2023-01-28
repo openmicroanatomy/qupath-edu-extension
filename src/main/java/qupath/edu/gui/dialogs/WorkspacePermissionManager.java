@@ -71,15 +71,10 @@ public class WorkspacePermissionManager {
             lvWorkspaces.setItems(FXCollections.observableArrayList(workspaces));
             lvWorkspaces.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
             lvWorkspaces.setPlaceholder(new Label("No workspaces available"));
-            lvWorkspaces.setOnMouseClicked(event -> {
-                var selected = lvWorkspaces.getSelectionModel().getSelectedItem();
+            lvWorkspaces.getSelectionModel().selectedItemProperty().addListener((obs, oldItem, selected) -> {
+                if (selected == null) return;
 
-                // Clicked on empty space?
-                if (selected == null) {
-                    return;
-                }
-
-                createReadWriteTabs(mdPane, selected.getId());
+                updateReadWriteTabs(mdPane, selected.getId());
             });
 
             accordion.getPanes().add(new TitledPane(name, lvWorkspaces));
@@ -100,7 +95,7 @@ public class WorkspacePermissionManager {
         pane.setCenter(mdPane);
     }
 
-    private void createReadWriteTabs(MasterDetailPane mdPane, String workspaceId) {
+    private void updateReadWriteTabs(MasterDetailPane mdPane, String workspaceId) {
         if (EduAPI.hasWritePermission(workspaceId)) {
             // Fetch the latest permissions for this workspace, as they might have changed since the dialog
             // was opened initially. This also solves a bug where editing permissions and switching between
