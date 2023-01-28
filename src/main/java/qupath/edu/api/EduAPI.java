@@ -650,7 +650,7 @@ public class EduAPI {
 		var response = get("/api/v0/workspaces");
 
 		if (isInvalidResponse(response)) {
-			return Collections.emptyList();
+			throw new HttpException("Error while fetching workspaces.");
 		}
 
 		return List.of(GsonTools.getInstance().fromJson(response.get().body(), ExternalWorkspace[].class));
