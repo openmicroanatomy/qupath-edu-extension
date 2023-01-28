@@ -147,10 +147,10 @@ public class WorkspacePermissionManager {
                         .stream()
                         .anyMatch(owner -> owner.getId().equals(EduAPI.getUserId()));
 
-                if (match && !(EduAPI.getRoles().contains(Roles.ADMIN))) {
+                if (match && !(EduAPI.hasRole(Roles.ADMIN))) {
                     Dialogs.showMessageDialog(
                         "Warning",
-                        "You're about to remove permissions from yourself. " +
+                        "You're about to remove write permissions from yourself!" +
                         "\n\n" +
                         "If you save these changes, you will not be able to edit this workspace anymore unless someone restores your write permissions."
                     );
@@ -174,6 +174,17 @@ public class WorkspacePermissionManager {
         EduAPI.Result result;
 
         if (write) {
+            if (!EduAPI.hasRole(Roles.ADMIN) && owners.stream().noneMatch(owner -> owner.getId().equals(EduAPI.getUserId()))) {
+                var confirm = Dialogs.showConfirmDialog(
+                    "Warning",
+                    "You're about to remove write permissions from yourself!" +
+                    "\n\n" +
+                    "If you continue, you will not be able to edit this workspace anymore unless someone restores your write permissions."
+                );
+
+                if (!confirm) return;
+            }
+
             result = EduAPI.editWorkspaceWritePermissions(workspace.getId(), owners);
         } else {
             result = EduAPI.editWorkspaceReadPermissions(workspace.getId(), owners);
