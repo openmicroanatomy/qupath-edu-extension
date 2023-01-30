@@ -64,7 +64,7 @@ public class SlideTour implements QuPathViewerListener {
 	private final BorderPane pane = new BorderPane();
 
 	private ImageData<BufferedImage> imageData;
-	private Collection<PathObject> annotations;
+	private Collection<PathObject> objects;
 
 	/**
 	 * Has the ImageData been modified. Slide Tours add new annotations & remove, which makes
@@ -136,9 +136,9 @@ public class SlideTour implements QuPathViewerListener {
 		imageDataChanged = imageData.isChanged();
 
 		qupath.getUndoRedoManager().clear();
-		annotations = imageData.getHierarchy().getAnnotationObjects();
-		viewer.getImageData().getHierarchy().getSelectionModel().clearSelection();
-		viewer.getImageData().getHierarchy().clearAll();
+		objects = viewer.getHierarchy().getAllObjects(false);
+		viewer.getHierarchy().getSelectionModel().clearSelection();
+		viewer.getHierarchy().clearAll();
 
 		// Done this way to trigger indexProperty change.
 		if (tourEntries.size() == 0) {
@@ -157,9 +157,13 @@ public class SlideTour implements QuPathViewerListener {
 
 		stopAnimation();
 
-		viewer.getImageData().getHierarchy().getSelectionModel().clearSelection();
-		viewer.getImageData().getHierarchy().clearAll();
-		viewer.getImageData().getHierarchy().addPathObjects(annotations);
+		viewer.getHierarchy().getSelectionModel().clearSelection();
+		viewer.getHierarchy().clearAll();
+		viewer.getHierarchy().addObjects(objects);
+
+		viewer.centerImage();
+		viewer.setMagnification(viewer.getDefaultZoomFactor());
+		viewer.setRotation(0);
 
 		imageData.setChanged(imageDataChanged);
 		ReflectionUtil.setAnalysisPaneVisible(true);
