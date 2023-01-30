@@ -20,20 +20,6 @@ public class ReflectionUtil {
 
     /* QuPathGUI: Analysis Panel */
 
-    public static TabPane getAnalysisPanel() {
-        QuPathGUI qupath = QuPathGUI.getInstance();
-
-        try {
-            Field field = QuPathGUI.class.getDeclaredField("analysisPanel");
-            field.setAccessible(true);
-            return (TabPane) field.get(qupath);
-        } catch (Exception e) {
-            Dialogs.showErrorNotification("Reflection exception. Please report this error via Github", e);
-        }
-
-        return null;
-    }
-
     public static void setAnalysisPaneVisible(boolean visible) {
         QuPathGUI qupath = QuPathGUI.getInstance();
 

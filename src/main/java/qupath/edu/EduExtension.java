@@ -134,7 +134,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
 
     private void onSlideChange() {
         qupath.imageDataProperty().addListener((obs, o, n) -> {
-            ReflectionUtil.getAnalysisPanel().getSelectionModel().select(0);
+            qupath.getAnalysisTabPane().getSelectionModel().select(0);
             tabbedPanel.getSelectionModel().select(1);
         });
     }
@@ -264,13 +264,13 @@ public class EduExtension implements QuPathExtension, GitHubProject {
 
         /* Annotation Panes */
 
-        Node advancedPane = ReflectionUtil.getAnalysisPanel().getTabs().get(2).getContent();
+        Node advancedPane = qupath.getAnalysisTabPane().getTabs().get(2).getContent();
         Node simplePane   = simpleAnnotationPane.getPane();
 
         BorderPane pane = new BorderPane(simplePane);
         pane.setTop(cbUseAdvancedMenu);
 
-        ReflectionUtil.getAnalysisPanel().getTabs().get(2).setContent(pane);
+        qupath.getAnalysisTabPane().getTabs().get(2).setContent(pane);
 
         cbUseAdvancedMenu.setOnAction(e -> {
             if (cbUseAdvancedMenu.isSelected()) {

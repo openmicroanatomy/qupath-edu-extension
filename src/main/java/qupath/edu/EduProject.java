@@ -22,6 +22,7 @@ import qupath.lib.gui.dialogs.Dialogs;
 import qupath.lib.images.ImageData;
 import qupath.lib.images.servers.ImageServer;
 import qupath.lib.images.servers.ImageServerBuilder;
+import qupath.lib.images.servers.ImageServers;
 import qupath.lib.io.GsonTools;
 import qupath.lib.io.PathIO;
 import qupath.lib.objects.PathAnnotationObject;
@@ -77,6 +78,9 @@ public class EduProject implements Project<BufferedImage> {
 	private long modificationTimestamp;
 
 	public EduProject(String projectData) throws IOException {
+		// Ensure that the static method inside ImageServes is run and GSON TypeAdapters are registered.
+		var servers = new ImageServers();
+
 		Gson gson = GsonTools.getInstance();
 		JsonObject element = gson.fromJson(projectData, JsonObject.class);
 
@@ -801,14 +805,14 @@ public class EduProject implements Project<BufferedImage> {
 		}
 
 		@Override
-		public Collection<URI> getUris() throws IOException {
+		public Collection<URI> getURIs() throws IOException {
 			if (serverBuilder == null)
 				return Collections.emptyList();
 			return serverBuilder.getURIs();
 		}
 
 		@Override
-		public boolean updateUris(Map<URI, URI> replacements) throws IOException {
+		public boolean updateURIs(Map<URI, URI> replacements) throws IOException {
 			var builderBefore = serverBuilder;
 			serverBuilder = serverBuilder.updateURIs(replacements);
 

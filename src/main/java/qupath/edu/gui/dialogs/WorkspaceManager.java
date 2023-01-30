@@ -574,7 +574,7 @@ public class WorkspaceManager {
                 }
 
                 Platform.runLater(() -> {
-                    ReflectionUtil.getAnalysisPanel().getSelectionModel().select(0);
+                    qupath.getAnalysisTabPane().getSelectionModel().select(0);
                     qupath.setProject(project);
                 });
             }

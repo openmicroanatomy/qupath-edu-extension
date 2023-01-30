@@ -21,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    implementation "io.github.qupath:qupath-gui-fx:0.3.2"
+    implementation "io.github.qupath:qupath-gui-fx:0.4.2"
     implementation "com.google.guava:guava:30.1.1-jre"
     api "com.microsoft.azure:msal4j:1.11.0"
 }
