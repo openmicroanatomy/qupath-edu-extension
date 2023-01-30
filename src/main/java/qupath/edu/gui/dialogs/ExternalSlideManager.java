@@ -29,13 +29,14 @@ import org.slf4j.LoggerFactory;
 import qupath.edu.EduExtension;
 import qupath.edu.api.EduAPI;
 import qupath.edu.api.Roles;
+import qupath.edu.models.ExternalSlide;
 import qupath.edu.server.EduImageServer;
 import qupath.edu.util.EditModeManager;
+import qupath.fx.dialogs.Dialogs;
+import qupath.fx.dialogs.FileChoosers;
+import qupath.fx.utils.GridPaneUtils;
 import qupath.lib.gui.QuPathGUI;
 import qupath.lib.gui.commands.ProjectCommands;
-import qupath.lib.gui.dialogs.Dialogs;
-import qupath.lib.gui.tools.PaneTools;
-import qupath.edu.models.ExternalSlide;
 import qupath.lib.images.ImageData;
 
 import java.awt.*;
@@ -43,8 +44,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 import static qupath.edu.api.EduAPI.Result;
 
@@ -87,7 +88,7 @@ public class ExternalSlideManager {
         /* Table */
 
         table = new TableView<>();
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         table.setPlaceholder(new Text("No slides, none match search criteria or no permissions to list slides."));
         table.setEditable(true);
 
@@ -213,7 +214,7 @@ public class ExternalSlideManager {
         btnUpload.setOnAction(e -> uploadSlide());
         btnUpload.disableProperty().bind(canManageSlides);
 
-        GridPane paneButtons = PaneTools.createColumnGridControls(btnAddRemote, btnAddLocal, btnOpen, btnRename, btnDelete, btnTile, menuMore, btnUpload);
+        GridPane paneButtons = GridPaneUtils.createColumnGridControls(btnAddRemote, btnAddLocal, btnOpen, btnRename, btnDelete, btnTile, menuMore, btnUpload);
         paneButtons.setHgap(5);
 
         /* Pane */
@@ -324,11 +325,15 @@ public class ExternalSlideManager {
         }
 
         Platform.runLater(() -> {
-            qupath.openImage(EduAPI.getHost() + slideId, true, true);
-// TODO:           qupath.getTabbedPanel().getSelectionModel().select(1);
+            try {
+                qupath.openImage(qupath.getViewer(), EduAPI.getHost() + slideId, true, true);
+                // TODO: qupath.getTabbedPanel().getSelectionModel().select(1);
 
-            // Loading a slide will prompt to set ImageType. This marks ImageData as changed prompts and prompts pointlessly to save changes.
-            qupath.getImageData().setChanged(false);
+                // Loading a slide will prompt to set ImageType. This marks ImageData as changed prompts and prompts pointlessly to save changes.
+                qupath.getImageData().setChanged(false);
+            } catch (IOException e) {
+                Dialogs.showErrorNotification("Error while opening image", e);
+            }
         });
     }
 
@@ -365,7 +370,7 @@ public class ExternalSlideManager {
     private static final int CHUNK_BUFFER_SIZE = 1024 * 1024;
 
     private void uploadSlide() {
-        File file = Dialogs.promptForFile("Select slide", null, null);
+        File file = FileChoosers.promptForFile("Select slide");
 
         if (file == null) {
             return;
@@ -397,7 +402,7 @@ public class ExternalSlideManager {
                 e.consume();
             });
 
-            QuPathGUI.getInstance().submitShortTask(task);
+            qupath.getThreadPoolManager().submitShortTask(task);
             progress.showAndWait();
 
             Dialogs.showMessageDialog(

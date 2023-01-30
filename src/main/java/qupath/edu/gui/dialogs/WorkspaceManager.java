@@ -24,15 +24,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qupath.edu.EduExtension;
 import qupath.edu.EduOptions;
+import qupath.edu.EduProject;
+import qupath.edu.api.EduAPI;
 import qupath.edu.gui.SubjectListCell;
 import qupath.edu.gui.WorkspaceProjectListCell;
-import qupath.edu.api.EduAPI;
-import qupath.edu.EduProject;
 import qupath.edu.models.ExternalProject;
 import qupath.edu.models.ExternalSubject;
 import qupath.edu.models.ExternalWorkspace;
+import qupath.fx.dialogs.Dialogs;
 import qupath.lib.gui.QuPathGUI;
-import qupath.lib.gui.dialogs.Dialogs;
 
 import java.io.IOException;
 import java.util.List;
@@ -491,9 +491,11 @@ public class WorkspaceManager {
     }
 
     private void logout() {
-        // Confirm logging out if logged in
+        var confirm = !(EduAPI.getAuthType().shouldPrompt()) || Dialogs.showConfirmDialog("Are you sure?", "Are you sure you wish to log out?");
 
-        if (!(EduAPI.getAuthType().shouldPrompt()) || Dialogs.showConfirmDialog("Are you sure?", "Are you sure you wish to log out?")) {
+        if (!confirm) return;
+
+        try {
             // TODO: Multiple viewers
             qupath.getViewer().setImageData(null);
             qupath.setProject(null);
@@ -501,6 +503,8 @@ public class WorkspaceManager {
             closeDialog();
 
             EduExtension.showWorkspaceOrLoginDialog();
+        } catch (Exception e) {
+            Dialogs.showErrorNotification("Error while closing QuPath project", e);
         }
     }
 
@@ -558,7 +562,7 @@ public class WorkspaceManager {
 
             ProgressDialog progress = new ProgressDialog(worker);
             progress.setTitle("Lesson import");
-            qupath.submitShortTask(worker);
+            qupath.getThreadPoolManager().submitShortTask(worker);
             progress.showAndWait();
 
             var projectData = worker.getValue();

@@ -4,14 +4,12 @@ import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Region;
+import qupath.fx.dialogs.Dialogs;
 import qupath.lib.gui.QuPathGUI;
-import qupath.lib.gui.dialogs.Dialogs;
 import qupath.lib.gui.panes.ProjectBrowser;
 import qupath.lib.gui.viewer.QuPathViewerPlus;
-import qupath.lib.images.ImageData;
 import qupath.lib.objects.PathObject;
 
-import java.awt.image.BufferedImage;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -20,12 +18,15 @@ public class ReflectionUtil {
     /* QuPathGUI: Analysis Panel */
 
     public static void setAnalysisPaneVisible(boolean visible) {
-        QuPathGUI qupath = QuPathGUI.getInstance();
-
         try {
-            Method method = QuPathGUI.class.getDeclaredMethod("setAnalysisPaneVisible", boolean.class);
+            Field fMainPaneManager = QuPathGUI.class.getDeclaredField("mainPaneManager");
+            fMainPaneManager.setAccessible(true);
+            var mainPaneManager = fMainPaneManager.get(QuPathGUI.getInstance());
+
+            Class clazz = Class.forName("qupath.lib.gui.QuPathMainPaneManager");
+            Method method = clazz.getDeclaredMethod("setAnalysisPaneVisible", boolean.class);
             method.setAccessible(true);
-            method.invoke(qupath, visible);
+            method.invoke(mainPaneManager, visible);
         } catch (Exception e) {
             Dialogs.showErrorNotification("Reflection exception. Please report this error via Github", e);
         }
@@ -34,12 +35,15 @@ public class ReflectionUtil {
     /* QuPathGUI: Main Viewer Pane */
 
     public static Region getMainViewerPane() {
-        QuPathGUI qupath = QuPathGUI.getInstance();
-
         try {
-            Field field = QuPathGUI.class.getDeclaredField("mainViewerPane");
+            Field field = QuPathGUI.class.getDeclaredField("mainPaneManager");
             field.setAccessible(true);
-            return (Region) field.get(qupath);
+            var mainPaneManager = field.get(QuPathGUI.getInstance());
+
+            Class clazz = Class.forName("qupath.lib.gui.QuPathMainPaneManager");
+            Field field2 = clazz.getDeclaredField("mainViewerPane");
+            field2.setAccessible(true);
+            return (Region) field2.get(mainPaneManager);
         } catch (Exception e) {
             Dialogs.showErrorNotification("Reflection exception. Please report this error via Github", e);
         }
@@ -48,12 +52,15 @@ public class ReflectionUtil {
     }
 
     public static void setMainViewerPane(Region node) {
-        QuPathGUI qupath = QuPathGUI.getInstance();
-
         try {
-            Field field = QuPathGUI.class.getDeclaredField("mainViewerPane");
-            field.setAccessible(true);
-            field.set(qupath, node);
+            Field fMainPaneManager = QuPathGUI.class.getDeclaredField("mainPaneManager");
+            fMainPaneManager.setAccessible(true);
+            var mainPaneManager = fMainPaneManager.get(QuPathGUI.getInstance());
+
+            Class clazz = Class.forName("qupath.lib.gui.QuPathMainPaneManager");
+            Field fMainPane = clazz.getDeclaredField("mainViewerPane");
+            fMainPane.setAccessible(true);
+            fMainPane.set(mainPaneManager, node);
         } catch (Exception e) {
             Dialogs.showErrorNotification("Reflection exception. Please report this error via Github", e);
         }
@@ -62,12 +69,15 @@ public class ReflectionUtil {
     /* QuPathGUI: Project Browser */
 
     public static ProjectBrowser getProjectBrowser() {
-        QuPathGUI qupath = QuPathGUI.getInstance();
-
         try {
-            Field field = QuPathGUI.class.getDeclaredField("projectBrowser");
-            field.setAccessible(true);
-            return (ProjectBrowser) field.get(qupath);
+            Field fMainPaneManager = QuPathGUI.class.getDeclaredField("mainPaneManager");
+            fMainPaneManager.setAccessible(true);
+            var mainPaneManager = fMainPaneManager.get(QuPathGUI.getInstance());
+
+            Class clazz = Class.forName("qupath.lib.gui.QuPathMainPaneManager");
+            Method method = clazz.getDeclaredMethod("getProjectBrowser");
+            method.setAccessible(true);
+            return (ProjectBrowser) method.invoke(mainPaneManager);
         } catch (Exception e) {
             Dialogs.showErrorNotification("Reflection exception. Please report this error via Github", e);
         }
@@ -78,28 +88,10 @@ public class ReflectionUtil {
     /* QuPathGUI: loadIcon */
 
     public static Image loadIcon(int size) {
-        QuPathGUI qupath = QuPathGUI.getInstance();
-
         try {
             Method method = QuPathGUI.class.getDeclaredMethod("loadIcon", int.class);
             method.setAccessible(true);
-            return (Image) method.invoke(qupath, size);
-        } catch (Exception e) {
-            Dialogs.showErrorNotification("Reflection exception. Please report this error via Github", e);
-        }
-
-        return null;
-    }
-
-    /* QuPathGUI: checkSaveChanges */
-
-    public static Boolean checkSaveChanges(ImageData<BufferedImage> imageData) {
-        QuPathGUI qupath = QuPathGUI.getInstance();
-
-        try {
-            Method method = QuPathGUI.class.getDeclaredMethod("checkSaveChanges", ImageData.class);
-            method.setAccessible(true);
-            return (Boolean) method.invoke(qupath, imageData);
+            return (Image) method.invoke(QuPathGUI.getInstance(), size);
         } catch (Exception e) {
             Dialogs.showErrorNotification("Reflection exception. Please report this error via Github", e);
         }
@@ -150,12 +142,10 @@ public class ReflectionUtil {
     /* ProjectBrowser: getTree() */
 
     public static TreeView<Object> getProjectBrowserTree() {
-        ProjectBrowser projectBrowser = getProjectBrowser();
-
         try {
             Field field = ProjectBrowser.class.getDeclaredField("tree");
             field.setAccessible(true);
-            return (TreeView<Object>) field.get(projectBrowser);
+            return (TreeView<Object>) field.get(getProjectBrowser());
         } catch (Exception e) {
             Dialogs.showErrorNotification("Reflection exception. Please report this error via Github", e);
         }

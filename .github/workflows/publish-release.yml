@@ -1,0 +1,32 @@
+name: Publish a new release to GitHub
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+      - "v*.*.*-*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  gradle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 20
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Build using Gradle
+        run: ./gradlew build --scan
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: ${{ contains(github.ref, '-') }}
+          files: './build/libs/*.jar'

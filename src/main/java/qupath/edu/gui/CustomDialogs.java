@@ -8,10 +8,10 @@ import javafx.stage.Screen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qupath.edu.api.EduAPI;
+import qupath.fx.dialogs.Dialogs;
+import qupath.fx.utils.FXUtils;
 import qupath.lib.common.GeneralTools;
 import qupath.lib.gui.QuPathGUI;
-import qupath.lib.gui.dialogs.Dialogs;
-import qupath.lib.gui.tools.GuiTools;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -119,7 +119,7 @@ public final class CustomDialogs {
 				return result.get();
 			}
 		} else {
-			return GuiTools.callOnApplicationThread(() -> showTextAreaDialog(title, message, initialInput));
+			return FXUtils.callOnApplicationThread(() -> showTextAreaDialog(title, message, initialInput));
 		}
 
 		return null;

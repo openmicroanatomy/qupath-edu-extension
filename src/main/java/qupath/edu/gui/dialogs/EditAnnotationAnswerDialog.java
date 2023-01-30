@@ -6,15 +6,16 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import qupath.edu.EduProject;
 import qupath.edu.api.EduAPI;
 import qupath.edu.gui.FocusingTextFieldTableCell;
 import qupath.edu.util.ReflectionUtil;
+import qupath.fx.dialogs.Dialogs;
+import qupath.fx.utils.GridPaneUtils;
 import qupath.lib.gui.QuPathGUI;
-import qupath.lib.gui.dialogs.Dialogs;
-import qupath.lib.gui.tools.PaneTools;
 import qupath.lib.io.GsonTools;
 import qupath.lib.objects.PathObject;
 
@@ -77,7 +78,7 @@ public class EditAnnotationAnswerDialog {
         Button deleteEntryButton = new Button("Remove selected");
         deleteEntryButton.setOnMouseClicked(e -> removeRowFromTable(table));
 
-        GridPane controlButtons = PaneTools.createColumnGridControls(newEntryButton, deleteEntryButton);
+        GridPane controlButtons = GridPaneUtils.createColumnGridControls(newEntryButton, deleteEntryButton);
         controlButtons.setHgap(5);
         controlButtons.setPadding(new Insets(5));
 

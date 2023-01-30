@@ -20,13 +20,13 @@ import javafx.scene.text.Text;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import qupath.edu.gui.buttons.IconButtons;
 import qupath.edu.api.EduAPI;
 import qupath.edu.api.Roles;
+import qupath.edu.gui.buttons.IconButtons;
 import qupath.edu.models.ExternalOrganization;
 import qupath.edu.models.ExternalUser;
-import qupath.lib.gui.dialogs.Dialogs;
-import qupath.lib.gui.tools.PaneTools;
+import qupath.fx.dialogs.Dialogs;
+import qupath.fx.utils.GridPaneUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -142,7 +142,7 @@ public class RemoteUserManager {
         btnDelete.setOnAction(a -> deleteUser(selected.get()));
         btnDelete.disableProperty().bind(selected.isNull().or(hasPermission.not()));
 
-        GridPane buttons = PaneTools.createColumnGridControls(btnCreate, btnEdit, btnDelete);
+        GridPane buttons = GridPaneUtils.createColumnGridControls(btnCreate, btnEdit, btnDelete);
         buttons.setHgap(5);
 
         /* Pane */

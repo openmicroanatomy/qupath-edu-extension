@@ -14,10 +14,10 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import qupath.edu.EduOptions;
-import qupath.edu.gui.ServerListCell;
 import qupath.edu.api.EduAPI;
+import qupath.edu.gui.ServerListCell;
 import qupath.edu.models.Server;
-import qupath.lib.gui.dialogs.Dialogs;
+import qupath.fx.dialogs.Dialogs;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;

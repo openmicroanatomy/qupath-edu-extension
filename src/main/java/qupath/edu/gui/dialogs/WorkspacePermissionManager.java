@@ -19,7 +19,7 @@ import qupath.edu.api.Roles;
 import qupath.edu.models.ExternalOrganization;
 import qupath.edu.models.ExternalOwner;
 import qupath.edu.models.ExternalWorkspace;
-import qupath.lib.gui.dialogs.Dialogs;
+import qupath.fx.dialogs.Dialogs;
 
 import java.util.List;
 import java.util.Map;

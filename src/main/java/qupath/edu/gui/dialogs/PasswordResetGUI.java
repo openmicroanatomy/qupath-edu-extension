@@ -9,7 +9,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import qupath.edu.api.EduAPI;
-import qupath.lib.gui.dialogs.Dialogs;
+import qupath.fx.dialogs.Dialogs;
 
 public class PasswordResetGUI {
 

@@ -14,12 +14,13 @@ import javafx.scene.text.Text;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import qupath.edu.gui.buttons.IconButtons;
 import qupath.edu.api.EduAPI;
 import qupath.edu.api.Roles;
+import qupath.edu.gui.buttons.IconButtons;
 import qupath.edu.models.ExternalOrganization;
-import qupath.lib.gui.dialogs.Dialogs;
-import qupath.lib.gui.tools.PaneTools;
+import qupath.fx.dialogs.Dialogs;
+import qupath.fx.dialogs.FileChoosers;
+import qupath.fx.utils.GridPaneUtils;
 
 import java.io.File;
 import java.util.Collections;
@@ -113,7 +114,7 @@ public class OrganizationManager {
         btnDelete.setOnAction(e -> deleteOrganization());
         btnDelete.disableProperty().bind(selected.isNull().or(hasPermission.not()));
 
-        GridPane buttons = PaneTools.createColumnGridControls(btnCreate, btnEdit, btnDelete);
+        GridPane buttons = GridPaneUtils.createColumnGridControls(btnCreate, btnEdit, btnDelete);
         buttons.setHgap(5);
 
         /* Pane */
@@ -172,7 +173,8 @@ public class OrganizationManager {
         Button btnUploadLogo = IconButtons.createIconButton(FontAwesome.Glyph.UPLOAD);
         btnUploadLogo.setTooltip(new Tooltip("Upload new logo"));
         btnUploadLogo.setOnAction(a -> {
-            logo.set(Dialogs.promptForFile("Choose logo", null, "Images", "png"));
+            // TODO: Add PNG filter
+            logo.set(FileChoosers.promptForFile("Choose logo"));
 
             if (logo.get() != null) {
                 tfLogo.setText(logo.get().getName());

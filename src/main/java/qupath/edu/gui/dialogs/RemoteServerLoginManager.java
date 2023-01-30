@@ -17,7 +17,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.dialog.ProgressDialog;
@@ -28,9 +31,9 @@ import qupath.edu.EduOptions;
 import qupath.edu.api.EduAPI;
 import qupath.edu.models.ExternalOrganization;
 import qupath.edu.models.ServerConfiguration;
+import qupath.fx.dialogs.Dialogs;
+import qupath.fx.utils.GridPaneUtils;
 import qupath.lib.gui.QuPathGUI;
-import qupath.lib.gui.dialogs.Dialogs;
-import qupath.lib.gui.tools.PaneTools;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
@@ -109,7 +112,7 @@ public class RemoteServerLoginManager {
         btnLoginMicrosoft.setOnAction(e -> showMicrosoftAuthDialog());
         btnLoginMicrosoft.setDisable(!(serverConfiguration.isMicrosoftLoginEnabled()));
 
-        GridPane buttons = PaneTools.createRowGridControls(btnLoginGuest, new Separator(), btnLoginSimple, btnLoginMicrosoft);
+        GridPane buttons = GridPaneUtils.createRowGridControls(btnLoginGuest, new Separator(), btnLoginSimple, btnLoginMicrosoft);
         buttons.setPadding(new Insets(10));
         buttons.setVgap(10);
 
@@ -330,7 +333,7 @@ public class RemoteServerLoginManager {
                 e.consume();
             });
 
-            QuPathGUI.getInstance().submitShortTask(task);
+            QuPathGUI.getInstance().getThreadPoolManager().submitShortTask(task);
             progress.showAndWait();
         } catch (Exception e) {
             Dialogs.showErrorNotification("Error", "Error while logging in. See log for more details");

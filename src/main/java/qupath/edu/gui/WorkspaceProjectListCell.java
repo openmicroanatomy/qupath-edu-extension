@@ -14,11 +14,11 @@ import javafx.scene.text.Text;
 import org.controlsfx.control.GridCell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import qupath.edu.gui.dialogs.WorkspaceManager;
-import qupath.edu.util.ReflectionUtil;
 import qupath.edu.api.EduAPI;
+import qupath.edu.gui.dialogs.WorkspaceManager;
 import qupath.edu.models.ExternalProject;
-import qupath.lib.gui.dialogs.Dialogs;
+import qupath.edu.util.ReflectionUtil;
+import qupath.fx.dialogs.Dialogs;
 
 import static qupath.edu.api.EduAPI.Result;
 

@@ -21,8 +21,8 @@ import org.controlsfx.control.MasterDetailPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qupath.edu.util.ReflectionUtil;
+import qupath.fx.dialogs.Dialogs;
 import qupath.lib.gui.QuPathGUI;
-import qupath.lib.gui.dialogs.Dialogs;
 import qupath.lib.gui.prefs.PathPrefs;
 import qupath.lib.gui.tools.GuiTools;
 import qupath.lib.gui.tools.PathObjectLabels;
@@ -42,8 +42,8 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static qupath.lib.gui.ActionTools.createAction;
-import static qupath.lib.gui.ActionTools.createMenuItem;
+import static qupath.lib.gui.actions.ActionTools.createAction;
+import static qupath.lib.gui.actions.ActionTools.createMenuItem;
 
 public class SimpleAnnotationPane implements PathObjectSelectionListener, ChangeListener<ImageData<BufferedImage>>, PathObjectHierarchyListener {
 

@@ -1,18 +1,21 @@
 package qupath.edu.api;
 
 import com.google.common.collect.Maps;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qupath.edu.exceptions.HttpException;
-import qupath.edu.util.VersionAdapter;
 import qupath.edu.models.*;
+import qupath.edu.util.VersionAdapter;
+import qupath.fx.dialogs.Dialogs;
 import qupath.lib.common.Version;
 import qupath.lib.gui.QuPathGUI;
-import qupath.lib.gui.dialogs.Dialogs;
 import qupath.lib.io.GsonTools;
 import qupath.lib.projects.Project;
 

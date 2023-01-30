@@ -22,16 +22,17 @@ import qupath.edu.gui.dialogs.*;
 import qupath.edu.tours.SlideTour;
 import qupath.edu.util.EditModeManager;
 import qupath.edu.util.ReflectionUtil;
+import qupath.fx.dialogs.Dialogs;
+import qupath.fx.utils.GridPaneUtils;
 import qupath.lib.common.Version;
-import qupath.lib.gui.ActionTools;
 import qupath.lib.gui.QuPathGUI;
-import qupath.lib.gui.dialogs.Dialogs;
+import qupath.lib.gui.actions.ActionTools;
 import qupath.lib.gui.extensions.GitHubProject;
 import qupath.lib.gui.extensions.QuPathExtension;
 import qupath.lib.gui.panes.PreferencePane;
 import qupath.lib.gui.panes.ProjectBrowser;
 import qupath.lib.gui.prefs.PathPrefs;
-import qupath.lib.gui.tools.PaneTools;
+import qupath.lib.gui.viewer.QuPathViewer;
 import qupath.lib.gui.viewer.QuPathViewerPlus;
 import qupath.lib.gui.viewer.tools.PathTools;
 import qupath.lib.projects.Project;
@@ -41,8 +42,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-import static qupath.lib.gui.ActionTools.createAction;
-import static qupath.lib.gui.ActionTools.createMenuItem;
+import static qupath.lib.gui.actions.ActionTools.createAction;
+import static qupath.lib.gui.actions.ActionTools.createMenuItem;
 
 /**
  * TODO:
@@ -97,6 +98,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         onEditModeToggled();
 
         disableButtons();
+        disableStartupMessage();
 
         // Run on a separate thread, because extension initialization happens in QuPath's
         // main thread and our dialogs can interfere with its' initialization.
@@ -121,11 +123,11 @@ public class EduExtension implements QuPathExtension, GitHubProject {
                 PathPrefs.imageTypeSettingProperty().set(PathPrefs.ImageTypeSetting.PROMPT);
             } else {
                 PathPrefs.imageTypeSettingProperty().set(PathPrefs.ImageTypeSetting.NONE);
-                qupath.setSelectedTool(PathTools.MOVE);
+                qupath.getToolManager().setSelectedTool(PathTools.MOVE);
                 qupath.getViewer().setActiveTool(PathTools.MOVE);
             }
 
-            qupath.setToolSwitchingEnabled(enabled);
+            qupath.getToolManager().setToolSwitchingEnabled(enabled);
         });
 
         // Toggle edit mode so that tools get disabled / enabled
@@ -308,37 +310,41 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         ProjectBrowser projectBrowser = ReflectionUtil.getProjectBrowser();
 
         Button btnCreate = ActionTools.createButton(
-            ActionTools.createAction(EduExtension::showWorkspaceOrLoginDialog, "Create lesson"), false
+            ActionTools.createAction(EduExtension::showWorkspaceOrLoginDialog, "Create lesson")
         );
         btnCreate.disableProperty().bind(editModeManager.editModeEnabledProperty().not());
 
         Button btnOpen = ActionTools.createButton(
-            ActionTools.createAction(EduExtension::showWorkspaceOrLoginDialog, "Open lesson"), false
+            ActionTools.createAction(EduExtension::showWorkspaceOrLoginDialog, "Open lesson")
         );
 
         Button btnAdd = ActionTools.createButton(
-            ActionTools.createAction(ExternalSlideManager::showExternalSlideManager, "Add images"), false
+            ActionTools.createAction(ExternalSlideManager::showExternalSlideManager, "Add images")
         );
         btnAdd.disableProperty().bind(editModeManager.editModeEnabledProperty().not().or(qupath.projectProperty().isNull()));
 
-        GridPane paneButtons = PaneTools.createColumnGridControls(btnCreate, btnOpen, btnAdd);
+        GridPane paneButtons = GridPaneUtils.createColumnGridControls(btnCreate, btnOpen, btnAdd);
         paneButtons.prefWidthProperty().bind(projectBrowser.getPane().widthProperty());
         paneButtons.setPadding(new Insets(5, 5, 5, 5));
         ((BorderPane) projectBrowser.getPane()).setTop(paneButtons);
     }
 
     private void registerSlideTours() {
-        QuPathViewerPlus viewer = qupath.getViewer();
+        QuPathViewer viewer = qupath.getViewer();
+
+        if (!(viewer instanceof QuPathViewerPlus)) {
+            return;
+        }
 
         SlideTour slideTour = new SlideTour(viewer);
         Node slideTourNode = slideTour.getNode();
 
-        ReflectionUtil.getViewerBasePane(viewer).getChildren().add(slideTourNode);
+        ReflectionUtil.getViewerBasePane((QuPathViewerPlus) viewer).getChildren().add(slideTourNode);
 
         AnchorPane.setTopAnchor(slideTourNode, 10d);
         AnchorPane.setLeftAnchor(slideTourNode, 10d);
 
-        qupath.getViewer().addViewerListener(new SlideTour(qupath.getViewer()));
+        viewer.addViewerListener(slideTour);
     }
 
     private void checkSaveChanges() {
@@ -417,6 +423,10 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         btnEditModeInfo.setOnAction(a -> infoPopOver.show(btnEditModeInfo));
 
         qupath.getToolBar().getItems().addAll(new Separator(), btnToggleEditMode, btnEditModeInfo);
+    }
+
+    private void disableStartupMessage() {
+        PathPrefs.showStartupMessageProperty().set(false);
     }
 
     public static void showWorkspaceOrLoginDialog() {

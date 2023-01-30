@@ -11,9 +11,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
@@ -25,12 +25,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qupath.edu.EduExtension;
 import qupath.edu.EduProject;
+import qupath.edu.api.EduAPI;
 import qupath.edu.gui.CustomDialogs;
 import qupath.edu.util.ReflectionUtil;
-import qupath.edu.api.EduAPI;
+import qupath.fx.dialogs.Dialogs;
+import qupath.fx.utils.GridPaneUtils;
 import qupath.lib.gui.QuPathGUI;
-import qupath.lib.gui.dialogs.Dialogs;
-import qupath.lib.gui.tools.PaneTools;
 import qupath.lib.gui.viewer.QuPathViewer;
 import qupath.lib.gui.viewer.QuPathViewerListener;
 import qupath.lib.images.ImageData;
@@ -264,7 +264,7 @@ public class SlideTour implements QuPathViewerListener {
 		btnMore.disableProperty().bind(EduExtension.getEditModeManager().editModeEnabledProperty().not());
 		btnMore.getItems().addAll(btnNew, btnEditText, btnSave, btnDelete, btnViewAll);
 
-		GridPane buttons = PaneTools.createColumnGridControls(btnExit, btnPrevious, btnNext, btnMore);
+		GridPane buttons = GridPaneUtils.createColumnGridControls(btnExit, btnPrevious, btnNext, btnMore);
 		buttons.setHgap(5);
 
 		/* Pane */
@@ -434,7 +434,7 @@ public class SlideTour implements QuPathViewerListener {
 		Button btnNew = new Button("Create new frame");
 		btnNew.setOnAction(a -> createNewEntry());
 
-		GridPane buttons = PaneTools.createColumnGridControls(btnEdit, btnDelete, btnNew);
+		GridPane buttons = GridPaneUtils.createColumnGridControls(btnEdit, btnDelete, btnNew);
 		buttons.setHgap(5);
 
 		/* Pane */

@@ -15,8 +15,8 @@ import qupath.edu.EduExtension;
 import qupath.edu.api.EduAPI;
 import qupath.edu.models.ExternalBackup;
 import qupath.edu.models.ExternalProject;
-import qupath.lib.gui.dialogs.Dialogs;
-import qupath.lib.gui.tools.PaneTools;
+import qupath.fx.dialogs.Dialogs;
+import qupath.fx.utils.GridPaneUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -108,7 +108,7 @@ public class BackupManager {
         btnPreview.setOnAction(e -> previewBackup());
         btnPreview.disableProperty().bind(backupSelected);
 
-        GridPane buttons = PaneTools.createColumnGridControls(btnRestore, btnPreview);
+        GridPane buttons = GridPaneUtils.createColumnGridControls(btnRestore, btnPreview);
         buttons.setHgap(5);
 
         /* Pane */

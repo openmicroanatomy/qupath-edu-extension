@@ -3,10 +3,10 @@ package qupath.edu.gui.dialogs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qupath.edu.EduExtension;
-import qupath.edu.gui.CustomDialogs;
 import qupath.edu.EduProject;
+import qupath.edu.gui.CustomDialogs;
+import qupath.fx.dialogs.Dialogs;
 import qupath.lib.gui.QuPathGUI;
-import qupath.lib.gui.dialogs.Dialogs;
 
 import java.io.IOException;
 import java.util.Optional;

@@ -5,8 +5,8 @@ import javafx.scene.control.ButtonType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qupath.edu.api.EduAPI;
+import qupath.fx.dialogs.Dialogs;
 import qupath.lib.gui.QuPathGUI;
-import qupath.lib.gui.dialogs.Dialogs;
 import qupath.lib.images.ImageData;
 import qupath.lib.io.PathIO;
 
