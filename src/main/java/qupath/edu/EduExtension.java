@@ -334,7 +334,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         SlideTour slideTour = new SlideTour(viewer);
         Node slideTourNode = slideTour.getNode();
 
-        ReflectionUtil.getViewerBasePane(viewer).getChildren().add(slideTour.getNode());
+        ReflectionUtil.getViewerBasePane(viewer).getChildren().add(slideTourNode);
 
         AnchorPane.setTopAnchor(slideTourNode, 10d);
         AnchorPane.setLeftAnchor(slideTourNode, 10d);

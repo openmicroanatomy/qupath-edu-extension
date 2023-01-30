@@ -166,13 +166,14 @@ public class SlideTour implements QuPathViewerListener {
 	}
 
 	private synchronized void drawPane() {
+		if (!(qupath.getProject() instanceof EduProject project)) {
+			pane.setVisible(false);
+			return;
+		}
+
 		pane.setVisible(viewer.getImageData() != null);
 
-		EduProject project = (EduProject) QuPathGUI.getInstance().getProject();
-
-		if (project != null) {
-			hasWritePermission = EduAPI.hasWritePermission(project.getId());
-		}
+		hasWritePermission = EduAPI.hasWritePermission(project.getId());
 
 		if (isTourActive) {
 			drawTourPane();
