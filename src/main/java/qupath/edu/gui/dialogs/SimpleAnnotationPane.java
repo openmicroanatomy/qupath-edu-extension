@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
 import qupath.edu.util.ReflectionUtil;
 import qupath.lib.gui.QuPathGUI;
 import qupath.lib.gui.dialogs.Dialogs;
-import qupath.lib.gui.panes.PathObjectListCell;
 import qupath.lib.gui.prefs.PathPrefs;
 import qupath.lib.gui.tools.GuiTools;
+import qupath.lib.gui.tools.PathObjectLabels;
 import qupath.lib.gui.viewer.QuPathViewer;
 import qupath.lib.images.ImageData;
 import qupath.lib.images.servers.ImageServer;
@@ -77,14 +77,17 @@ public class SimpleAnnotationPane implements PathObjectSelectionListener, Change
     private TextArea slideDescription = new TextArea();
 
     public void setSlideDescription(String description) {
+        description = Strings.nullToEmpty(description).trim();
         slideDescription.setText(description);
 
         // Empty text areas take up space: setting managed to false will stop rendering it.
         slideDescription.setManaged(!(Strings.isNullOrEmpty(description)));
 
         // Hacky way to calculate text height, Utils.computeTextHeight(); is too inaccurate
-        Text text = (Text) slideDescription.lookup(".text");
-        slideDescription.setPrefHeight(text.getBoundsInLocal().getHeight() + 10);
+        Platform.runLater(() -> {
+            Text text = (Text) slideDescription.lookup(".text");
+            slideDescription.setPrefHeight(text.getBoundsInLocal().getHeight() + 10);
+        });
     }
 
     private StringProperty descriptionProperty = new SimpleStringProperty();
@@ -186,11 +189,11 @@ public class SimpleAnnotationPane implements PathObjectSelectionListener, Change
         btnShowAnswer.disableProperty().bind(answerProperty.isNull());
         btnShowAnswer.prefWidthProperty().bind(panelObjects.widthProperty());
 
-        slideDescription.maxHeightProperty().bind(pane.heightProperty().divide(3).multiply(2));
+        slideDescription.maxHeightProperty().bind(pane.heightProperty().divide(3));
         slideDescription.setMinHeight(0);
         slideDescription.setWrapText(true);
-        slideDescription.setDisable(true);
-        slideDescription.setManaged(false); // Initially false; value is managed by setSlideDescription()
+        slideDescription.setEditable(false);
+        slideDescription.prefWidthProperty().bind(panelObjects.widthProperty());
         slideDescription.setStyle("-fx-opacity: 1.0;"); // Disabled text fields are gray because of lower opacity
 
         panelObjects.setTop(slideDescription);
