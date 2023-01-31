@@ -10,6 +10,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
+import javafx.scene.web.WebView;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.glyphfont.FontAwesome;
@@ -39,6 +40,7 @@ import qupath.lib.projects.Project;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 import static qupath.lib.gui.ActionTools.createAction;
 import static qupath.lib.gui.ActionTools.createMenuItem;
@@ -141,18 +143,16 @@ public class EduExtension implements QuPathExtension, GitHubProject {
 
     private void onProjectChange() {
         qupath.projectProperty().addListener((obs, oldProject, newProject) -> {
+            var MISSING = "No information available for this lesson";
+            
             if (newProject == null) {
-                projectInformation.setContent("No lesson open");
+                setProjectInformation("No lesson open");
             } else if (newProject instanceof EduProject project) {
                 String projectInformation = project.getProjectInformation();
 
-                if (projectInformation == null) {
-                    EduExtension.projectInformation.setContent("No information available for this lesson");
-                } else {
-                    EduExtension.projectInformation.setContent(projectInformation);
-                }
+                setProjectInformation(Objects.requireNonNullElse(projectInformation, MISSING));
             } else {
-                projectInformation.setContent("No information available for this lesson");
+                setProjectInformation(MISSING);
             }
         });
     }
