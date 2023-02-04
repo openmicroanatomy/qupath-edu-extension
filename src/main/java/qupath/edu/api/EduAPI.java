@@ -565,7 +565,15 @@ public class EduAPI {
 	}
 
 	public static Optional<JsonObject> getSlideProperties(URI uri) {
-		var response = get("/api/v0/slides/" + uri.getPath().substring(1), uri);
+		return getSlideProperties(uri.getPath().substring(1), uri);
+	}
+
+	public static Optional<JsonObject> getSlideProperties(String id) {
+		return getSlideProperties(id, host);
+	}
+
+	public static Optional<JsonObject> getSlideProperties(String id, URI host) {
+		var response = get("/api/v0/slides/" + id, host);
 
 		if (isInvalidResponse(response)) {
 			return Optional.empty();

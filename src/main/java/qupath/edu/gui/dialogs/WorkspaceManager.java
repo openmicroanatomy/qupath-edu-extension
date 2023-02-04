@@ -268,18 +268,18 @@ public class WorkspaceManager {
             ""
         );
 
-        if (id == null) {
-            return;
-        }
+        if (id == null) return;
 
-        List<ExternalSlide> slides = EduAPI.getAllSlides();
-        Optional<ExternalSlide> slide = slides.stream().filter(s -> s.getId().equalsIgnoreCase(id.strip())).findFirst();
+        id = id.strip();
+
+        Optional<JsonObject> slide = EduAPI.getSlideProperties(id);
+
         if (slide.isPresent()) {
-            ExternalSlideManager.openSlide(slide.get());
+            ExternalSlideManager.openSlide(id);
         } else {
             ExternalProject project = new ExternalProject();
-            project.setId(id.strip());
-            project.setName(id.strip());
+            project.setId(id);
+            project.setName(id);
 
             WorkspaceManager.loadProject(project);
         }

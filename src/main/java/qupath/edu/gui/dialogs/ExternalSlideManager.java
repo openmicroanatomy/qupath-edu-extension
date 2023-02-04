@@ -86,7 +86,7 @@ public class ExternalSlideManager {
 
         table = new TableView<>();
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        table.setPlaceholder(new Text("No slides, none match search criteria or no permissions."));
+        table.setPlaceholder(new Text("No slides, none match search criteria or no permissions to list slides."));
         table.setEditable(true);
 
         TableColumn<ExternalSlide, Boolean> selectedColumn = new TableColumn<>();
@@ -267,6 +267,10 @@ public class ExternalSlideManager {
     }
 
     public static void openSlide(ExternalSlide slide) {
+        openSlide(slide.getId());
+    }
+
+    public static void openSlide(String slideId) {
         if (qupath.getProject() != null) {
             ButtonType closeProject = new ButtonType("Close lesson and continue", ButtonBar.ButtonData.FINISH);
             ButtonType addToProject = new ButtonType("Add slide to lesson",       ButtonBar.ButtonData.OK_DONE);
@@ -296,7 +300,7 @@ public class ExternalSlideManager {
         }
 
         Platform.runLater(() -> {
-            qupath.openImage(EduAPI.getHost() + slide.getId(), true, true);
+            qupath.openImage(EduAPI.getHost() + slideId, true, true);
 // TODO:           qupath.getTabbedPanel().getSelectionModel().select(1);
 
             // Loading a slide will prompt to set ImageType. This marks ImageData as changed prompts and prompts pointlessly to save changes.
