@@ -1,5 +1,6 @@
 package qupath.edu.gui.dialogs;
 
+import com.google.gson.JsonObject;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -25,11 +26,9 @@ import qupath.edu.EduExtension;
 import qupath.edu.EduOptions;
 import qupath.edu.gui.SubjectListCell;
 import qupath.edu.gui.WorkspaceProjectListCell;
-import qupath.edu.util.ReflectionUtil;
 import qupath.edu.api.EduAPI;
 import qupath.edu.EduProject;
 import qupath.edu.models.ExternalProject;
-import qupath.edu.models.ExternalSlide;
 import qupath.edu.models.ExternalSubject;
 import qupath.edu.models.ExternalWorkspace;
 import qupath.lib.gui.QuPathGUI;
