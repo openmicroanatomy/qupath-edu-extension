@@ -9,6 +9,7 @@ public class ExternalSlide {
     private String name;
     private String id;
     private ExternalOwner owner;
+    private Boolean tiled;
     private Map<String, String> properties;
 
     private SimpleBooleanProperty selected = new SimpleBooleanProperty(false);
@@ -33,6 +34,17 @@ public class ExternalSlide {
         return properties;
     }
 
+    public Boolean isTiled() {
+        return tiled;
+    }
+
+    /**
+     * Special case for {@link PropertyValueFactory} because it assumes that getters are always prefixed with `get`.
+     */
+    public Boolean getTiled() {
+        return tiled;
+    }
+
     public boolean isSelected() {
         return selected.get();
     }
@@ -46,8 +58,8 @@ public class ExternalSlide {
         return "ExternalSlide{" +
                 "name='" + name + '\'' +
                 ", id='" + id + '\'' +
-                ", owner='" + owner + '\'' +
-                ", properties=" + properties +
+                ", owner=" + owner +
+                ", tiled=" + tiled +
                 '}';
     }
 }

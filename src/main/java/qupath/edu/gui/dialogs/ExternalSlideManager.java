@@ -1,8 +1,10 @@
 package qupath.edu.gui.dialogs;
 
+import com.google.gson.Gson;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -93,6 +95,7 @@ public class ExternalSlideManager {
         selectedColumn.setCellValueFactory(new PropertyValueFactory<>("selected"));
         selectedColumn.setCellFactory(tc -> new CheckBoxTableCell<>());
         selectedColumn.setEditable(true);
+        selectedColumn.setSortable(false);
         selectedColumn.setReorderable(false);
         selectedColumn.setResizable(false);
         selectedColumn.setMinWidth(28);
@@ -106,11 +109,17 @@ public class ExternalSlideManager {
         ownerColumn.setCellValueFactory(new PropertyValueFactory<>("ownerReadable"));
         ownerColumn.setReorderable(false);
 
-        TableColumn<ExternalSlide, String> uuidColumn = new TableColumn<>("UUID");
-        uuidColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        uuidColumn.setReorderable(false);
+        TableColumn<ExternalSlide, Boolean> tiledColumn = new TableColumn<>("Tiled");
+        tiledColumn.setCellValueFactory(row -> new ReadOnlyBooleanWrapper(row.getValue().isTiled()));
+        tiledColumn.setCellFactory(tc -> new CheckBoxTableCell<>());
+        tiledColumn.setEditable(false);
+        tiledColumn.setSortable(false);
+        tiledColumn.setReorderable(false);
+        tiledColumn.setResizable(false);
+        tiledColumn.setMinWidth(50);
+        tiledColumn.setMaxWidth(50);
 
-        table.getColumns().addAll(selectedColumn, slideNameColumn, ownerColumn, uuidColumn);
+        table.getColumns().addAll(selectedColumn, slideNameColumn, ownerColumn, tiledColumn);
 
         /* Filter / Search */
 
@@ -146,12 +155,24 @@ public class ExternalSlideManager {
                     (EduAPI.hasRole(Roles.MANAGE_SLIDES) && Objects.equals(EduAPI.getUserOrganizationId(), selectedItem.getOwner().getId()));
         }, table.getSelectionModel().selectedItemProperty());
 
-        BooleanBinding slideSelected = table.getSelectionModel().selectedItemProperty().isNull();
+        BooleanBinding slideSelected = table.getSelectionModel().selectedItemProperty().isNotNull();
         BooleanBinding canManageSlides = new SimpleBooleanProperty(EduAPI.hasRole(Roles.MANAGE_SLIDES)).not();
+        BooleanBinding isTiled = Bindings.createBooleanBinding(() -> {
+            ExternalSlide selectedItem = table.getSelectionModel().getSelectedItem();
+
+            if (selectedItem == null) return false;
+
+            return selectedItem.isTiled();
+        }, table.getSelectionModel().selectedItemProperty());
 
         Button btnAddRemote = new Button("Add selected");
         btnAddRemote.setTooltip(new Tooltip("Add selected slides to current lesson"));
-        btnAddRemote.disableProperty().bind(qupath.projectProperty().isNull().or(editModeManager.editModeEnabledProperty().not()));
+        btnAddRemote.disableProperty().bind(
+            qupath.projectProperty().isNull().or(
+            editModeManager.editModeEnabledProperty().not().or(
+            slideSelected.not()
+        )));
+
         btnAddRemote.setOnAction(e -> addImages());
 
         Button btnAddLocal = new Button("Add local slide");
@@ -161,15 +182,19 @@ public class ExternalSlideManager {
 
         Button btnOpen = new Button("Open selected");
         btnOpen.setOnAction(e -> openSlide(table.getSelectionModel().getSelectedItem()));
-        btnOpen.disableProperty().bind(slideSelected);
+        btnOpen.disableProperty().bind(slideSelected.not());
 
         Button btnRename = new Button("Rename");
         btnRename.setOnAction(e -> renameSlide());
-        btnRename.disableProperty().bind(slideSelected.or(hasWriteAccess.not()).or(canManageSlides));
+        btnRename.disableProperty().bind(slideSelected.not().or(hasWriteAccess.not()).or(canManageSlides));
 
         Button btnDelete = new Button("Delete");
         btnDelete.setOnAction(e -> deleteSlide());
-        btnDelete.disableProperty().bind(slideSelected.or(hasWriteAccess.not()).or(canManageSlides));
+        btnDelete.disableProperty().bind(slideSelected.not().or(hasWriteAccess.not()).or(canManageSlides));
+
+        Button btnTile = new Button("Tile");
+        btnTile.setOnAction(e -> tileSlide());
+        btnTile.disableProperty().bind(Bindings.and(slideSelected, isTiled).or(slideSelected.not()));
 
         MenuItem miCopyID = new MenuItem("Copy ID");
         miCopyID.setOnAction(e -> copySlideID());
@@ -179,17 +204,16 @@ public class ExternalSlideManager {
 
         MenuItem miViewProperties = new MenuItem("View properties");
         miViewProperties.setOnAction(e -> viewProperties());
-        miViewProperties.disableProperty().bind(slideSelected);
 
         MenuButton menuMore = new MenuButton("More ...");
         menuMore.getItems().addAll(miCopyID, miCopyURL, miViewProperties);
-        menuMore.disableProperty().bind(slideSelected);
+        menuMore.disableProperty().bind(slideSelected.not());
 
         Button btnUpload = new Button("Import slide");
         btnUpload.setOnAction(e -> uploadSlide());
         btnUpload.disableProperty().bind(canManageSlides);
 
-        GridPane paneButtons = PaneTools.createColumnGridControls(btnAddRemote, btnAddLocal, btnOpen, btnRename, btnDelete, menuMore, btnUpload);
+        GridPane paneButtons = PaneTools.createColumnGridControls(btnAddRemote, btnAddLocal, btnOpen, btnRename, btnDelete, btnTile, menuMore, btnUpload);
         paneButtons.setHgap(5);
 
         /* Pane */
@@ -310,6 +334,7 @@ public class ExternalSlideManager {
 
     private void viewProperties() {
         ExternalSlide slide = table.getSelectionModel().getSelectedItem();
+        var properties = EduAPI.getSlideProperties(slide.getId());
 
         TableView<Map.Entry<String, String>> propertiesTable = new TableView<>();
         propertiesTable.setPrefWidth(800);
@@ -326,7 +351,7 @@ public class ExternalSlideManager {
         valueColumn.setEditable(true);
 
         propertiesTable.getColumns().addAll(keyColumn, valueColumn);
-        propertiesTable.getItems().addAll(slide.getProperties().entrySet());
+        propertiesTable.getItems().addAll(new Gson().fromJson(properties.get(), HashMap.class).entrySet());
         propertiesTable.getSortOrder().add(keyColumn);
 
         Dialogs.builder()
@@ -426,6 +451,25 @@ public class ExternalSlideManager {
             refreshDialog();
         } else {
             Dialogs.showErrorNotification("Error", "Error while renaming slide. See log for possibly additional information.");
+        }
+    }
+
+
+    private void tileSlide() {
+        ExternalSlide slide = table.getSelectionModel().getSelectedItem();
+
+        Result result = EduAPI.submitSlideForTiling(slide.getId());
+
+        if (result == Result.OK) {
+            Dialogs.showInfoNotification(
+                "Success",
+                "Successfully submitted slide for tiling. Once tiling is completed, slide will be marked as tiled and is ready to be used."
+            );
+        } else {
+            Dialogs.showErrorNotification(
+                "Error",
+                "Error while submitting slide for tiling -- slide might already be queued for tiling; please retry later."
+            );
         }
     }
 

@@ -598,6 +598,12 @@ public class EduAPI {
 		return isInvalidResponse(response) ? Result.FAIL : Result.OK;
 	}
 
+	public static Result submitSlideForTiling(String slideId) {
+		var response = post("/api/v0/slides/" + e(slideId) + "/tile", Map.of());
+
+		return isInvalidResponse(response) ? Result.FAIL : Result.OK;
+	}
+
 	public static Result uploadSlideChunk(String fileName, long fileSize, byte[] buffer, int chunkSize, int chunkIndex) throws IOException, InterruptedException {
 		String boundary = new BigInteger(256, new Random()).toString();
 		Map<Object, Object> data = new LinkedHashMap<>();
