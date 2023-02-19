@@ -938,8 +938,7 @@ public class EduAPI {
 		for (Map.Entry<Object, Object> entry : data.entrySet()) {
 			byteArrays.add(separator);
 
-			if (entry.getValue() instanceof Path) {
-				var path = (Path) entry.getValue();
+			if (entry.getValue() instanceof Path path) {
 				String mimeType = Files.probeContentType(path);
 				byteArrays.add(("\"" + entry.getKey() + "\"; filename=\"" + path.getFileName() + "\""
 						+ LINE_FEED + "Content-Type: " + mimeType).getBytes());

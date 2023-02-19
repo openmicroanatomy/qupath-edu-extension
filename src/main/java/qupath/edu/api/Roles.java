@@ -13,8 +13,8 @@ public enum Roles {
     MANAGE_USERS("Manage users", "Create / edit / delete users in user's' organization."),
     MANAGE_SLIDES("Manage slides", "Upload / edit / delete slides in user's' organization.");
 
-    private String name;
-    private String description;
+    private final String name;
+    private final String description;
 
     Roles(String name, String description) {
         this.name = name;

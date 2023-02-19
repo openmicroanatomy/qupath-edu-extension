@@ -1,6 +1,5 @@
 package qupath.edu.util;
 
-import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;

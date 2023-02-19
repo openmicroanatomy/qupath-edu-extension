@@ -413,7 +413,7 @@ public class SimpleAnnotationPane implements PathObjectSelectionListener, Change
     private void showQuizDialog(PathObject pathObject) {
         try {
             List<MultichoiceOption> choices = List.of(new Gson().fromJson((String) ReflectionUtil.retrieveMetadataValue(pathObject, ANSWER_KEY), MultichoiceOption[].class));
-            List<MultichoiceOption> answers = choices.stream().filter(MultichoiceOption::getIsAnswer).collect(Collectors.toList());
+            List<MultichoiceOption> answers = choices.stream().filter(MultichoiceOption::getIsAnswer).toList();
 
             MultichoiceOption result = (MultichoiceOption) Dialogs.showChoiceDialog("Select correct choice", pathObject.getName(), choices.toArray(), choices.get(0));
 

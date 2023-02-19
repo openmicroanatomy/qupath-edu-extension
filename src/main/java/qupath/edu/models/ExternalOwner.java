@@ -27,8 +27,7 @@ public class ExternalOwner {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null) return false;
-        if (!(o instanceof ExternalOwner)) return false;
-        ExternalOwner that = (ExternalOwner) o;
+        if (!(o instanceof ExternalOwner that)) return false;
         return id.equals(that.id) && name.equals(that.name);
     }
 

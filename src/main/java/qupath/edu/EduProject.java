@@ -15,7 +15,6 @@ import qupath.edu.tours.SlideTourEntry;
 import qupath.edu.util.PathAnnotationObjectWithMetadata;
 import qupath.lib.classifiers.object.ObjectClassifier;
 import qupath.lib.classifiers.pixel.PixelClassifier;
-import qupath.lib.common.GeneralTools;
 import qupath.lib.gui.QuPathGUI;
 import qupath.lib.gui.commands.ProjectCommands;
 import qupath.lib.gui.dialogs.Dialogs;
@@ -49,15 +48,12 @@ import java.util.stream.Collectors;
 /**
  * Data structure to store multiple images and their respective data.
  * Stores everything mainly in-memory and syncs it with an external server.
- *
- * Work in progress.
- *
+ * <p>
  * Based on {@link qupath.lib.projects.DefaultProject}
- *
  */
 public class EduProject implements Project<BufferedImage> {
 
-	public final static String IMAGE_ID = "PROJECT_ENTRY_ID";
+	private final String IMAGE_ID = "PROJECT_ENTRY_ID";
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 

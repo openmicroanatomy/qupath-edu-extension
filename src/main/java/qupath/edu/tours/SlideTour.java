@@ -69,7 +69,7 @@ public class SlideTour implements QuPathViewerListener {
 	/**
 	 * Has the ImageData been modified. Slide Tours add new annotations & remove, which makes
 	 * QuPath think that some modifications were made. This value is restored once the tour is over.
-	 *
+	 * <p>
 	 * Editing a tour entry will set this to true to ensure that changes to tours are saved.
 	 */
 	private boolean imageDataChanged;
@@ -99,7 +99,7 @@ public class SlideTour implements QuPathViewerListener {
 
 				viewer.getImageData().getHierarchy().getSelectionModel().clearSelection();
 				viewer.getImageData().getHierarchy().clearAll();
-				viewer.getImageData().getHierarchy().addPathObjects(entry.getAnnotations());
+				viewer.getImageData().getHierarchy().addObjects(entry.getAnnotations());
 			}
 		});
 

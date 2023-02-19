@@ -9,7 +9,7 @@ import javafx.scene.input.KeyCode;
 /**
  * A TextFieldTableCell that saves changes when the textfield is out-of-focus.
  * Works only when clicking other items / empty items on the TableView.
- *
+ * <p>
  * Based on <a href="https://stackoverflow.com/a/33919078>this StackOverflow issue</a>
  */
 public class FocusingTextFieldTableCell<T> extends TableCell<T, String> {
