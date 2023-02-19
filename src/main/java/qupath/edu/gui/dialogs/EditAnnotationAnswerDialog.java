@@ -8,8 +8,11 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import qupath.edu.EduProject;
+import qupath.edu.api.EduAPI;
 import qupath.edu.gui.FocusingTextFieldTableCell;
 import qupath.edu.util.ReflectionUtil;
+import qupath.lib.gui.QuPathGUI;
 import qupath.lib.gui.dialogs.Dialogs;
 import qupath.lib.gui.tools.PaneTools;
 import qupath.lib.io.GsonTools;
@@ -20,8 +23,13 @@ import java.util.Collections;
 public class EditAnnotationAnswerDialog {
 
     public static boolean openDialog(SimpleAnnotationPane annotationPane) {
-        if (!EduAPI.hasRole(Roles.MANAGE_PROJECTS)) {
-            Dialogs.showErrorMessage("No permission", "You don't have permissions to edit answers.");
+        if (!(QuPathGUI.getInstance().getProject() instanceof EduProject project)) {
+            Dialogs.showErrorNotification("Error", "The current project is not an EduProject -- cannot edit information.");
+            return true;
+        }
+
+        if (!(EduAPI.hasWritePermission(project.getId()))) {
+            Dialogs.showErrorNotification("No permission", "You don't have permissions to edit answers.");
             return true;
         }
 
