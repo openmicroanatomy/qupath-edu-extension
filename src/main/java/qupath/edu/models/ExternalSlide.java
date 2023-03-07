@@ -9,7 +9,7 @@ public class ExternalSlide {
     private String name;
     private String id;
     private ExternalOwner owner;
-    private Boolean tiled;
+    private Boolean tiled = false;
     private Map<String, String> properties;
 
     private SimpleBooleanProperty selected = new SimpleBooleanProperty(false);
