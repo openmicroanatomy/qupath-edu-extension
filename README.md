@@ -1,4 +1,4 @@
-🔬 QuPath Edu
+🔬 QuPath Edu extension
 =============
 _Use QuPath for teaching histology and pathology._
 
@@ -13,7 +13,7 @@ QuPath Edu is developed by the [University of Oulu](https://www.oulu.fi/en/unive
 ## 👩‍🎓 Students & Teachers
 
 1. Install [QuPath](https://qupath.readthedocs.io/en/stable/docs/intro/installation.html) by following the instructions
-2. [Download](https://github.com/yli-hallila/qupath-edu-extension/releases) the QuPath Edu extension
+2. [Download](https://github.com/openmicroanatomy/qupath-edu-extension/releases) the QuPath Edu extension for your QuPath version
 3. Install the extension by drag and dropping the downloaded ``.jar`` file to the QuPath viewer
     - See [here](https://github.com/qupath/qupath/wiki/Creating-extensions#installing-extensions) for more detailed instructions on how to install QuPath extensions
 4. Connect to your institutions server
@@ -22,13 +22,13 @@ QuPath Edu is developed by the [University of Oulu](https://www.oulu.fi/en/unive
 
 # 🏫 Administrators
 
-Setting up QuPath Edu includes installing the [QuPath Edu Server](https://github.com/yli-hallila/qupath-edu-server). The [wiki](https://github.com/yli-hallila/qupath-edu-extension/wiki) has all the information you need for setting up the server.
+Using QuPath Edu includes setting up the [OpenMicroanatomy Server](https://github.com/openmicroanatomy/server). The [docs](https://openmicroanatomy.github.io/docs/) has all the information you need for setting up the server.
 
 # 🆘 Help
 
-See the [wiki pages](https://github.com/yli-hallila/qupath-edu-extension/wiki) for more detailed instructions about everything QuPath Edu related.
+See the [docs](https://openmicroanatomy.github.io/docs/) for more detailed instructions about everything QuPath Edu related.
 
-**Still stuck?** Check the _Known issues_ below and feel free to [open a new GitHub issue](https://github.com/yli-hallila/qupath-edu-extension/issues) and we'll try to get you sorted out!
+**Still stuck?** Check the _Known issues_ below and feel free to [open a new GitHub issue](https://github.com/openmicroanatomy/qupath-edu-extension/issues) and we'll try to get you sorted out!
 
 ## 🤑 Support
 
@@ -36,7 +36,7 @@ This project is made possible with a generous grant from [The Pathological Socie
 
 ## 🔨 Developers
 
-See the [CONTRIBUTING.md](https://github.com/yli-hallila/qupath-edu-extension/blob/master/CONTRIBUTING.md) on instructions on how to contribute to the project, how to build from source and other development related questions.
+See the [CONTRIBUTING.md](https://github.com/openmicroanatomy/qupath-edu-extension/blob/master/CONTRIBUTING.md) on instructions on how to contribute to the project, how to build from source and other development related questions.
 
 ---
 
