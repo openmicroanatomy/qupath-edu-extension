@@ -207,13 +207,9 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         );
 
         qupath.getMenu("QuPath Edu", true).getItems().addAll(
-            createMenuItem(createAction(ExternalSlideManager::showExternalSlideManager, "Manage slides")),
-            createMenuItem(createAction(BackupManager::showBackupManagerPane, "Manage backups")),
-            createMenuItem(createAction(RemoteUserManager::showManagementDialog, "Manage users")),
-            createMenuItem(createAction(OrganizationManager::showOrganizationManager, "Manage organizations")),
-            createMenuItem(createAction(WorkspacePermissionManager::showDialog, "Manage permissions")),
+            createMenuItem(createAction(AdministrativeToolsDialog::show, "Administrative tools")),
             createMenuItem(createAction(EduExtension::showWorkspaceOrLoginDialog, "Show workspaces")),
-            createMenuItem(createAction(this::checkSaveChanges, "Sync changes"))
+            createMenuItem(createAction(this::checkSaveChanges, "Force sync changes"))
         );
     }
 
