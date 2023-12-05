@@ -371,8 +371,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
      * TODO: Add support when user is not connected to any server
      */
     private void disableButtons() {
-        String[] actionsToDisable = { "Create project", "Add images", "Edit project metadata",
-                "Check project URIs", "Import images from v.0.1.2" };
+        String[] actionsToDisable = { "Create project", "Add images", "Edit project metadata", "Check project URIs" };
 
         for (String text : actionsToDisable) {
             Action action = qupath.lookupActionByText(text);
