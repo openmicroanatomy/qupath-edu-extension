@@ -1,4 +1,4 @@
-package qupath.edu.gui.dialogs;
+package qupath.edu.gui.dialogs.openmicroanatomy;
 
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleStringProperty;
@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qupath.edu.EduExtension;
 import qupath.edu.api.EduAPI;
+import qupath.edu.gui.dialogs.WorkspaceManager;
 import qupath.edu.models.ExternalBackup;
 import qupath.edu.models.ExternalProject;
 import qupath.fx.dialogs.Dialogs;
@@ -33,7 +34,7 @@ public class BackupManager {
     private static Dialog<ButtonType> dialog;
     private TableView<ExternalBackup> table;
 
-    public static void showBackupManagerPane() {
+    public static void show() {
         BackupManager manager = new BackupManager();
 
         dialog = Dialogs.builder()

@@ -13,6 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import org.controlsfx.glyphfont.FontAwesome;
 import qupath.edu.gui.buttons.IconButtons;
+import qupath.edu.gui.dialogs.openmicroanatomy.*;
 import qupath.fx.dialogs.Dialogs;
 
 public class AdministrativeToolsDialog {
@@ -49,31 +50,31 @@ public class AdministrativeToolsDialog {
         pane.add(createButton(
             FontAwesome.Glyph.BUILDING,
             "Organizations",
-            createAction(OrganizationManager::showOrganizationManager)
+            createAction(OrganizationManager::show)
         ), 0, 0);
 
         pane.add(createButton(
             FontAwesome.Glyph.LOCK,
             "Permissions",
-            createAction(WorkspacePermissionManager::showDialog)
+            createAction(PermissionManager::show)
         ),   1, 0);
 
         pane.add(createButton(
             FontAwesome.Glyph.USER,
             "Users",
-            createAction(RemoteUserManager::showManagementDialog)
+            createAction(UserManager::show)
         ), 2, 0);
 
         pane.add(createButton(
             FontAwesome.Glyph.IMAGE,
             "Slides",
-            createAction(ExternalSlideManager::showExternalSlideManager)
+            createAction(SlideManager::show)
         ),  0, 1);
 
         pane.add(createButton(
             FontAwesome.Glyph.CLOUD_UPLOAD,
             "Backups",
-            createAction(BackupManager::showBackupManagerPane)
+            createAction(BackupManager::show)
         ), 1, 1);
     }
 

@@ -1,4 +1,4 @@
-package qupath.edu.gui.dialogs;
+package qupath.edu.gui.dialogs.openmicroanatomy;
 
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -39,7 +39,7 @@ public class OrganizationManager {
     private ReadOnlyObjectProperty<ExternalOrganization> selected;
     private SimpleBooleanProperty hasPermission = new SimpleBooleanProperty(false);
 
-    public static void showOrganizationManager() {
+    public static void show() {
         OrganizationManager manager = new OrganizationManager();
 
         dialog = Dialogs.builder()

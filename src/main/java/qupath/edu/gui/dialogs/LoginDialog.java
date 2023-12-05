@@ -46,24 +46,24 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-public class RemoteServerLoginManager {
+public class LoginDialog {
 
-    private static Logger logger = LoggerFactory.getLogger(RemoteServerLoginManager.class);
+    private static Logger logger = LoggerFactory.getLogger(LoginDialog.class);
 
     private final StringProperty selectedOrganizationProperty = new SimpleStringProperty();
 
     private BorderPane pane;
     private static Dialog<ButtonType> dialog;
 
-    public static void showLoginDialog() {
-        RemoteServerLoginManager loginDialog = new RemoteServerLoginManager();
+    public static void show() {
+        LoginDialog loginDialog = new LoginDialog();
 
         dialog = Dialogs.builder()
                 .title("Login")
                 .content(loginDialog.getPane())
                 .build();
 
-        dialog.getDialogPane().getStylesheets().add(RemoteServerLoginManager.class.getClassLoader().getResource("css/remove_buttonbar.css").toExternalForm());
+        dialog.getDialogPane().getStylesheets().add(LoginDialog.class.getClassLoader().getResource("css/remove_buttonbar.css").toExternalForm());
         dialog.setResult(ButtonType.CLOSE);
         dialog.show();
     }

@@ -19,6 +19,7 @@ import qupath.edu.api.EduAPI;
 import qupath.edu.gui.Browser;
 import qupath.edu.gui.buttons.IconButtons;
 import qupath.edu.gui.dialogs.*;
+import qupath.edu.gui.dialogs.openmicroanatomy.SlideManager;
 import qupath.edu.tours.SlideTour;
 import qupath.edu.util.EditModeManager;
 import qupath.edu.util.ReflectionUtil;
@@ -308,7 +309,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         );
 
         Button btnAdd = ActionTools.createButton(
-            ActionTools.createAction(ExternalSlideManager::showExternalSlideManager, "Add images")
+            ActionTools.createAction(SlideManager::show, "Add images")
         );
         btnAdd.disableProperty().bind(editModeManager.editModeEnabledProperty().not().or(qupath.projectProperty().isNull()));
 
@@ -426,7 +427,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
 
         try {
             if (EduAPI.getAuthType() == EduAPI.AuthType.UNAUTHENTICATED) {
-                RemoteServerLoginManager.showLoginDialog();
+                LoginDialog.show();
             } else {
                 WorkspaceManager.showWorkspace(QuPathGUI.getInstance());
             }
