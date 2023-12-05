@@ -24,13 +24,13 @@ import qupath.edu.tours.SlideTour;
 import qupath.edu.util.EditModeManager;
 import qupath.edu.util.ReflectionUtil;
 import qupath.fx.dialogs.Dialogs;
+import qupath.fx.prefs.controlsfx.PropertyItemBuilder;
 import qupath.fx.utils.GridPaneUtils;
 import qupath.lib.common.Version;
 import qupath.lib.gui.QuPathGUI;
 import qupath.lib.gui.actions.ActionTools;
 import qupath.lib.gui.extensions.GitHubProject;
 import qupath.lib.gui.extensions.QuPathExtension;
-import qupath.lib.gui.panes.PreferencePane;
 import qupath.lib.gui.panes.ProjectBrowser;
 import qupath.lib.gui.prefs.PathPrefs;
 import qupath.lib.gui.viewer.QuPathViewer;
@@ -208,27 +208,27 @@ public class EduExtension implements QuPathExtension, GitHubProject {
     }
 
     private void initializePreferences() {
-        PreferencePane prefs = QuPathGUI.getInstance().getPreferencePane();
+        var sheet = QuPathGUI.getInstance().getPreferencePane().getPropertySheet();
 
-        prefs.addPropertyPreference(EduOptions.extensionEnabled(), Boolean.class,
-            "Extension Enabled",
-            "Edu",
-            "Restart needed for changes to take effect");
+        sheet.getItems().addAll(
+            new PropertyItemBuilder<>(EduOptions.extensionEnabled(), Boolean.class)
+                .name("QuPath Edu enabled")
+                .description("Restart needed for changes to take effect")
+                .category("QuPath Edu")
+                .build(),
 
-        prefs.addPropertyPreference(EduOptions.host(), String.class,
-            "Edu Host",
-            "Edu",
-            "Server used with QuPath Education");
+            new PropertyItemBuilder<>(EduOptions.host(), String.class)
+                .name("QuPath Edu host")
+                .description("Server used with QuPath Edu")
+                .category("QuPath Edu")
+                .build(),
 
-        prefs.addPropertyPreference(EduOptions.showLoginDialogOnStartup(), Boolean.class,
-            "Show login dialog on startup",
-            "Edu",
-            "If enabled, opens the login dialog on startup.");
-
-        prefs.addPropertyPreference(EduOptions.checkForUpdatesOnStartup(), Boolean.class,
-            "Check for updates on startup",
-            "Edu",
-            "If enabled, checks for updates on startup.");
+            new PropertyItemBuilder<>(EduOptions.showLoginDialogOnStartup(), Boolean.class)
+                .name("Show login dialog on startup")
+                .description("If enabled, opens the login dialog on startup.")
+                .category("QuPath Edu")
+                .build()
+        );
 
         // Hide annotation names in viewer by default for visual reasons
         qupath.getOverlayOptions().showNamesProperty().set(false);

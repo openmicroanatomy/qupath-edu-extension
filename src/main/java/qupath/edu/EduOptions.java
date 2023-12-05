@@ -13,7 +13,7 @@ public class EduOptions {
         return extensionEnabled;
     }
 
-    private static BooleanProperty extensionEnabled = PathPrefs.createPersistentPreference("eduExtensionEnabled", true);
+    private static final BooleanProperty extensionEnabled = PathPrefs.createPersistentPreference("eduExtensionEnabled", true);
 
     /**
      * Flag to indicate whether to show workspace dialog on startup
@@ -22,16 +22,7 @@ public class EduOptions {
         return showLoginDialog;
     }
 
-    private static BooleanProperty showLoginDialog = PathPrefs.createPersistentPreference("eduShowLoginDialog", true);
-
-    /**
-     * Flag to indicate whether to check for updates on startup
-     */
-    public static BooleanProperty checkForUpdatesOnStartup() {
-        return checkForUpdates;
-    }
-
-    private static BooleanProperty checkForUpdates = PathPrefs.createPersistentPreference("eduCheckForUpdates", true);
+    private static final BooleanProperty showLoginDialog = PathPrefs.createPersistentPreference("eduShowLoginDialog", true);
 
     /**
      * ID of the workspace which the user previously had open.
@@ -40,7 +31,7 @@ public class EduOptions {
         return previousWorkspace;
     }
 
-    private static StringProperty previousWorkspace = PathPrefs.createPersistentPreference("eduPreviousProject", null);
+    private static final StringProperty previousWorkspace = PathPrefs.createPersistentPreference("eduPreviousProject", null);
 
     /**
      * ID of the organization that was previously selected on the workspace manager dialog.
@@ -49,7 +40,7 @@ public class EduOptions {
         return previousOrganization;
     }
 
-    private static StringProperty previousOrganization = PathPrefs.createPersistentPreference("eduPreviousOrganization", null);
+    private static final StringProperty previousOrganization = PathPrefs.createPersistentPreference("eduPreviousOrganization", null);
 
     /**
      * Host used to communicate with.
@@ -58,6 +49,6 @@ public class EduOptions {
         return host;
     }
 
-    private static StringProperty host = PathPrefs.createPersistentPreference("eduHost", null);
+    private static final StringProperty host = PathPrefs.createPersistentPreference("eduHost", null);
 
 }
