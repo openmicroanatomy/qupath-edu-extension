@@ -45,13 +45,6 @@ import java.util.Objects;
 import static qupath.lib.gui.actions.ActionTools.createAction;
 import static qupath.lib.gui.actions.ActionTools.createMenuItem;
 
-/**
- * TODO:
- *  - ArrowTool and its respective ROI
- *  - Tons of minor changes
- *  - Figure out why "Save as" syncs changes but not "Save"
- *
- */
 public class EduExtension implements QuPathExtension, GitHubProject {
 
     private static final Logger logger = LoggerFactory.getLogger(EduExtension.class);
