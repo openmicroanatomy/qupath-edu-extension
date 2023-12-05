@@ -67,7 +67,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
     public void installExtension(QuPathGUI qupath) {
         this.qupath = qupath;
 
-        if (QuPathGUI.getVersion().getMinor() < 3) {
+        if (QuPathGUI.getVersion().getMinor() < 5) {
             var confirm = Dialogs.showYesNoDialog(
                 "Unverified version",
                 "QuPath Edu has not been tested with this version of QuPath. Do you wish to proceed?"
@@ -186,12 +186,12 @@ public class EduExtension implements QuPathExtension, GitHubProject {
 
     @Override
     public Version getQuPathVersion() {
-        return Version.parse("0.3.2");
+        return Version.parse("0.5.0");
     }
 
     @Override
     public Version getVersion() {
-        return Version.parse("1.0.0");
+        return Version.parse("1.0.1");
     }
 
     public static EditModeManager getEditModeManager() {
