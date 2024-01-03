@@ -1,8 +1,8 @@
 package qupath.edu;
 
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -17,11 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qupath.edu.api.EduAPI;
 import qupath.edu.gui.Browser;
+import qupath.edu.gui.UserModeListCell;
 import qupath.edu.gui.buttons.IconButtons;
 import qupath.edu.gui.dialogs.*;
 import qupath.edu.tours.SlideTour;
 import qupath.edu.util.EditModeManager;
 import qupath.edu.util.ReflectionUtil;
+import qupath.edu.util.UserMode;
 import qupath.fx.dialogs.Dialogs;
 import qupath.fx.utils.GridPaneUtils;
 import qupath.lib.common.Version;
@@ -37,6 +39,7 @@ import qupath.lib.gui.viewer.QuPathViewerPlus;
 import qupath.lib.gui.viewer.tools.PathTools;
 import qupath.lib.projects.Project;
 
+import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
@@ -56,16 +59,21 @@ public class EduExtension implements QuPathExtension, GitHubProject {
 
     private static final Logger logger = LoggerFactory.getLogger(EduExtension.class);
 
+    @Nonnull private static EduExtension instance;
+
     private QuPathGUI qupath;
 
-    private static final EditModeManager editModeManager = new EditModeManager();
+    private EditModeManager editModeManager;
     private static final SimpleBooleanProperty noWriteAccess = new SimpleBooleanProperty(true);
     private static final Browser projectInformation = new Browser();
     private final TabPane tabbedPanel = new TabPane();
 
     @Override
     public void installExtension(QuPathGUI qupath) {
+        instance = this;
+
         this.qupath = qupath;
+        this.editModeManager = new EditModeManager(qupath);
 
         if (QuPathGUI.getVersion().getMinor() < 5) {
             var confirm = Dialogs.showYesNoDialog(
@@ -97,7 +105,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         onImageDataChange();
         onEditModeToggled();
 
-        disableButtons();
+        registerButtons();
         disableStartupMessage();
 
         // Run on a separate thread, because extension initialization happens in QuPath's
@@ -117,7 +125,11 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         });
     }
 
-    private void onEditModeToggled() {
+    public static EduExtension getInstance() {
+        return instance;
+    }
+
+    private void onEditModeToggled() { // todo: move to edit mode manager
         editModeManager.editModeEnabledProperty().addListener((observable, oldValue, enabled) -> {
             if (enabled) {
                 PathPrefs.imageTypeSettingProperty().set(PathPrefs.ImageTypeSetting.PROMPT);
@@ -194,7 +206,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         return Version.parse("1.0.1");
     }
 
-    public static EditModeManager getEditModeManager() {
+    public EditModeManager getEditModeManager() {
         return editModeManager;
     }
 
@@ -215,10 +227,26 @@ public class EduExtension implements QuPathExtension, GitHubProject {
             createMenuItem(createAction(EduExtension::showWorkspaceOrLoginDialog, "Show workspaces")),
             createMenuItem(createAction(this::checkSaveChanges, "Sync changes"))
         );
+
+        ComboBox<UserMode> cbModes = new ComboBox<>();
+        cbModes.setItems(FXCollections.observableArrayList(UserMode.STUDYING, UserMode.ANALYSING, UserMode.EDITING));
+        cbModes.setButtonCell(new UserModeListCell(true));
+        cbModes.setCellFactory(f -> new UserModeListCell(false));
+        cbModes.getSelectionModel().select(0);
+        cbModes.setPadding(new Insets(0));
+        cbModes.setStyle("-fx-background-color: transparent; -fx-text-fill: #fff; -fx-background-insets: 0; -fx-background-radius: 0; ");
+        getEditModeManager().userModeProperty().bind(cbModes.getSelectionModel().selectedItemProperty());
+
+        Menu customMenu = new Menu("", cbModes);
+        customMenu.setStyle("-fx-padding: 0;");
+        customMenu.getStyleClass().add("custom-menu");
+
+        qupath.getMenuBar().getStylesheets().add(EduExtension.class.getClassLoader().getResource("css/custom-menu.css").toExternalForm());
+        qupath.getMenuBar().getMenus().add(customMenu);
     }
 
     private void initializePreferences() {
-        PreferencePane prefs = QuPathGUI.getInstance().getPreferencePane();
+        PreferencePane prefs = qupath.getPreferencePane();
 
         prefs.addPropertyPreference(EduOptions.extensionEnabled(), Boolean.class,
             "Extension Enabled",
@@ -253,33 +281,40 @@ public class EduExtension implements QuPathExtension, GitHubProject {
     }
 
     private void replaceAnnotationsPane() {
-        SimpleAnnotationPane simpleAnnotationPane = new SimpleAnnotationPane(qupath);
+        var oldTabs = FXCollections.observableArrayList(qupath.getAnalysisTabPane().getTabs());
 
-        /* Checkbox */
+        var annotations = oldTabs.get(2);
+        var oldAnnotationPane = annotations.getContent();
+        var newAnnotationPAne = new SimpleAnnotationPane(qupath).getPane();
 
-        CheckBox cbUseAdvancedMenu = new CheckBox("Use Advanced mode");
-        cbUseAdvancedMenu.setPadding(new Insets(5));
-        cbUseAdvancedMenu.setContentDisplay(ContentDisplay.RIGHT);
-        cbUseAdvancedMenu.setFont(Font.font(10));
-        cbUseAdvancedMenu.setTooltip(new Tooltip("Advanced mode is needed when using QuPath for analysis."));
+        var slides = oldTabs.get(0);
 
-        /* Annotation Panes */
+        var newTabs = List.of(slides, annotations); //FXCollections.unmodifiableObservableList(FXCollections.observableArrayList(slides, annotations));
 
-        Node advancedPane = qupath.getAnalysisTabPane().getTabs().get(2).getContent();
-        Node simplePane   = simpleAnnotationPane.getPane();
+        //qupath.getAnalysisTabPane().getTabs().setAll(newTabs);
 
-        BorderPane pane = new BorderPane(simplePane);
-        pane.setTop(cbUseAdvancedMenu);
-
-        qupath.getAnalysisTabPane().getTabs().get(2).setContent(pane);
-
-        cbUseAdvancedMenu.setOnAction(e -> {
-            if (cbUseAdvancedMenu.isSelected()) {
-                pane.setCenter(advancedPane);
+        // todo: move to edit mode manager
+        editModeManager.userModeProperty().addListener((obs, oldMode, newMode) -> {
+            if (newMode == UserMode.ANALYSING) {
+                annotations.setContent(oldAnnotationPane);
+                qupath.getAnalysisTabPane().getTabs().setAll(oldTabs);
             } else {
-                pane.setCenter(simplePane);
+                annotations.setContent(newAnnotationPAne);
+                qupath.getAnalysisTabPane().getTabs().setAll(newTabs);
             }
         });
+
+//        editModeManager.editModeEnabledProperty().addListener((observable, oldMode, newValue) -> {
+//            if (newValue) {
+//                logger.info(oldTabs.toString());
+//                annotations.setContent(oldAnnotationPane);
+//                qupath.getAnalysisTabPane().getTabs().setAll(oldTabs);
+//            } else {
+//                logger.info(newTabs.toString());
+//                annotations.setContent(newAnnotationPAne);
+//                qupath.getAnalysisTabPane().getTabs().setAll(newTabs);
+//            }
+//        });
     }
 
     private void replaceViewer() {
@@ -289,7 +324,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
             if (event.getClickCount() > 1 && project instanceof EduProject) {
                 String projectId = ((EduProject) project).getId();
 
-                if (EduExtension.getEditModeManager().isEditModeEnabled() && EduAPI.hasWritePermission(projectId)) {
+                if (getEditModeManager().isEditModeEnabled() && EduAPI.hasWritePermission(projectId)) {
                     ProjectDescriptionEditorCommand.openDescriptionEditor();
                 }
             }
@@ -375,45 +410,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         });
     }
 
-    /**
-     * Disable various buttons based on users write access.
-     *
-     * TODO: Add support when user is not connected to any server
-     */
-    private void disableButtons() {
-        String[] actionsToDisable = { "Create project", "Add images", "Edit project metadata",
-                "Check project URIs", "Import images from v.0.1.2" };
-
-        for (String text : actionsToDisable) {
-            Action action = qupath.lookupActionByText(text);
-
-            if (action != null) {
-                action.disabledProperty().bind(editModeManager.editModeEnabledProperty().not());
-            }
-        }
-
-        List<String> menuItemsToDisable = List.of("Remove image(s)", "Delete image(s)", "Rename image", "Refresh thumbnail",
-                "Edit description", "Add metadata", "Duplicate image(s)");
-
-        TreeView<Object> tree = ReflectionUtil.getProjectBrowserTree();
-        List<MenuItem> items = tree.getContextMenu().getItems();
-
-        for (MenuItem item : items) {
-            if (item == null || item.getText() == null) {
-                continue;
-            }
-
-            if (menuItemsToDisable.contains(item.getText())) {
-                item.disableProperty().bind(editModeManager.editModeEnabledProperty().not());
-            }
-        }
-
-        Button btnToggleEditMode = new Button();
-        btnToggleEditMode.textProperty().bind(Bindings.when(editModeManager.editModeEnabledProperty()).then("Turn editing off").otherwise("Turn editing on"));
-        btnToggleEditMode.disableProperty().bind(EduAPI.connectedToServerProperty().not());
-        btnToggleEditMode.setOnAction(a -> editModeManager.toggleEditMode());
-        btnToggleEditMode.setFont(Font.font(10));
-
+    private void registerButtons() {
         PopOver infoPopOver = new PopOver(EditModeInfoPopOverDialog.getPane());
         infoPopOver.setDetachable(false);
         infoPopOver.setArrowLocation(PopOver.ArrowLocation.TOP_CENTER);
@@ -422,7 +419,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         btnEditModeInfo.setFont(Font.font(10));
         btnEditModeInfo.setOnAction(a -> infoPopOver.show(btnEditModeInfo));
 
-        qupath.getToolBar().getItems().addAll(new Separator(), btnToggleEditMode, btnEditModeInfo);
+        qupath.getToolBar().getItems().addAll(new Separator(), btnEditModeInfo);
     }
 
     private void disableStartupMessage() {

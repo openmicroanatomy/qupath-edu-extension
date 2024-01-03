@@ -60,7 +60,7 @@ public class ExternalSlideManager {
     private BorderPane pane;
     private TableView<ExternalSlide> table;
 
-    private final EditModeManager editModeManager = EduExtension.getEditModeManager();
+    private final EditModeManager editModeManager = EduExtension.getInstance().getEditModeManager();
 
     public static void showExternalSlideManager() {
         ExternalSlideManager manager = new ExternalSlideManager();

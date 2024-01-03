@@ -1,10 +1,14 @@
 package qupath.edu.util;
 
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TreeView;
+import org.controlsfx.control.action.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import qupath.edu.api.EduAPI;
 import qupath.fx.dialogs.Dialogs;
 import qupath.lib.gui.QuPathGUI;
 import qupath.lib.images.ImageData;
@@ -14,6 +18,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Used to manage various aspects of edit mode for QuPath Edu.
@@ -21,6 +26,10 @@ import java.io.IOException;
 public class EditModeManager {
 
     private final Logger logger = LoggerFactory.getLogger(EditModeManager.class);
+
+    private final QuPathGUI qupath;
+
+    private final SimpleObjectProperty<UserMode> userModeProperty = new SimpleObjectProperty<>();
 
     /**
      * Edit mode is enabled by default when using QuPath Edu locally and disabled when connected to a server.
@@ -32,12 +41,57 @@ public class EditModeManager {
      */
     private final ByteArrayOutputStream imageDataBackup = new ByteArrayOutputStream(0);
 
-    public EditModeManager() {
-        QuPathGUI.getInstance().setReadOnly(editModeEnabled.not().get());
+    public EditModeManager(QuPathGUI qupath) {
+        this.qupath = qupath;
 
-        EduAPI.connectedToServerProperty().addListener((observable, wasConnected, isConnected) -> {
+        userModeProperty.addListener(this::onModeChange);
+        userModeProperty.set(UserMode.STUDYING);
+
+        /*EduAPI.connectedToServerProperty().addListener((observable, wasConnected, isConnected) -> {
             editModeEnabled.set(!isConnected);
-        });
+        });*/
+
+        this.disableButtons();
+    }
+
+    /**
+     * Disable various buttons based on users write access.
+     *
+     * TODO: Add support when user is not connected to any server
+     */
+    private void disableButtons() {
+        String[] actionsToDisable = { "Create project", "Add images", "Edit project metadata",
+                "Check project URIs", "Import images from v.0.1.2" };
+
+        for (String text : actionsToDisable) {
+            Action action = qupath.lookupActionByText(text);
+
+            if (action != null) {
+                action.disabledProperty().bind(editModeEnabledProperty().not());
+            }
+        }
+
+        List<String> menuItemsToDisable = List.of("Remove image(s)", "Delete image(s)", "Rename image", "Refresh thumbnail",
+                "Edit description", "Add metadata", "Duplicate image(s)");
+
+        TreeView<Object> tree = ReflectionUtil.getProjectBrowserTree();
+        List<MenuItem> items = tree.getContextMenu().getItems();
+
+        for (MenuItem item : items) {
+            if (item == null || item.getText() == null) {
+                continue;
+            }
+
+            if (menuItemsToDisable.contains(item.getText())) {
+                item.disableProperty().bind(editModeEnabledProperty().not());
+            }
+        }
+
+        qupath.getToolBar().managedProperty().bind(editModeEnabledProperty());
+    }
+
+    public SimpleObjectProperty<UserMode> userModeProperty() {
+        return userModeProperty;
     }
 
     public SimpleBooleanProperty editModeEnabledProperty() {
@@ -124,7 +178,7 @@ public class EditModeManager {
                 return;
             }
 
-            QuPathGUI.getInstance().getViewer().setImageData(PathIO.readImageData(new ByteArrayInputStream(imageDataBackup.toByteArray()), null, null, BufferedImage.class));
+            qupath.getViewer().setImageData(PathIO.readImageData(new ByteArrayInputStream(imageDataBackup.toByteArray()), null, null, BufferedImage.class));
         } catch (IOException e) {
             logger.error("Error when restoring image data", e);
         }
@@ -137,5 +191,12 @@ public class EditModeManager {
         } catch (IOException e) {
             logger.error("Error when backing up image data", e);
         }
+    }
+
+    private void onModeChange(ObservableValue<? extends UserMode> obs, UserMode oldMode, UserMode newMode) {
+        logger.debug("Changing user modes from {} to {}", oldMode, newMode);
+
+        this.setEditModeEnabled(newMode.isToolsEnabled());
+        qupath.setReadOnly(newMode.isReadOnly());
     }
 }

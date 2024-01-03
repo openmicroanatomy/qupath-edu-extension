@@ -228,7 +228,7 @@ public class EduProject implements Project<BufferedImage> {
 
 	@Override
 	public void syncChanges() throws IOException {
-		if (EduExtension.getEditModeManager().isEditModeDisabled()) {
+		if (EduExtension.getInstance().getEditModeManager().isEditModeDisabled()) {
 			return;
 		}
 
@@ -637,7 +637,7 @@ public class EduProject implements Project<BufferedImage> {
 
 		@Override
 		public void saveImageData(ImageData<BufferedImage> imageData) {
-			if (EduExtension.getEditModeManager().isEditModeDisabled()) {
+			if (EduExtension.getInstance().getEditModeManager().isEditModeDisabled()) {
 				return;
 			}
 

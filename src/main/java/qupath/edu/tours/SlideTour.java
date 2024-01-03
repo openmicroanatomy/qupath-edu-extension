@@ -261,7 +261,7 @@ public class SlideTour implements QuPathViewerListener {
 		btnViewAll.setOnAction(a -> viewAllEntries());
 
 		MenuButton btnMore = new MenuButton("More \u22ee");
-		btnMore.disableProperty().bind(EduExtension.getEditModeManager().editModeEnabledProperty().not());
+		btnMore.disableProperty().bind(EduExtension.getInstance().getEditModeManager().editModeEnabledProperty().not());
 		btnMore.getItems().addAll(btnNew, btnEditText, btnSave, btnDelete, btnViewAll);
 
 		GridPane buttons = GridPaneUtils.createColumnGridControls(btnExit, btnPrevious, btnNext, btnMore);
