@@ -196,6 +196,7 @@ public class SlideTour implements QuPathViewerListener {
 		btnStartTour.setOnAction(e -> startTour());
 		btnStartTour.visibleProperty().bind(isMenuMinimizedProperty.not());
 		btnStartTour.managedProperty().bind(isMenuMinimizedProperty.not());
+		btnStartTour.disableProperty().bind(qupath.readOnlyProperty().and(isEmpty(tourEntries)));
 
 		Button btnMaximize = new Button("\u2bc6");
 		btnMaximize.setTooltip(new Tooltip("Maximize"));
@@ -261,7 +262,6 @@ public class SlideTour implements QuPathViewerListener {
 		btnViewAll.setOnAction(a -> viewAllEntries());
 
 		MenuButton btnMore = new MenuButton("More \u22ee");
-		btnMore.disableProperty().bind(EduExtension.getInstance().getEditModeManager().editModeEnabledProperty().not());
 		btnMore.getItems().addAll(btnNew, btnEditText, btnSave, btnDelete, btnViewAll);
 
 		GridPane buttons = GridPaneUtils.createColumnGridControls(btnExit, btnPrevious, btnNext, btnMore);

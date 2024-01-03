@@ -8,9 +8,9 @@ package qupath.edu.util;
 public enum UserMode {
 
 
-    STUDYING(false, false),
+    STUDYING(false, true),
     ANALYSING(true, false),
-    EDITING(true, true);
+    EDITING(true, false);
 
     private final boolean toolsEnabled;
     private final boolean readOnly;

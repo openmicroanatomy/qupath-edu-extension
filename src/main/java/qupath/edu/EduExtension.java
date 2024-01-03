@@ -22,7 +22,7 @@ import qupath.edu.gui.buttons.IconButtons;
 import qupath.edu.gui.dialogs.*;
 import qupath.edu.gui.dialogs.openmicroanatomy.SlideManager;
 import qupath.edu.tours.SlideTour;
-import qupath.edu.util.EditModeManager;
+import qupath.edu.util.UserModeManager;
 import qupath.edu.util.ReflectionUtil;
 import qupath.edu.util.UserMode;
 import qupath.fx.dialogs.Dialogs;
@@ -37,13 +37,11 @@ import qupath.lib.gui.panes.ProjectBrowser;
 import qupath.lib.gui.prefs.PathPrefs;
 import qupath.lib.gui.viewer.QuPathViewer;
 import qupath.lib.gui.viewer.QuPathViewerPlus;
-import qupath.lib.gui.viewer.tools.PathTools;
 import qupath.lib.projects.Project;
 
 import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 
 import static qupath.lib.gui.actions.ActionTools.createAction;
@@ -57,9 +55,9 @@ public class EduExtension implements QuPathExtension, GitHubProject {
 
     private QuPathGUI qupath;
 
-    private EditModeManager editModeManager;
+    private UserModeManager userModeManager;
     private static final SimpleBooleanProperty noWriteAccess = new SimpleBooleanProperty(true);
-    private static final Browser projectInformation = new Browser();
+    private static final Browser projectInformation = new Browser("No lesson open");
     private final TabPane tabbedPanel = new TabPane();
 
     @Override
@@ -67,7 +65,6 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         instance = this;
 
         this.qupath = qupath;
-        this.editModeManager = new EditModeManager(qupath);
 
         if (QuPathGUI.getVersion().getMinor() < 5) {
             var confirm = Dialogs.showYesNoDialog(
@@ -87,17 +84,16 @@ public class EduExtension implements QuPathExtension, GitHubProject {
             return;
         }
 
+        this.userModeManager = new UserModeManager(qupath);
+
         initializeMenus();
 
-        replaceAnnotationsPane();
         replaceViewer();
         replaceProjectBrowserButtons();
         registerSlideTours();
 
         onProjectChange();
         onSlideChange();
-        onImageDataChange();
-        onEditModeToggled();
 
         registerButtons();
         disableStartupMessage();
@@ -123,24 +119,6 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         return instance;
     }
 
-    private void onEditModeToggled() { // todo: move to edit mode manager
-        editModeManager.editModeEnabledProperty().addListener((observable, oldValue, enabled) -> {
-            if (enabled) {
-                PathPrefs.imageTypeSettingProperty().set(PathPrefs.ImageTypeSetting.PROMPT);
-            } else {
-                PathPrefs.imageTypeSettingProperty().set(PathPrefs.ImageTypeSetting.NONE);
-                qupath.getToolManager().setSelectedTool(PathTools.MOVE);
-                qupath.getViewer().setActiveTool(PathTools.MOVE);
-            }
-
-            qupath.getToolManager().setToolSwitchingEnabled(enabled);
-        });
-
-        // Toggle edit mode so that tools get disabled / enabled
-        editModeManager.editModeEnabledProperty().set(!editModeManager.editModeEnabledProperty().get());
-        editModeManager.editModeEnabledProperty().set(!editModeManager.editModeEnabledProperty().get());
-    }
-
     private void onSlideChange() {
         qupath.imageDataProperty().addListener((obs, o, n) -> {
             qupath.getAnalysisTabPane().getSelectionModel().select(0);
@@ -161,17 +139,6 @@ public class EduExtension implements QuPathExtension, GitHubProject {
             } else {
                 setProjectInformation(MISSING);
             }
-        });
-    }
-
-    private void onImageDataChange() {
-        qupath.imageDataProperty().addListener((observable, oldValue, imageData) -> {
-            if (imageData == null || editModeManager.isEditModeDisabled()) {
-                return;
-            }
-
-            logger.debug("Switching slides with edit mode enabled -- creating a backup");
-            editModeManager.backupImageData(imageData);
         });
     }
 
@@ -200,13 +167,13 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         return Version.parse("1.0.1");
     }
 
-    public EditModeManager getEditModeManager() {
-        return editModeManager;
+    public UserModeManager getUserModeManager() {
+        return userModeManager;
     }
 
     private void initializeMenus() {
         Action action = createAction(ProjectDescriptionEditorCommand::openDescriptionEditor, "Edit lesson information");
-        action.disabledProperty().bind(editModeManager.editModeEnabledProperty().not());
+        action.disabledProperty().bind(qupath.readOnlyProperty());
 
         qupath.getMenu("File>Project...", false).getItems().add(7,
             createMenuItem(action)
@@ -224,15 +191,14 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         cbModes.setCellFactory(f -> new UserModeListCell(false));
         cbModes.getSelectionModel().select(0);
         cbModes.setPadding(new Insets(0));
-        cbModes.setStyle("-fx-background-color: transparent; -fx-text-fill: #fff; -fx-background-insets: 0; -fx-background-radius: 0; ");
-        getEditModeManager().userModeProperty().bind(cbModes.getSelectionModel().selectedItemProperty());
+        cbModes.setStyle("-fx-background-color: transparent; -fx-text-fill: #fff; -fx-background-insets: 0; -fx-background-radius: 0");
 
-        Menu customMenu = new Menu("", cbModes);
-        customMenu.setStyle("-fx-padding: 0;");
-        customMenu.getStyleClass().add("custom-menu");
+        getUserModeManager().userModeProperty().bind(cbModes.getSelectionModel().selectedItemProperty());
 
-        qupath.getMenuBar().getStylesheets().add(EduExtension.class.getClassLoader().getResource("css/custom-menu.css").toExternalForm());
-        qupath.getMenuBar().getMenus().add(customMenu);
+        Menu menu = new Menu(null, cbModes);
+        menu.setStyle("-fx-padding: 0");
+
+        qupath.getMenuBar().getMenus().add(menu);
     }
 
     private void initializePreferences() {
@@ -270,43 +236,6 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         projectInformation.setContent(information);
     }
 
-    private void replaceAnnotationsPane() {
-        var oldTabs = FXCollections.observableArrayList(qupath.getAnalysisTabPane().getTabs());
-
-        var annotations = oldTabs.get(2);
-        var oldAnnotationPane = annotations.getContent();
-        var newAnnotationPAne = new SimpleAnnotationPane(qupath).getPane();
-
-        var slides = oldTabs.get(0);
-
-        var newTabs = List.of(slides, annotations); //FXCollections.unmodifiableObservableList(FXCollections.observableArrayList(slides, annotations));
-
-        //qupath.getAnalysisTabPane().getTabs().setAll(newTabs);
-
-        // todo: move to edit mode manager
-        editModeManager.userModeProperty().addListener((obs, oldMode, newMode) -> {
-            if (newMode == UserMode.ANALYSING) {
-                annotations.setContent(oldAnnotationPane);
-                qupath.getAnalysisTabPane().getTabs().setAll(oldTabs);
-            } else {
-                annotations.setContent(newAnnotationPAne);
-                qupath.getAnalysisTabPane().getTabs().setAll(newTabs);
-            }
-        });
-
-//        editModeManager.editModeEnabledProperty().addListener((observable, oldMode, newValue) -> {
-//            if (newValue) {
-//                logger.info(oldTabs.toString());
-//                annotations.setContent(oldAnnotationPane);
-//                qupath.getAnalysisTabPane().getTabs().setAll(oldTabs);
-//            } else {
-//                logger.info(newTabs.toString());
-//                annotations.setContent(newAnnotationPAne);
-//                qupath.getAnalysisTabPane().getTabs().setAll(newTabs);
-//            }
-//        });
-    }
-
     private void replaceViewer() {
         projectInformation.setOnMouseClicked(event -> {
             Project<BufferedImage> project = qupath.getProject();
@@ -314,7 +243,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
             if (event.getClickCount() > 1 && project instanceof EduProject) {
                 String projectId = ((EduProject) project).getId();
 
-                if (getEditModeManager().isEditModeEnabled() && EduAPI.hasWritePermission(projectId)) {
+                if (!(qupath.isReadOnly()) && EduAPI.hasWritePermission(projectId)) {
                     ProjectDescriptionEditorCommand.openDescriptionEditor();
                 }
             }
@@ -337,7 +266,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         Button btnCreate = ActionTools.createButton(
             ActionTools.createAction(EduExtension::showWorkspaceOrLoginDialog, "Create lesson")
         );
-        btnCreate.disableProperty().bind(editModeManager.editModeEnabledProperty().not());
+        btnCreate.disableProperty().bind(qupath.readOnlyProperty());
 
         Button btnOpen = ActionTools.createButton(
             ActionTools.createAction(EduExtension::showWorkspaceOrLoginDialog, "Open lesson")
@@ -346,7 +275,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         Button btnAdd = ActionTools.createButton(
             ActionTools.createAction(SlideManager::show, "Add images")
         );
-        btnAdd.disableProperty().bind(editModeManager.editModeEnabledProperty().not().or(qupath.projectProperty().isNull()));
+        btnAdd.disableProperty().bind(qupath.readOnlyProperty().or(qupath.projectProperty().isNull()));
 
         GridPane paneButtons = GridPaneUtils.createColumnGridControls(btnCreate, btnOpen, btnAdd);
         paneButtons.prefWidthProperty().bind(projectBrowser.getPane().widthProperty());

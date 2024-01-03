@@ -13,6 +13,7 @@ import javafx.collections.transformation.SortedList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.MenuItem;
@@ -31,7 +32,6 @@ import qupath.edu.api.EduAPI;
 import qupath.edu.api.Roles;
 import qupath.edu.models.ExternalSlide;
 import qupath.edu.server.EduImageServer;
-import qupath.edu.util.EditModeManager;
 import qupath.fx.dialogs.Dialogs;
 import qupath.fx.dialogs.FileChoosers;
 import qupath.fx.utils.GridPaneUtils;
@@ -59,8 +59,6 @@ public class SlideManager {
 
     private BorderPane pane;
     private TableView<ExternalSlide> table;
-
-    private final EditModeManager editModeManager = EduExtension.getInstance().getEditModeManager();
 
     public static void show() {
         SlideManager manager = new SlideManager();
@@ -170,7 +168,7 @@ public class SlideManager {
         btnAddRemote.setTooltip(new Tooltip("Add selected slides to current lesson"));
         btnAddRemote.disableProperty().bind(
             qupath.projectProperty().isNull().or(
-            editModeManager.editModeEnabledProperty().not().or(
+            qupath.readOnlyProperty().or(
             slideSelected.not()
         )));
 
@@ -178,24 +176,24 @@ public class SlideManager {
 
         Button btnAddLocal = new Button("Add local slide");
         btnAddLocal.setTooltip(new Tooltip("Add a slide stored locally to current lesson"));
-        btnAddLocal.disableProperty().bind(qupath.projectProperty().isNull().or(editModeManager.editModeEnabledProperty().not()));
+        btnAddLocal.disableProperty().bind(qupath.projectProperty().isNull().or(qupath.readOnlyProperty()));
         btnAddLocal.setOnAction(e -> ProjectCommands.promptToImportImages(qupath));
 
         Button btnOpen = new Button("Open selected");
         btnOpen.setOnAction(e -> openSlide(table.getSelectionModel().getSelectedItem()));
         btnOpen.disableProperty().bind(slideSelected.not());
 
-        Button btnRename = new Button("Rename");
-        btnRename.setOnAction(e -> renameSlide());
-        btnRename.disableProperty().bind(slideSelected.not().or(hasWriteAccess.not()).or(canManageSlides));
+        MenuItem miRename = new MenuItem("Rename");
+        miRename.setOnAction(e -> renameSlide());
+        miRename.disableProperty().bind(slideSelected.not().or(hasWriteAccess.not()).or(canManageSlides));
 
-        Button btnDelete = new Button("Delete");
-        btnDelete.setOnAction(e -> deleteSlide());
-        btnDelete.disableProperty().bind(slideSelected.not().or(hasWriteAccess.not()).or(canManageSlides));
+        MenuItem miDelete = new MenuItem("Delete");
+        miDelete.setOnAction(e -> deleteSlide());
+        miDelete.disableProperty().bind(slideSelected.not().or(hasWriteAccess.not()).or(canManageSlides));
 
-        Button btnTile = new Button("Tile");
-        btnTile.setOnAction(e -> tileSlide());
-        btnTile.disableProperty().bind(Bindings.and(slideSelected, isTiled).or(slideSelected.not()));
+        MenuItem miTile = new MenuItem("Tile");
+        miTile.setOnAction(e -> tileSlide());
+        miTile.disableProperty().bind(Bindings.and(slideSelected, isTiled).or(slideSelected.not()));
 
         MenuItem miCopyID = new MenuItem("Copy ID");
         miCopyID.setOnAction(e -> copySlideID());
@@ -207,14 +205,26 @@ public class SlideManager {
         miViewProperties.setOnAction(e -> viewProperties());
 
         MenuButton menuMore = new MenuButton("More ...");
-        menuMore.getItems().addAll(miCopyID, miCopyURL, miViewProperties);
+        menuMore.getItems().addAll(
+            miRename, miDelete, miTile,
+            new SeparatorMenuItem(),
+            miCopyID, miCopyURL, miViewProperties
+        );
+
         menuMore.disableProperty().bind(slideSelected.not());
 
         Button btnUpload = new Button("Import slide");
         btnUpload.setOnAction(e -> uploadSlide());
         btnUpload.disableProperty().bind(canManageSlides);
 
-        GridPane paneButtons = GridPaneUtils.createColumnGridControls(btnAddRemote, btnAddLocal, btnOpen, btnRename, btnDelete, btnTile, menuMore, btnUpload);
+        GridPane paneButtons = GridPaneUtils.createColumnGridControls(
+            btnAddRemote, btnAddLocal, btnOpen,
+            new Separator(Orientation.VERTICAL),
+            menuMore,
+            new Separator(Orientation.VERTICAL),
+            btnUpload
+        );
+
         paneButtons.setHgap(5);
 
         /* Pane */
