@@ -1,4 +1,4 @@
-package qupath.edu.gui.dialogs;
+package qupath.edu.gui.dialogs.openmicroanatomy;
 
 import com.google.gson.Gson;
 import javafx.application.Platform;
@@ -49,21 +49,21 @@ import java.util.*;
 
 import static qupath.edu.api.EduAPI.Result;
 
-public class ExternalSlideManager {
+public class SlideManager {
 
     private static final QuPathGUI qupath = QuPathGUI.getInstance();
 
-    private final static Logger logger = LoggerFactory.getLogger(ExternalSlideManager.class);
+    private final static Logger logger = LoggerFactory.getLogger(SlideManager.class);
 
-    private static Dialog dialog;
+    private static Dialog<ButtonType> dialog;
 
     private BorderPane pane;
     private TableView<ExternalSlide> table;
 
     private final EditModeManager editModeManager = EduExtension.getInstance().getEditModeManager();
 
-    public static void showExternalSlideManager() {
-        ExternalSlideManager manager = new ExternalSlideManager();
+    public static void show() {
+        SlideManager manager = new SlideManager();
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         dialog = Dialogs.builder()

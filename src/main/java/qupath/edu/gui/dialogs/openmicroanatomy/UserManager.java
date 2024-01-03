@@ -1,4 +1,4 @@
-package qupath.edu.gui.dialogs;
+package qupath.edu.gui.dialogs.openmicroanatomy;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -33,15 +33,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class RemoteUserManager {
+public class UserManager {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private BorderPane pane;
     private static Dialog<ButtonType> dialog;
 
-    public static void showManagementDialog() {
-        RemoteUserManager manager = new RemoteUserManager();
+    public static void show() {
+        UserManager manager = new UserManager();
 
         dialog = Dialogs.builder()
                 .title("User management")

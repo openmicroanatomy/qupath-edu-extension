@@ -1,4 +1,4 @@
-package qupath.edu.gui.dialogs;
+package qupath.edu.gui.dialogs.openmicroanatomy;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -27,13 +27,13 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class WorkspacePermissionManager {
+public class PermissionManager {
 
     private BorderPane pane;
     private static Dialog<ButtonType> dialog;
 
-    public static void showDialog() {
-        WorkspacePermissionManager manager = new WorkspacePermissionManager();
+    public static void show() {
+        PermissionManager manager = new PermissionManager();
 
         dialog = Dialogs.builder()
                 .title("Workspace permission management")

@@ -28,6 +28,7 @@ import qupath.edu.EduProject;
 import qupath.edu.api.EduAPI;
 import qupath.edu.gui.SubjectListCell;
 import qupath.edu.gui.WorkspaceProjectListCell;
+import qupath.edu.gui.dialogs.openmicroanatomy.SlideManager;
 import qupath.edu.models.ExternalProject;
 import qupath.edu.models.ExternalSubject;
 import qupath.edu.models.ExternalWorkspace;
@@ -68,7 +69,7 @@ public class WorkspaceManager {
                 .size(1000, 600)
                 .build();
 
-        dialog.getDialogPane().getStylesheets().add(RemoteServerLoginManager.class.getClassLoader().getResource("css/remove_buttonbar.css").toExternalForm());
+        dialog.getDialogPane().getStylesheets().add(LoginDialog.class.getClassLoader().getResource("css/remove_buttonbar.css").toExternalForm());
         dialog.setResult(ButtonType.CLOSE);
         dialog.show();
 
@@ -274,7 +275,7 @@ public class WorkspaceManager {
         Optional<JsonObject> slide = EduAPI.getSlideProperties(id);
 
         if (slide.isPresent()) {
-            ExternalSlideManager.openSlide(id);
+            SlideManager.openSlide(id);
         } else {
             ExternalProject project = new ExternalProject();
             project.setId(id);

@@ -20,18 +20,19 @@ import qupath.edu.gui.Browser;
 import qupath.edu.gui.UserModeListCell;
 import qupath.edu.gui.buttons.IconButtons;
 import qupath.edu.gui.dialogs.*;
+import qupath.edu.gui.dialogs.openmicroanatomy.SlideManager;
 import qupath.edu.tours.SlideTour;
 import qupath.edu.util.EditModeManager;
 import qupath.edu.util.ReflectionUtil;
 import qupath.edu.util.UserMode;
 import qupath.fx.dialogs.Dialogs;
+import qupath.fx.prefs.controlsfx.PropertyItemBuilder;
 import qupath.fx.utils.GridPaneUtils;
 import qupath.lib.common.Version;
 import qupath.lib.gui.QuPathGUI;
 import qupath.lib.gui.actions.ActionTools;
 import qupath.lib.gui.extensions.GitHubProject;
 import qupath.lib.gui.extensions.QuPathExtension;
-import qupath.lib.gui.panes.PreferencePane;
 import qupath.lib.gui.panes.ProjectBrowser;
 import qupath.lib.gui.prefs.PathPrefs;
 import qupath.lib.gui.viewer.QuPathViewer;
@@ -48,13 +49,6 @@ import java.util.Objects;
 import static qupath.lib.gui.actions.ActionTools.createAction;
 import static qupath.lib.gui.actions.ActionTools.createMenuItem;
 
-/**
- * TODO:
- *  - ArrowTool and its respective ROI
- *  - Tons of minor changes
- *  - Figure out why "Save as" syncs changes but not "Save"
- *
- */
 public class EduExtension implements QuPathExtension, GitHubProject {
 
     private static final Logger logger = LoggerFactory.getLogger(EduExtension.class);
@@ -219,13 +213,9 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         );
 
         qupath.getMenu("QuPath Edu", true).getItems().addAll(
-            createMenuItem(createAction(ExternalSlideManager::showExternalSlideManager, "Manage slides")),
-            createMenuItem(createAction(BackupManager::showBackupManagerPane, "Manage backups")),
-            createMenuItem(createAction(RemoteUserManager::showManagementDialog, "Manage users")),
-            createMenuItem(createAction(OrganizationManager::showOrganizationManager, "Manage organizations")),
-            createMenuItem(createAction(WorkspacePermissionManager::showDialog, "Manage permissions")),
+            createMenuItem(createAction(AdministrativeToolsDialog::show, "Administrative tools")),
             createMenuItem(createAction(EduExtension::showWorkspaceOrLoginDialog, "Show workspaces")),
-            createMenuItem(createAction(this::checkSaveChanges, "Sync changes"))
+            createMenuItem(createAction(this::checkSaveChanges, "Force sync changes"))
         );
 
         ComboBox<UserMode> cbModes = new ComboBox<>();
@@ -246,27 +236,27 @@ public class EduExtension implements QuPathExtension, GitHubProject {
     }
 
     private void initializePreferences() {
-        PreferencePane prefs = qupath.getPreferencePane();
+        var sheet = QuPathGUI.getInstance().getPreferencePane().getPropertySheet();
 
-        prefs.addPropertyPreference(EduOptions.extensionEnabled(), Boolean.class,
-            "Extension Enabled",
-            "Edu",
-            "Restart needed for changes to take effect");
+        sheet.getItems().addAll(
+            new PropertyItemBuilder<>(EduOptions.extensionEnabled(), Boolean.class)
+                .name("QuPath Edu enabled")
+                .description("Restart needed for changes to take effect")
+                .category("QuPath Edu")
+                .build(),
 
-        prefs.addPropertyPreference(EduOptions.host(), String.class,
-            "Edu Host",
-            "Edu",
-            "Server used with QuPath Education");
+            new PropertyItemBuilder<>(EduOptions.host(), String.class)
+                .name("QuPath Edu host")
+                .description("Server used with QuPath Edu")
+                .category("QuPath Edu")
+                .build(),
 
-        prefs.addPropertyPreference(EduOptions.showLoginDialogOnStartup(), Boolean.class,
-            "Show login dialog on startup",
-            "Edu",
-            "If enabled, opens the login dialog on startup.");
-
-        prefs.addPropertyPreference(EduOptions.checkForUpdatesOnStartup(), Boolean.class,
-            "Check for updates on startup",
-            "Edu",
-            "If enabled, checks for updates on startup.");
+            new PropertyItemBuilder<>(EduOptions.showLoginDialogOnStartup(), Boolean.class)
+                .name("Show login dialog on startup")
+                .description("If enabled, opens the login dialog on startup.")
+                .category("QuPath Edu")
+                .build()
+        );
 
         // Hide annotation names in viewer by default for visual reasons
         qupath.getOverlayOptions().showNamesProperty().set(false);
@@ -354,7 +344,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         );
 
         Button btnAdd = ActionTools.createButton(
-            ActionTools.createAction(ExternalSlideManager::showExternalSlideManager, "Add images")
+            ActionTools.createAction(SlideManager::show, "Add images")
         );
         btnAdd.disableProperty().bind(editModeManager.editModeEnabledProperty().not().or(qupath.projectProperty().isNull()));
 
@@ -434,7 +424,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
 
         try {
             if (EduAPI.getAuthType() == EduAPI.AuthType.UNAUTHENTICATED) {
-                RemoteServerLoginManager.showLoginDialog();
+                LoginDialog.show();
             } else {
                 WorkspaceManager.showWorkspace(QuPathGUI.getInstance());
             }
