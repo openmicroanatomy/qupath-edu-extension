@@ -1,6 +1,14 @@
 plugins {
     id 'java-library'
+    id 'idea'
     alias(libs.plugins.javafx)
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
 }
 
 group 'qupath.edu'
