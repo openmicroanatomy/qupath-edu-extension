@@ -159,12 +159,12 @@ public class EduExtension implements QuPathExtension, GitHubProject {
 
     @Override
     public Version getQuPathVersion() {
-        return Version.parse("0.5.0");
+        return Version.parse("0.5.1");
     }
 
     @Override
     public Version getVersion() {
-        return Version.parse("1.0.1");
+        return Version.parse("1.0.2");
     }
 
     public UserModeManager getUserModeManager() {

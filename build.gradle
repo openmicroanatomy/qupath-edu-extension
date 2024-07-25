@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'qupath.edu'
-version '1.0.1'
+version '1.0.2'
 java.sourceCompatibility = JavaVersion.VERSION_20
 
 dependencies {
