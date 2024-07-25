@@ -128,16 +128,12 @@ public class UserModeManager {
      * todo: add support for when not logged in to server after refactoring EduAPI
      */
     private void disableButtons() {
-        String[] actionsToDisable = { "Create project", "Add images", "Edit project metadata", "Check project URIs" };
+        disableGUIButtons();
+        disableContextMenuButtons();
+        disableMainToolBarButtons();
+    }
 
-        for (String text : actionsToDisable) {
-            Action action = qupath.lookupActionByText(text);
-
-            if (action != null) {
-                action.disabledProperty().bind(qupath.readOnlyProperty());
-            }
-        }
-
+    private void disableContextMenuButtons() {
         List<String> menuItemsToDisable = List.of("Remove image(s)", "Delete image(s)", "Rename image", "Refresh thumbnail",
                 "Edit description", "Add metadata", "Duplicate image(s)");
 
@@ -151,6 +147,32 @@ public class UserModeManager {
 
             if (menuItemsToDisable.contains(item.getText())) {
                 item.disableProperty().bind(qupath.readOnlyProperty());
+            }
+        }
+    }
+
+    private void disableGUIButtons() {
+        String[] actionsToDisable = { "Create project", "Add images", "Edit project metadata", "Check project URIs" };
+
+        for (String text : actionsToDisable) {
+            Action action = qupath.lookupActionByText(text);
+
+            if (action != null) {
+                action.disabledProperty().bind(qupath.readOnlyProperty());
+            }
+        }
+    }
+
+    private void disableMainToolBarButtons() {
+        String[] menuItemsToDisable = { "Tools", "Objects", "TMA", "Measure", "Automate", "Analyze", "Classify" };
+
+        for (var menuItemName : menuItemsToDisable) {
+            var menu = qupath.getMenu(menuItemName, false);
+
+            if (menu == null) {
+                logger.warn("Missing menu {} from main toolbar", menuItemName);
+            } else {
+                menu.visibleProperty().bind(qupath.readOnlyProperty().not());
             }
         }
     }
