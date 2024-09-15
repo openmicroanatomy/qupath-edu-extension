@@ -97,8 +97,10 @@
         document.querySelector( '.ck-toolbar' ).classList.add( 'ck-reset_all' );
 
     }).catch( error => {
+        document.querySelector( '.ckeditor--loading' ).innerText = "Error while loading editor, please see the log for more details.";
         console.error( 'Oops, something went wrong!' );
         console.error( error );
+        console.error( error.stack );
     });
 </script>
 
