@@ -35,7 +35,6 @@ import qupath.fx.dialogs.Dialogs;
 import qupath.fx.utils.GridPaneUtils;
 import qupath.lib.gui.QuPathGUI;
 
-import javax.annotation.Nonnull;
 import java.awt.*;
 import java.net.URI;
 import java.net.URL;
@@ -181,7 +180,7 @@ public class LoginDialog {
         showAuthDialog("");
     }
 
-    private void showAuthDialog(@Nonnull String email) {
+    private void showAuthDialog(String email) {
         /* Textfields */
 
         Label labEmail = new Label("Email");

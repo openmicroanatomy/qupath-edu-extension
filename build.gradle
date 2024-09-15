@@ -1,7 +1,14 @@
 plugins {
-    id 'java-library'
+    id 'qupath-conventions'
     id 'idea'
-    alias(libs.plugins.javafx)
+}
+
+qupathExtension {
+    name = "qupath-edu-extension"
+    group = "qupath-edu"
+    version = "1.0.3"
+    description = "Use QuPath for learning!"
+    automaticModule = "qupath.edu.EduExtension"
 }
 
 idea {
@@ -11,21 +18,20 @@ idea {
     }
 }
 
-group 'qupath.edu'
-version '1.0.2'
-java.sourceCompatibility = JavaVersion.VERSION_20
-
 dependencies {
-    implementation "io.github.qupath:qupath-gui-fx:${gradle.ext.QuPathVersion}"
-    implementation "io.github.qupath:qupath-fxtras:0.1.3"
-    implementation "com.google.guava:guava:31.1-jre"
-    api "com.microsoft.azure:msal4j:1.13.9"
+    implementation(libs.bundles.qupath)
+    implementation(libs.bundles.logging)
+    implementation(libs.guava)
+    implementation(libs.qupath.fxtras)
+    implementation(libs.bundles.logviewer)
+    implementation(libs.extensionmanager)
+
+    api "com.microsoft.azure:msal4j:1.19.0"
 }
 
 jar {
     duplicatesStrategy = 'warn'
     configurations.api.setCanBeResolved(true)
-    archiveFileName = "${rootProject.name}-${gradle.ext.QuPathVersion}.jar"
 
     from {
         configurations.api.collect { it.isDirectory() ? it : zipTree(it) }

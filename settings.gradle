@@ -1,14 +1,22 @@
-rootProject.name = 'qupath-edu-extension'
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
 
-gradle.ext.QuPathVersion = "0.5.1"
-
-dependencyResolutionManagement {
-    versionCatalogs {
-        libs {
-            from("io.github.qupath:qupath-catalog:${gradle.ext.QuPathVersion}")
+        maven {
+            url = uri("https://maven.scijava.org/content/repositories/releases")
         }
     }
+}
 
+plugins {
+    id("io.github.qupath.qupath-extension-settings") version "0.2.1"
+}
+
+qupath {
+    version = "0.6.0"
+}
+
+dependencyResolutionManagement {
     repositories {
         mavenCentral()
 

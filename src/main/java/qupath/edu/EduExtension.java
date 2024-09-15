@@ -39,7 +39,6 @@ import qupath.lib.gui.viewer.QuPathViewer;
 import qupath.lib.gui.viewer.QuPathViewerPlus;
 import qupath.lib.projects.Project;
 
-import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Objects;
@@ -51,7 +50,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
 
     private static final Logger logger = LoggerFactory.getLogger(EduExtension.class);
 
-    @Nonnull private static EduExtension instance;
+    private static EduExtension instance;
 
     private QuPathGUI qupath;
 
@@ -66,7 +65,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
 
         this.qupath = qupath;
 
-        if (QuPathGUI.getVersion().getMinor() < 5) {
+        if (QuPathGUI.getVersion().getMinor() != 6) {
             var confirm = Dialogs.showYesNoDialog(
                 "Unverified version",
                 "QuPath Edu has not been tested with this version of QuPath. Do you wish to proceed?"
@@ -159,12 +158,12 @@ public class EduExtension implements QuPathExtension, GitHubProject {
 
     @Override
     public Version getQuPathVersion() {
-        return Version.parse("0.5.1");
+        return Version.parse("0.6.0");
     }
 
     @Override
     public Version getVersion() {
-        return Version.parse("1.0.2");
+        return Version.parse("1.0.3");
     }
 
     public UserModeManager getUserModeManager() {
@@ -175,7 +174,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         Action action = createAction(ProjectDescriptionEditorCommand::openDescriptionEditor, "Edit lesson information");
         action.disabledProperty().bind(qupath.readOnlyProperty());
 
-        qupath.getMenu("File>Project...", false).getItems().add(7,
+        qupath.getMenu("File>Project", false).getItems().add(7,
             createMenuItem(action)
         );
 
@@ -191,7 +190,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         cbUserMode.setCellFactory(f -> new UserModeListCell(false));
         cbUserMode.getSelectionModel().select(0);
         cbUserMode.setPadding(new Insets(0));
-        cbUserMode.setStyle("-fx-background-color: transparent; -fx-text-fill: #fff; -fx-background-insets: 0; -fx-background-radius: 0");
+        cbUserMode.setStyle("-fx-background-color: transparent; -fx-background-insets: 0; -fx-background-radius: 0");
 
         getUserModeManager().userModeProperty().bind(cbUserMode.getSelectionModel().selectedItemProperty());
 

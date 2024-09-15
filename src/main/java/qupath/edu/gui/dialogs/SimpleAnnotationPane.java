@@ -266,14 +266,14 @@ public class SimpleAnnotationPane implements PathObjectSelectionListener, Change
 
         // Deal with listeners for the current ImageData
         if (this.hierarchy != null) {
-            hierarchy.removePathObjectListener(this);
+            hierarchy.removeListener(this);
             hierarchy.getSelectionModel().removePathObjectSelectionListener(this);
         }
         this.imageData = imageData;
         if (this.imageData != null) {
             hierarchy = imageData.getHierarchy();
             hierarchy.getSelectionModel().addPathObjectSelectionListener(this);
-            hierarchy.addPathObjectListener(this);
+            hierarchy.addListener(this);
             PathObject selected = hierarchy.getSelectionModel().getSelectedObject();
 
             var sorted = hierarchy.getAnnotationObjects()

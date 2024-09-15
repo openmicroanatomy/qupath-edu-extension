@@ -68,7 +68,7 @@ public class EduProject implements Project<BufferedImage> {
 	private String projectInformation;
 
 	private boolean maskNames = false;
-	private LinkedHashMap<String, String> metadata = null;
+	private LinkedHashMap<String, String> metadata = new LinkedHashMap<>();
 
 	private long creationTimestamp;
 	private long modificationTimestamp;
@@ -99,8 +99,11 @@ public class EduProject implements Project<BufferedImage> {
 			addImages(images);
 		}
 
-		if (element.has("metadata")) {
-			metadata = gson.fromJson(new String(Base64.getDecoder().decode(element.get("metadata").getAsString()), StandardCharsets.UTF_8), TypeToken.getParameterized(LinkedHashMap.class, String.class, String.class).getType());
+		if (element.has("metadata") && !element.get("metadata").getAsString().isEmpty()) {
+			var json = new String(Base64.getDecoder().decode(element.get("metadata").getAsString()), StandardCharsets.UTF_8);
+			var type = TypeToken.getParameterized(LinkedHashMap.class, String.class, String.class).getType();
+
+			metadata = gson.fromJson(json, type);
 		}
 	}
 
@@ -413,6 +416,11 @@ public class EduProject implements Project<BufferedImage> {
 		return "EduProject: " + name;
 	}
 
+	@Override
+	public Map<String, String> getMetadata() {
+		return metadata;
+	}
+
 	public class EduProjectImageEntry implements ProjectImageEntry<BufferedImage> {
 
 		/**
@@ -444,6 +452,7 @@ public class EduProject implements Project<BufferedImage> {
 		 * Map of associated metadata for the entry.
 		 */
 		private Map<String, String> metadata = new LinkedHashMap<>();
+		private final Set<String> tags = Collections.synchronizedSet(new LinkedHashSet<>());
 
 		/**
 		 * ImageData as a base64 encoded string.
@@ -508,7 +517,11 @@ public class EduProject implements Project<BufferedImage> {
 			this.thumbnail = entry.thumbnail;
 			this.slideTour = entry.slideTour;
 			this.annotations = entry.annotations;
-		}
+
+			if (entry.tags != null) {
+            	this.tags.addAll(entry.tags);
+			}
+        }
 
 		@Override
 		public String getID() {
@@ -820,11 +833,21 @@ public class EduProject implements Project<BufferedImage> {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
+		public Set<String> getTags() {
+			return Set.of();
+		}
+
 		/**
 		 * <b>Temporary until ImageData is fully JSON serializable</b>
 		 */
 		public String getAnnotations() {
 			return annotations;
+		}
+
+		@Override
+		public Map<String, String> getMetadata() {
+			return metadata;
 		}
 	}
 
