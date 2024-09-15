@@ -1,6 +1,6 @@
 rootProject.name = 'qupath-edu-extension'
 
-gradle.ext.QuPathVersion = "0.5.1"
+gradle.ext.QuPathVersion = "0.6.0-rc1"
 
 dependencyResolutionManagement {
     versionCatalogs {

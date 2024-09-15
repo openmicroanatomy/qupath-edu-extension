@@ -10,7 +10,7 @@ If you wish to run the development version of the extension and/or use any debug
 
 **These instructions are written for IntelliJ and may differ slightly for other editors.**
 
-1. Download the JavaFX 17.0.2 SDK from here [https://gluonhq.com/products/javafx/](https://gluonhq.com/products/javafx/) and extract it
+1. Download the JavaFX 21.0.1 SDK from here [https://gluonhq.com/products/javafx/](https://gluonhq.com/products/javafx/) and extract it
 2. Add the following to your **Run/Debug Configuration**:
 
 **Main class:** `qupath.lib.gui.QuPathApp`

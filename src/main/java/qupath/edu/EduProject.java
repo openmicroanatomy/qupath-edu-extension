@@ -68,7 +68,7 @@ public class EduProject implements Project<BufferedImage> {
 	private String projectInformation;
 
 	private boolean maskNames = false;
-	private LinkedHashMap<String, String> metadata = null;
+	private LinkedHashMap<String, String> metadata = new LinkedHashMap<>();
 
 	private long creationTimestamp;
 	private long modificationTimestamp;
@@ -411,6 +411,11 @@ public class EduProject implements Project<BufferedImage> {
 	@Override
 	public String toString() {
 		return "EduProject: " + name;
+	}
+
+	@Override
+	public Map<String, String> getMetadata() {
+		return metadata;
 	}
 
 	public class EduProjectImageEntry implements ProjectImageEntry<BufferedImage> {
@@ -825,6 +830,11 @@ public class EduProject implements Project<BufferedImage> {
 		 */
 		public String getAnnotations() {
 			return annotations;
+		}
+
+		@Override
+		public Map<String, String> getMetadata() {
+			return metadata;
 		}
 	}
 
