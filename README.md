@@ -15,7 +15,7 @@ QuPath Edu is developed by the [University of Oulu](https://www.oulu.fi/en/unive
 1. Install [QuPath](https://qupath.readthedocs.io/en/stable/docs/intro/installation.html) by following the instructions
 2. [Download](https://github.com/openmicroanatomy/qupath-edu-extension/releases) the QuPath Edu extension for your QuPath version
 3. Install the extension by drag and dropping the downloaded ``.jar`` file to the QuPath viewer
-    - See [here](https://github.com/qupath/qupath/wiki/Creating-extensions#installing-extensions) for more detailed instructions on how to install QuPath extensions
+    - See [here](https://qupath.readthedocs.io/en/stable/docs/intro/extensions.html) for more detailed instructions on how to install QuPath extensions
 4. Connect to your institutions server
     - Refer to your course materials if you don't know where to connect to
 5. Start using QuPath to study! 🐱‍🏍
