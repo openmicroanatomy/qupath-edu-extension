@@ -18,8 +18,8 @@ java.sourceCompatibility = JavaVersion.VERSION_21
 dependencies {
     implementation "io.github.qupath:qupath-gui-fx:${gradle.ext.QuPathVersion}"
     implementation "io.github.qupath:qupath-fxtras:0.1.5"
-    implementation "com.google.guava:guava:33.3.0-jre"
-    api "com.microsoft.azure:msal4j:1.13.9"
+    implementation "com.google.guava:guava:33.4.0-jre"
+    api "com.microsoft.azure:msal4j:1.19.0"
 }
 
 jar {

@@ -159,12 +159,12 @@ public class EduExtension implements QuPathExtension, GitHubProject {
 
     @Override
     public Version getQuPathVersion() {
-        return Version.parse("0.5.1");
+        return Version.parse("0.6.0-rc3");
     }
 
     @Override
     public Version getVersion() {
-        return Version.parse("1.0.2");
+        return Version.parse("1.0.3");
     }
 
     public UserModeManager getUserModeManager() {
@@ -191,7 +191,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
         cbUserMode.setCellFactory(f -> new UserModeListCell(false));
         cbUserMode.getSelectionModel().select(0);
         cbUserMode.setPadding(new Insets(0));
-        cbUserMode.setStyle("-fx-background-color: transparent; -fx-text-fill: #fff; -fx-background-insets: 0; -fx-background-radius: 0");
+        cbUserMode.setStyle("-fx-background-color: transparent; -fx-background-insets: 0; -fx-background-radius: 0");
 
         getUserModeManager().userModeProperty().bind(cbUserMode.getSelectionModel().selectedItemProperty());
 
