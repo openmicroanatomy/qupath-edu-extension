@@ -20,6 +20,7 @@ import javafx.scene.text.Text;
 import org.controlsfx.control.MasterDetailPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import qupath.edu.gui.WrappingPathObjectListCell;
 import qupath.edu.util.ReflectionUtil;
 import qupath.fx.dialogs.Dialogs;
 import qupath.lib.gui.QuPathGUI;
@@ -134,7 +135,7 @@ public class SimpleAnnotationPane implements PathObjectSelectionListener, Change
         listAnnotations = new ListView<>();
         hierarchyChanged(null); // Force update
 
-        listAnnotations.setCellFactory(c -> PathObjectLabels.createListCell());
+        listAnnotations.setCellFactory(c -> new WrappingPathObjectListCell(PathObject::toString));
 
         listAnnotations.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         listAnnotations.getSelectionModel().getSelectedItems().addListener(

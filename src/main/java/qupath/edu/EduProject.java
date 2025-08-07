@@ -53,21 +53,20 @@ import java.util.stream.Collectors;
  */
 public class EduProject implements Project<BufferedImage> {
 
-	private final String IMAGE_ID = "PROJECT_ENTRY_ID";
+	private final transient String IMAGE_ID = "PROJECT_ENTRY_ID";
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	private final transient Logger logger = LoggerFactory.getLogger(getClass());
 
-	private final ExecutorService thumbnailLoader = Executors.newSingleThreadExecutor();
+	private final transient ExecutorService thumbnailLoader = Executors.newSingleThreadExecutor();
 
 	private List<EduProjectImageEntry> images = new ArrayList<>();
 
 	private String version;
-
 	private String name;
 	private String id;
 	private String projectInformation;
 
-	private boolean maskNames = false;
+	private transient boolean maskNames = false;
 	private LinkedHashMap<String, String> metadata = new LinkedHashMap<>();
 
 	private long creationTimestamp;
@@ -99,8 +98,11 @@ public class EduProject implements Project<BufferedImage> {
 			addImages(images);
 		}
 
-		if (element.has("metadata")) {
-			metadata = gson.fromJson(new String(Base64.getDecoder().decode(element.get("metadata").getAsString()), StandardCharsets.UTF_8), TypeToken.getParameterized(LinkedHashMap.class, String.class, String.class).getType());
+		if (element.has("metadata") && !element.get("metadata").getAsString().isEmpty()) {
+			var json = new String(Base64.getDecoder().decode(element.get("metadata").getAsString()), StandardCharsets.UTF_8);
+			var type = TypeToken.getParameterized(LinkedHashMap.class, String.class, String.class).getType();
+
+			metadata = gson.fromJson(json, type);
 		}
 	}
 
@@ -449,6 +451,7 @@ public class EduProject implements Project<BufferedImage> {
 		 * Map of associated metadata for the entry.
 		 */
 		private Map<String, String> metadata = new LinkedHashMap<>();
+		private final Set<String> tags = Collections.synchronizedSet(new LinkedHashSet<>());
 
 		/**
 		 * ImageData as a base64 encoded string.
@@ -513,7 +516,11 @@ public class EduProject implements Project<BufferedImage> {
 			this.thumbnail = entry.thumbnail;
 			this.slideTour = entry.slideTour;
 			this.annotations = entry.annotations;
-		}
+
+			if (entry.tags != null) {
+            	this.tags.addAll(entry.tags);
+			}
+        }
 
 		@Override
 		public String getID() {
@@ -823,6 +830,11 @@ public class EduProject implements Project<BufferedImage> {
 		@Override
 		public ResourceManager.Manager<ImageServer<BufferedImage>> getImages() {
 			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Set<String> getTags() {
+			return Set.of();
 		}
 
 		/**

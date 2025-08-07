@@ -19,7 +19,6 @@ import qupath.lib.gui.QuPathGUI;
 import qupath.lib.io.GsonTools;
 import qupath.lib.projects.Project;
 
-import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -98,7 +97,7 @@ public class EduAPI {
 	 * See {@link #userOrganizationId} for details.
 	 * @return Users Organization UUID or null if unauthenticated.
 	 */
-	@Nullable public static String getUserOrganizationId() {
+	public static String getUserOrganizationId() {
 		return userOrganizationId;
 	}
 
@@ -115,7 +114,7 @@ public class EduAPI {
 	 * See {@link #organizationId} for details.
 	 * @return UUID of Organization currently viewed.
 	 */
-	@Nullable public static String getOrganizationId() {
+	public static String getOrganizationId() {
 		return organizationId;
 	}
 
