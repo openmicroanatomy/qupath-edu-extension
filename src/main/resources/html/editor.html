@@ -12,75 +12,17 @@
     {{qupath-input}}
 </div>
 
+<!--
+    For some unknown reason JavaFX WebView requires a ResizeObserver polyfill when running QuPath from the executable.
+    This works fine without the Polyfill when running QuPath from the IDE.
+
+    See also: https://stackoverflow.com/questions/69577162/javafx-webview-does-not-display-correctly-an-html-page
+-->
+<script src="ckeditor/ResizeObserver.js"></script>
 <script src="ckeditor/ckeditor.js"></script>
 <script>
-    ClassicEditor.create(document.querySelector('.editor'), {
-        toolbar: {
-            items: [
-                'undo',
-                'redo',
-                'removeFormat',
-                '|',
-                'heading',
-                '|',
-                'fontFamily',
-                'fontSize',
-                'bold',
-                'italic',
-                'underline',
-                'strikethrough',
-                'fontColor',
-                'fontBackgroundColor',
-                '|',
-                'link',
-                'insertImage',
-                'mediaEmbed',
-                '|',
-                'alignment',
-                '|',
-                'bulletedList',
-                'numberedList',
-                'indent',
-                'outdent',
-                '|',
-                'subscript',
-                'superscript',
-                '|',
-                'blockQuote',
-                'insertTable',
-                '|',
-                'highlight',
-                'horizontalLine',
-                '|',
-                'codeBlock',
-                'MathType',
-                'ChemType',
-                'specialCharacters'
-            ]
-        },
-        language: 'en',
-        image: {
-            resizeUnit: 'px',
-            styles: [
-                'alignLeft', 'alignCenter', 'alignRight'
-            ],
-            toolbar: [
-                'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight',
-                '|',
-                'imageTextAlternative'
-            ]
-        },
-        table: {
-            contentToolbar: [
-                'tableAlignment',
-                'tableColumn',
-                'tableRow',
-                'mergeTableCells',
-                'tableCellProperties',
-                'tableProperties'
-           ]
-        },
-        licenseKey: '',
+    ckeditor.create(document.querySelector('.editor'), {
+        licenseKey: 'GPL',
         simpleUpload: {
             uploadUrl: '{{qupath-upload-url}}',
 
@@ -93,9 +35,6 @@
         window.editor = editor;
 
         document.querySelector('.ckeditor--loading').style.display = "none";
-        document.querySelector( '.document-editor__toolbar' ).appendChild( editor.ui.view.toolbar.element );
-        document.querySelector( '.ck-toolbar' ).classList.add( 'ck-reset_all' );
-
     }).catch( error => {
         document.querySelector( '.ckeditor--loading' ).innerText = "Error while loading editor, please see the log for more details.";
         console.error( 'Oops, something went wrong!' );

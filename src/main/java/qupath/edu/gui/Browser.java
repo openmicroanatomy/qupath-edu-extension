@@ -14,6 +14,7 @@ import javafx.scene.web.WebView;
 import netscape.javascript.JSException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import qupath.lib.common.LogTools;
 
 import java.awt.*;
 import java.net.URI;
@@ -137,13 +138,10 @@ public class Browser extends Region {
             CSS.append(".ck { -webkit-user-select: none; cursor: default; }");
         }
 
-        String resourceRoot = Browser.class.getResource("/ckeditor/ckeditor.js").toString();
-        resourceRoot = resourceRoot.substring(0, resourceRoot.length() - 20); // Hacky wacky way to get jar:file: ... URI
-
         if (body) {
             return ("<html>" +
                     "<head>" +
-                        "<base href=\"" + resourceRoot + "\" />" +
+                        "<base href=\"" + getResourceRoot() + "\" />" +
                         "<style>" + CSS + "</style>" +
                         "<link rel=\"stylesheet\" type=\"text/css\" href=\"css/ckeditor.css\">" +
                     "</head>" +
@@ -178,5 +176,20 @@ public class Browser extends Region {
         boolean result = confirm.showAndWait().filter(ButtonType.YES::equals).isPresent();
 
         return result;
+    }
+
+    public static String getResourceRoot() {
+        var resource = Browser.class.getResource("/ckeditor/ckeditor.js");
+
+        if (resource == null) {
+            LogTools.warnOnce(LoggerFactory.getLogger(Browser.class), "Missing ckeditor.js from resources; Browser might not work as intended.");
+
+            return "";
+        }
+
+        var root = resource.toString();
+        root = root.substring(0, root.length() - 20); // Hacky wacky way to get jar:file: ... URI
+
+        return root;
     }
 }
