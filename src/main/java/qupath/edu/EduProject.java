@@ -37,7 +37,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
@@ -57,7 +56,7 @@ public class EduProject implements Project<BufferedImage> {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	private final ExecutorService thumbnailLoader = Executors.newSingleThreadExecutor();
+	private final ExecutorService thumbnailLoader = Executors.newVirtualThreadPerTaskExecutor();
 
 	private List<EduProjectImageEntry> images = new ArrayList<>();
 
@@ -747,12 +746,8 @@ public class EduProject implements Project<BufferedImage> {
 					// First try to fetch the thumbnail from the server, then try to generate it.
 					if (fetchThumbnailFromServer() || generateThumbnail()) {
 						thumbnailState = ThumbnailState.LOADED;
-
-						QuPathGUI.getInstance().refreshProject();
 					} else {
 						thumbnailState = ThumbnailState.FAILURE;
-
-						// We don't need to refresh the project here as the thumbnail is already null.
 					}
 				});
 			}
@@ -783,7 +778,7 @@ public class EduProject implements Project<BufferedImage> {
 				if (properties.isPresent() && properties.get().has(property)) {
 					String thumbnailUrl = properties.get().get(property).getAsString();
 
-					setThumbnail(ImageIO.read(new URL(thumbnailUrl)));
+					setThumbnail(ImageIO.read(new URI(thumbnailUrl).toURL()));
 
 					return true;
 				}
@@ -800,8 +795,6 @@ public class EduProject implements Project<BufferedImage> {
 		 * @return true when generating the thumbnail was a success.
 		 */
 		private boolean generateThumbnail() {
-			setThumbnail(null);
-
 			try {
 				setThumbnail(ProjectCommands.getThumbnailRGB(serverBuilder.build()));
 
