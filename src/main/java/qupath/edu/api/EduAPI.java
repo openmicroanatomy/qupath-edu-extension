@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qupath.edu.exceptions.HttpException;
 import qupath.edu.models.*;
+import qupath.edu.util.Strings;
 import qupath.edu.util.VersionAdapter;
 import qupath.fx.dialogs.Dialogs;
 import qupath.lib.common.Version;
@@ -640,6 +641,7 @@ public class EduAPI {
 	 */
 	public static URI getRenderRegionURL(String uri, String slideId, int tileX, int tileY, int level, int tileWidth, int tileHeight, int depth) {
 		return URI.create(uri
+				.replace("{host}", Strings.removeTrailingSlash(host.toString()))
 				.replace("{slideId}", e(slideId))
 				.replace("{tileX}", String.valueOf(tileX))
 				.replace("{tileY}", String.valueOf(tileY))
