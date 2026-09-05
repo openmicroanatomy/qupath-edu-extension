@@ -553,26 +553,6 @@ public class EduProject implements Project<BufferedImage> {
 		}
 
 		@Override
-		public String removeMetadataValue(final String key) {
-			return metadata.remove(key);
-		}
-
-		@Override
-		public String getMetadataValue(final String key) {
-			return metadata.get(key);
-		}
-
-		@Override
-		public String putMetadataValue(final String key, final String value) {
-			return metadata.put(key, value);
-		}
-
-		@Override
-		public boolean containsMetadata(final String key) {
-			return metadata.containsKey(key);
-		}
-
-		@Override
 		public String getDescription() {
 			return description;
 		}
@@ -580,21 +560,6 @@ public class EduProject implements Project<BufferedImage> {
 		@Override
 		public void setDescription(String description) {
 			this.description = description;
-		}
-
-		@Override
-		public void clearMetadata() {
-			this.metadata.clear();
-		}
-
-		@Override
-		public Map<String, String> getMetadataMap() {
-			return Collections.unmodifiableMap(metadata);
-		}
-
-		@Override
-		public Collection<String> getMetadataKeys() {
-			return Collections.unmodifiableSet(metadata.keySet());
 		}
 
 		@Override
@@ -716,8 +681,8 @@ public class EduProject implements Project<BufferedImage> {
 			sb.append(getImageName()).append("\n");
 			sb.append("ID:\t").append(getID()).append("\n\n");
 
-			if (!getMetadataMap().isEmpty()) {
-				for (Map.Entry<String, String> mapEntry : getMetadataMap().entrySet()) {
+			if (!getMetadata().isEmpty()) {
+				for (Map.Entry<String, String> mapEntry : getMetadata().entrySet()) {
 					sb.append(mapEntry.getKey()).append(":\t").append(mapEntry.getValue()).append("\n");
 				}
 
