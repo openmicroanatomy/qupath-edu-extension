@@ -21,7 +21,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.text.Text;
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.dialog.ProgressDialog;
 import org.slf4j.Logger;
@@ -83,7 +82,7 @@ public class LoginDialog {
         
         ComboBox<ExternalOrganization> cbLogos = new ComboBox<>();
         cbLogos.prefWidthProperty().bind(pane.widthProperty());
-        cbLogos.setPlaceholder(new Text("No organizations available."));
+        cbLogos.setPlaceholder(new Label("No organizations available."));
         cbLogos.setButtonCell(new ImageViewListCell(false));
         cbLogos.setCellFactory(f -> new ImageViewListCell(true));
         cbLogos.getItems().addAll(EduAPI.getAllOrganizations().orElse(Collections.emptyList()));
@@ -117,7 +116,7 @@ public class LoginDialog {
 
         /* Statusbar */
         
-        Text txtHost = new Text("Host " + EduOptions.host().get());
+        Label txtHost = new Label("Host " + EduOptions.host().get());
         Hyperlink btnChangeHost = new Hyperlink("Change host ...");
         btnChangeHost.setOnAction(a -> {
             dialog.close();
@@ -394,9 +393,10 @@ public class LoginDialog {
             setGraphic(imageView);
         }
 
+        // fixme: inherits wrong text colour on Light scheme
         private void setNameAsGraphic(String name) {
             BorderPane pane = new BorderPane();
-            pane.setCenter(new Text(name));
+            pane.setCenter(new Label(name));
 
             if (buttonCell) {
                 pane.setPrefSize(330, 80);

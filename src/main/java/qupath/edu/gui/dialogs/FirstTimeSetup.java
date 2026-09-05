@@ -66,7 +66,7 @@ public class FirstTimeSetup {
 
         /* Header */
 
-        Text title = new Text("Welcome to QuPath Edu");
+        Label title = new Label("Welcome to QuPath Edu");
         title.setFont(Font.font(16));
         title.setTextAlignment(TextAlignment.CENTER);
 

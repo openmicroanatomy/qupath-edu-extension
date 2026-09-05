@@ -90,7 +90,7 @@ public class WorkspaceProjectListCell extends GridCell<ExternalProject> {
 
         /* Content */
 
-        Text name = new Text(project.getName());
+        Label name = new Label(project.getName());
         name.setFont(Font.font(Font.getDefault().getName(), FontWeight.BOLD, 13));
 
         Label description = new Label(project.getDescription());

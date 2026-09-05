@@ -16,6 +16,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
@@ -23,11 +24,9 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.Text;
 import org.controlsfx.dialog.ProgressDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import qupath.edu.EduExtension;
 import qupath.edu.api.EduAPI;
 import qupath.edu.api.Roles;
 import qupath.edu.models.ExternalSlide;
@@ -87,7 +86,7 @@ public class SlideManager {
 
         table = new TableView<>();
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
-        table.setPlaceholder(new Text("No slides, none match search criteria or no permissions to list slides."));
+        table.setPlaceholder(new Label("No slides, none match search criteria or no permissions to list slides."));
         table.setEditable(true);
 
         TableColumn<ExternalSlide, Boolean> selectedColumn = new TableColumn<>();

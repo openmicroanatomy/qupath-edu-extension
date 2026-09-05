@@ -12,6 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -23,7 +24,6 @@ import javafx.stage.Modality;
 import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import qupath.edu.EduExtension;
 import qupath.edu.EduProject;
 import qupath.edu.api.EduAPI;
 import qupath.edu.gui.CustomDialogs;
@@ -342,7 +342,7 @@ public class SlideTour implements QuPathViewerListener {
 
 		TableView<SlideTourEntry> table = new TableView<>();
 		table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-		table.setPlaceholder(new Text("No entries for this slide tour."));
+		table.setPlaceholder(new Label("No entries for this slide tour."));
 
 		/* Re-order entries */
 

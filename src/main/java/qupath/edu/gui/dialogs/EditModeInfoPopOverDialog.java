@@ -2,6 +2,7 @@ package qupath.edu.gui.dialogs;
 
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
+import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -21,7 +22,7 @@ public final class EditModeInfoPopOverDialog {
         pane.setPadding(new Insets(5));
         pane.setVgap(10);
 
-        Text txtStatus = new Text("Status: ");
+        Label txtStatus = new Label("Status: ");
 
         Text txtState = new Text();
         txtState.textProperty().bind(Bindings.when(EduAPI.connectedToServerProperty()).then("Connected").otherwise("Disconnected"));

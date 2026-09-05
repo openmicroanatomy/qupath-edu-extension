@@ -16,7 +16,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +75,7 @@ public class UserManager {
 
         TableView<ExternalUser> table = new TableView<>();
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        table.setPlaceholder(new Text("No users, none match search criteria or no permissions."));
+        table.setPlaceholder(new Label("No users, none match search criteria or no permissions."));
 
         TableColumn<ExternalUser, String> nameColumn = new TableColumn<>("Name");
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -361,7 +360,7 @@ public class UserManager {
         if (EduAPI.hasRole(Roles.ADMIN)) {
             cbOrganization.setPromptText("Select organization");
             cbOrganization.setItems(FXCollections.observableArrayList(EduAPI.getAllOrganizations().orElse(List.of())));
-            cbOrganization.setPlaceholder(new Text("No organizations"));
+            cbOrganization.setPlaceholder(new Label("No organizations"));
         } else {
             cbOrganization.setItems(FXCollections.observableArrayList(EduAPI.getOrganization().orElse(null)));
             cbOrganization.setDisable(true);

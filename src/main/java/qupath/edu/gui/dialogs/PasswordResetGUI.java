@@ -7,7 +7,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import qupath.edu.api.EduAPI;
 import qupath.fx.dialogs.Dialogs;
 
@@ -64,7 +63,7 @@ public class PasswordResetGUI {
     public void showChangePasswordDialog() {
         /* Text */
 
-        Text txtReminder = new Text("Check your email for your password reset token.");
+        Label txtReminder = new Label("Check your email for your password reset token.");
         txtReminder.setFont(Font.font(null, FontWeight.BOLD, -1)); // Default font, default size, bolded
 
         /* Textfields */

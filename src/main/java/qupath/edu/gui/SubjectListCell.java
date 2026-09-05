@@ -2,10 +2,10 @@ package qupath.edu.gui;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.text.Text;
 import org.controlsfx.glyphfont.FontAwesome;
 import qupath.edu.gui.buttons.IconButtons;
 import qupath.edu.gui.dialogs.WorkspaceManager;
@@ -33,7 +33,7 @@ public class SubjectListCell extends ListCell<ExternalSubject> {
 
         // TODO: Fix subject name may be wider than the SplitPane, thus hiding all buttons
 
-        HBox name = new HBox(new Text(item.getName()));
+        HBox name = new HBox(new Label(item.getName()));
         name.setFillHeight(true);
         name.setAlignment(Pos.CENTER_LEFT);
 

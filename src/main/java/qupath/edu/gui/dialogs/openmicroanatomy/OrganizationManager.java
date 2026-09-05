@@ -10,7 +10,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.Text;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +79,7 @@ public class OrganizationManager {
 
         table = new TableView<>();
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        table.setPlaceholder(new Text("No organizations or no permissions."));
+        table.setPlaceholder(new Label("No organizations or no permissions."));
 
         TableColumn<ExternalOrganization, String> nameColumn = new TableColumn<>("Name");
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -124,7 +123,7 @@ public class OrganizationManager {
         pane = new BorderPane();
         pane.setPrefWidth(800);
         pane.setPrefHeight(400);
-        pane.setTop(new Text("Only administrators may change these settings."));
+        pane.setTop(new Label("Only administrators may change these settings."));
         pane.setCenter(table);
         pane.setBottom(buttons);
         pane.setPadding(new Insets(10));

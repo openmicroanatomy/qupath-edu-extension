@@ -1,12 +1,12 @@
 package qupath.edu.gui;
 
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.Glyph;
 import org.controlsfx.glyphfont.GlyphFont;
@@ -63,8 +63,8 @@ public class UserModeListCell extends ListCell<UserMode> {
                 icon.setPrefWidth(20);
                 icon.setPrefHeight(20);
 
-                var title    = new Text(text);
-                var subtitle = new Text(description);
+                var title    = new Label(text);
+                var subtitle = new Label(description);
                 subtitle.setFont(Font.font(10));
 
                 pane.add(icon, 0, 0);

@@ -8,9 +8,9 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import org.controlsfx.glyphfont.FontAwesome;
 import qupath.edu.gui.buttons.IconButtons;
 import qupath.edu.gui.dialogs.openmicroanatomy.*;
@@ -82,7 +82,7 @@ public class AdministrativeToolsDialog {
         var glyph = IconButtons.createIconButton(icon, text, 50);
         glyph.setStyle("-fx-background-color: transparent");
 
-        var label = new Text(text);
+        var label = new Label(text);
 
         var item = new VBox(glyph, label);
         item.setAlignment(Pos.CENTER);

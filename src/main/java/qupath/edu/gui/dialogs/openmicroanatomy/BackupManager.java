@@ -8,7 +8,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qupath.edu.EduExtension;
@@ -61,7 +60,7 @@ public class BackupManager {
 
         table = new TableView<>();
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        table.setPlaceholder(new Text("No backups or no permissions."));
+        table.setPlaceholder(new Label("No backups or no permissions."));
 
         TableColumn<ExternalBackup, String> backupNameColumn = new TableColumn<>("Lesson");
         backupNameColumn.setCellValueFactory(new PropertyValueFactory<>("readable"));
@@ -119,7 +118,7 @@ public class BackupManager {
         pane = new BorderPane();
         pane.setPrefWidth(800);
         pane.setPrefHeight(400);
-        pane.setTop(new Text("Backups are removed automatically after one year."));
+        pane.setTop(new Label("Backups are removed automatically after one year."));
         pane.setCenter(table);
         pane.setBottom(buttons);
         pane.setPadding(new Insets(10));
