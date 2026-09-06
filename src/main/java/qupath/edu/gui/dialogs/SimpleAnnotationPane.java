@@ -130,7 +130,7 @@ public class SimpleAnnotationPane implements PathObjectSelectionListener, Change
         listAnnotations = new ListView<>();
         hierarchyChanged(null); // Force update
 
-        listAnnotations.setCellFactory(c -> PathObjectLabels.createListCell());
+        listAnnotations.setCellFactory(c -> PathObjectLabels.createListCell(PathObject::getDisplayedName));
 
         listAnnotations.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         listAnnotations.getSelectionModel().getSelectedItems().addListener(
