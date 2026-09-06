@@ -58,6 +58,14 @@ public class EduImageServer extends AbstractTileableImageServer {
 
         JsonObject json = properties.get();
 
+        if (json.has("openmicroanatomy.version")) {
+            initializeV2(args, json);
+        } else {
+            initializeV1(args, json);
+        }
+    }
+
+    private void initializeV1(String[] args, JsonObject json) {
         this.serverURI = json.get("openslide.remoteserver.uri").getAsString();
 
         int width = json.get("openslide.level[0].width").getAsInt();
@@ -131,6 +139,71 @@ public class EduImageServer extends AbstractTileableImageServer {
         // Try to get a background color
         try {
             String bg = json.get("openslide.background-color").getAsString();
+            if (bg != null) {
+                if (!bg.startsWith("#"))
+                    bg = "#" + bg;
+                backgroundColor = Color.decode(bg);
+            }
+        } catch (Exception e) {
+            backgroundColor = null;
+            logger.debug("Unable to find background color: {}", e.getLocalizedMessage());
+        }
+    }
+
+    private void initializeV2(String[] args, JsonObject json) {
+        this.serverURI = json.get("openmicroanatomy.remoteserver.uri").getAsString();
+
+        int width = json.get("openmicroanatomy.slide-width").getAsInt();
+        int height = json.get("openmicroanatomy.slide-height").getAsInt();
+
+        int tileWidth = (int) readJsonPropertyOrDefault(json, "openmicroanatomy.tile-width", 256);
+        int tileHeight = (int) readJsonPropertyOrDefault(json, "openmicroanatomy.tile-height", 256);
+
+        double pixelWidth = readJsonPropertyOrDefault(json, "openmicroanatomy.pixel-size-x", Double.NaN);
+        double pixelHeight = readJsonPropertyOrDefault(json, "openmicroanatomy.pixel-size-y", Double.NaN);
+        double magnification = readJsonPropertyOrDefault(json, "openmicroanatomy.objective-power", Double.NaN);
+
+        // Make sure the pixel sizes are valid
+        if (pixelWidth <= 0 || pixelHeight <= 0 || Double.isInfinite(pixelWidth) || Double.isInfinite(pixelHeight)) {
+            logger.warn("Invalid pixel sizes {} and {}, will use default", pixelWidth, pixelHeight);
+            pixelWidth = Double.NaN;
+            pixelHeight = Double.NaN;
+        }
+
+        int levelCount = json.get("openmicroanatomy.levels").getAsInt();
+        var resolutionBuilder = new ImageServerMetadata.ImageResolutionLevel.Builder(width, height);
+        for (int i = 0; i < levelCount; i++) {
+            int w = json.get("openmicroanatomy.level[" + i + "].width").getAsInt();
+            int h = json.get("openmicroanatomy.level[" + i + "].height").getAsInt();
+            resolutionBuilder.addLevel(w, h);
+        }
+        var levels = resolutionBuilder.build();
+
+        String path = uri.toString();
+        String name;
+
+        if (uri.getFragment() != null) {
+            name = EduAPI.d(uri.getFragment());
+        } else {
+            name = uri.getPath().substring(1);
+        }
+
+        this.args = args;
+        originalMetadata = new ImageServerMetadata.Builder(getClass(),
+                path, width, height).
+                channels(ImageChannel.getDefaultRGBChannels()). // Assume 3 channels (RGB)
+                name(name).
+                rgb(true).
+                pixelType(PixelType.UINT8).
+                preferredTileSize(tileWidth, tileHeight).
+                pixelSizeMicrons(pixelWidth, pixelHeight).
+                magnification(magnification).
+                levels(levels).
+                build();
+
+        // Try to get a background color
+        try {
+            String bg = json.get("openmicroanatomy.background-color").getAsString();
             if (bg != null) {
                 if (!bg.startsWith("#"))
                     bg = "#" + bg;
