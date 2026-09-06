@@ -95,13 +95,15 @@ public class UserModeManager {
      * Backup new image data if editing mode is enabled.
      */
     private void onImageDataChanged(ObservableValue<? extends ImageData<BufferedImage>> obs, ImageData<BufferedImage> oldData, ImageData<BufferedImage> imageData) {
-        if (userMode.get() == UserMode.STUDYING) {
+        var hasImageData = imageData != null && imageData.getHierarchy() != null;
+
+        if (userMode.get() == UserMode.STUDYING && hasImageData) {
             for (var annotation : imageData.getHierarchy().getAnnotationObjects()) {
                 annotation.setLocked(true);
             }
         }
 
-        if (imageData == null || qupath.isReadOnly()) {
+        if (!(hasImageData) || qupath.isReadOnly()) {
             return;
         }
 
