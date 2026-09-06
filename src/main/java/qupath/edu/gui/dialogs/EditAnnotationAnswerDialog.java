@@ -23,7 +23,7 @@ import java.util.Collections;
 
 public class EditAnnotationAnswerDialog {
 
-    public static boolean openDialog(SimpleAnnotationPane annotationPane) {
+    public static boolean openDialog(EditingAnnotationPane annotationPane) {
         if (!(QuPathGUI.getInstance().getProject() instanceof EduProject project)) {
             Dialogs.showErrorNotification("Error", "The current project is not an EduProject -- cannot edit information.");
             return true;

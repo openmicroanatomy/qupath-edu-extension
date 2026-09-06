@@ -24,7 +24,6 @@ import qupath.edu.util.ReflectionUtil;
 import qupath.fx.dialogs.Dialogs;
 import qupath.lib.gui.QuPathGUI;
 import qupath.lib.gui.prefs.PathPrefs;
-import qupath.lib.gui.tools.GuiTools;
 import qupath.lib.gui.tools.PathObjectLabels;
 import qupath.lib.gui.viewer.QuPathViewer;
 import qupath.lib.images.ImageData;
@@ -41,9 +40,6 @@ import qupath.lib.roi.interfaces.ROI;
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static qupath.lib.gui.actions.ActionTools.createAction;
-import static qupath.lib.gui.actions.ActionTools.createMenuItem;
 
 public class SimpleAnnotationPane implements PathObjectSelectionListener, ChangeListener<ImageData<BufferedImage>>, PathObjectHierarchyListener {
 
@@ -156,13 +152,6 @@ public class SimpleAnnotationPane implements PathObjectSelectionListener, Change
         });
 
         PathPrefs.colorDefaultObjectsProperty().addListener((v, o, n) -> listAnnotations.refresh());
-
-        ContextMenu menuAnnotations = GuiTools.populateAnnotationsMenu(qupath, new ContextMenu());
-        menuAnnotations.getItems().add(3,
-            createMenuItem(createAction(() -> EditAnnotationAnswerDialog.openDialog(this), "Set answer properties"))
-        );
-
-        listAnnotations.setContextMenu(menuAnnotations);
 
         // Add the main annotation list
         BorderPane panelObjects = new BorderPane();

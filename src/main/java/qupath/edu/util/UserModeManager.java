@@ -10,6 +10,7 @@ import org.controlsfx.control.action.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qupath.edu.EduProject;
+import qupath.edu.gui.dialogs.EditingAnnotationPane;
 import qupath.edu.gui.dialogs.SimpleAnnotationPane;
 import qupath.fx.dialogs.Dialogs;
 import qupath.lib.gui.QuPathGUI;
@@ -70,22 +71,27 @@ public class UserModeManager {
         var oldTabs = FXCollections.observableArrayList(qupath.getAnalysisTabPane().getTabs());
 
         var annotations = oldTabs.get(2);
-        var oldAnnotationPane = annotations.getContent();
-        var newAnnotationPane = new SimpleAnnotationPane(qupath).getPane();
 
-        var slides = oldTabs.get(0);
+        var analysisAnnotationPane = annotations.getContent();
+        var editingAnnotationPane = new EditingAnnotationPane(qupath).getPane();
+        var studyingAnnotationPane = new SimpleAnnotationPane(qupath).getPane();
+
+        var slides = oldTabs.getFirst();
 
         var newTabs = List.of(slides, annotations);
 
-        annotations.setContent(newAnnotationPane);
+        annotations.setContent(studyingAnnotationPane);
         qupath.getAnalysisTabPane().getTabs().setAll(newTabs);
 
         userMode.addListener((obs, oldMode, newMode) -> {
             if (newMode == UserMode.ANALYSING) {
-                annotations.setContent(oldAnnotationPane);
+                annotations.setContent(analysisAnnotationPane);
                 qupath.getAnalysisTabPane().getTabs().setAll(oldTabs);
+            } else if (newMode == UserMode.STUDYING) {
+                annotations.setContent(studyingAnnotationPane);
+                qupath.getAnalysisTabPane().getTabs().setAll(newTabs);
             } else {
-                annotations.setContent(newAnnotationPane);
+                annotations.setContent(editingAnnotationPane);
                 qupath.getAnalysisTabPane().getTabs().setAll(newTabs);
             }
         });
