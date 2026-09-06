@@ -116,7 +116,7 @@ public class WorkspaceManager {
         miOpenById.setOnAction(this::openById);
 
         MenuItem miOpenLocalProject = new MenuItem("QuPath project");
-        miOpenLocalProject.setOnAction(qupath.lookupActionByText("Open project"));
+        miOpenLocalProject.setOnAction(qupath.lookupActionByText("Open project..."));
 
         MenuButton btnOpen = new MenuButton("Open ...");
         btnOpen.getItems().addAll(miOpenById, miOpenLocalProject);
@@ -152,7 +152,7 @@ public class WorkspaceManager {
         miCreateProject.disableProperty().bind(hasAccessProperty.not().or(currentSubject.isNull()));
 
         MenuItem miCreateLocalProject = new MenuItem("QuPath project");
-        miCreateLocalProject.setOnAction(qupath.lookupActionByText("Create project"));
+        miCreateLocalProject.setOnAction(qupath.lookupActionByText("Create project..."));
 
         MenuButton menuCreate = new MenuButton("Create ...");
         menuCreate.getItems().addAll(miCreateWorkspace, miCreateSubject, miCreateProject, new SeparatorMenuItem(), miCreateLocalProject);

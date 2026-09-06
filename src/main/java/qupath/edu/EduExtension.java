@@ -65,7 +65,7 @@ public class EduExtension implements QuPathExtension, GitHubProject {
 
         this.qupath = qupath;
 
-        if (QuPathGUI.getVersion().getMinor() != 6) {
+        if (QuPathGUI.getVersion().getMinor() != 7) {
             var confirm = Dialogs.showYesNoDialog(
                 "Unverified version",
                 "QuPath Edu has not been tested with this version of QuPath. Do you wish to proceed?"

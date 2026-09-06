@@ -21,13 +21,21 @@ If you wish to run the development version of the extension and/or use any debug
 --module-path [JavaFX SDK]\lib
 --add-modules=javafx.base,javafx.controls,javafx.graphics,javafx.media,javafx.web,javafx.swing
 --add-exports=java.base/jdk.internal.misc=ALL-UNNAMED
---add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED
---add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED
+--add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED
+--add-exports=javafx.base/com.sun.javafx.beans=ALL-UNNAMED
 --add-exports=javafx.web/com.sun.javafx.webkit=ALL-UNNAMED
 --add-exports=javafx.controls/com.sun.javafx.scene.control.skin=ALL-UNNAMED
 --add-exports=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED
+--add-exports=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED
+--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED
+--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED
+--add-exports=javafx.base/com.sun.javafx.logging=ALL-UNNAMED
+--add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED
 --add-opens=javafx.base/javafx.beans.property=ALL-UNNAMED
 --add-opens=javafx.base/com.sun.javafx.binding=ALL-UNNAMED
+--enable-native-access=ALL-UNNAMED
+--enable-native-access=javafx.web
+--enable-native-access=javafx.graphics
 ```
 
 **_NB: Change the `[JavaFX SDK]` to the path where you extracted the JavaFX SDK_**

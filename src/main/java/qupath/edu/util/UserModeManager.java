@@ -166,7 +166,7 @@ public class UserModeManager {
     }
 
     private void disableGUIButtons() {
-        String[] actionsToDisable = { "Create project", "Add images", "Edit project metadata", "Check project URIs" };
+        String[] actionsToDisable = { "Create project...", "Add images...", "Edit project metadata...", "Check project URIs", "Paste", "Paste objects to current plane" };
 
         for (String text : actionsToDisable) {
             Action action = qupath.lookupActionByText(text);

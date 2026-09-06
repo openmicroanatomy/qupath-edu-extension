@@ -1,12 +1,13 @@
 plugins {
     id 'qupath-conventions'
     id 'idea'
+    id("com.gradleup.shadow") version "9.6.1"
 }
 
 qupathExtension {
     name = "qupath-edu-extension"
     group = "qupath-edu"
-    version = "1.0.3"
+    version = "1.0.4"
     description = "Use QuPath for learning!"
     automaticModule = "qupath.edu.EduExtension"
 }
@@ -18,6 +19,12 @@ idea {
     }
 }
 
+configurations {
+    shadow
+    compileOnly.extendsFrom(shadow)
+    runtimeOnly.extendsFrom(shadow)
+}
+
 dependencies {
     implementation(libs.bundles.qupath)
     implementation(libs.bundles.logging)
@@ -26,14 +33,20 @@ dependencies {
     implementation(libs.bundles.logviewer)
     implementation(libs.extensionmanager)
 
-    api "com.microsoft.azure:msal4j:1.19.0"
+    shadow "com.microsoft.azure:msal4j:1.25.1"
 }
 
-jar {
-    duplicatesStrategy = 'warn'
-    configurations.api.setCanBeResolved(true)
+javadoc {
+    enabled = false
+}
 
-    from {
-        configurations.api.collect { it.isDirectory() ? it : zipTree(it) }
+shadowJar {
+    duplicatesStrategy = DuplicatesStrategy.WARN
+    archiveClassifier = ""
+    configurations = [project.configurations.shadow]
+
+    dependencies {
+        // MSAL4J includes SLF4J which is included in QuPath
+        exclude(dependency("org.slf4j:slf4j-api"))
     }
 }

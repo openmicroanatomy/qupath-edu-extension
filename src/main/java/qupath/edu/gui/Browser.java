@@ -1,6 +1,5 @@
 package qupath.edu.gui;
 
-import com.sun.javafx.webkit.WebConsoleListener;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.concurrent.Worker.State;
@@ -11,7 +10,6 @@ import javafx.scene.control.Dialog;
 import javafx.scene.layout.Region;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import netscape.javascript.JSException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qupath.lib.common.LogTools;
@@ -78,9 +76,10 @@ public class Browser extends Region {
 
         webView.setContextMenuEnabled(false);
 
+        /* fixme: disabled until/if QuPath exports javafx.web:com.sun.javafx.webkit.WebConsoleListener
         WebConsoleListener.setDefaultListener((webView, message, lineNumber, sourceId) -> {
-            logger.info("WebView: " + message + "[at " + lineNumber + "]");
-        });
+           logger.info("WebView: " + message + "[at " + lineNumber + "]");
+        }); */
 
         setContent(content, body);
         getChildren().add(webView);
@@ -113,6 +112,9 @@ public class Browser extends Region {
             return;
         }
 
+        this.setPrefHeight(0);
+
+        /* fixme: support for this was removed in QuPath 0.7.0; perhaps included in later JavaFX versions
         try {
             Object result = webEngine.executeScript("document.getElementById('content').clientHeight");
             if (result instanceof Integer) {
@@ -126,7 +128,7 @@ public class Browser extends Region {
             }
         } catch (JSException ignored) {
             webView.setPrefHeight(0);
-        }
+        } */
     }
 
     private String getHtml(String content, boolean body) {
