@@ -3,6 +3,8 @@ package qupath.edu.gui;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
 import org.slf4j.Logger;
@@ -62,6 +64,12 @@ public final class CustomDialogs {
 
 		dialog.getDialogPane().setPrefWidth(Screen.getPrimary().getBounds().getWidth() * 0.8);
 		dialog.getDialogPane().setPrefHeight(Screen.getPrimary().getBounds().getHeight() * 0.8);
+
+		dialog.getDialogPane().addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+			if (event.getCode() == KeyCode.ENTER) {
+				event.consume();
+			}
+		});
 
 		dialog.setOnCloseRequest(confirmCloseEventHandler);
 

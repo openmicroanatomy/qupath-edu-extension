@@ -21,26 +21,37 @@
 <script src="ckeditor/ResizeObserver.js"></script>
 <script src="ckeditor/ckeditor.js"></script>
 <script>
-    ckeditor.create(document.querySelector('.editor'), {
-        licenseKey: 'GPL',
-        simpleUpload: {
-            uploadUrl: '{{qupath-upload-url}}',
+    function RenderCKEditorError(error) {
+        document.querySelector('.ckeditor--loading').innerHTML = `
+            <h1>Error while loading editor.</h1>
 
-            headers: {
-                {{qupath-auth}}
+            <div style="font-size: 12px">
+                <pre>${error}</pre>
+                <pre>${error.stack}</pre>
+            </div>
+        `;
+    }
+
+    try {
+        ckeditor.create(document.querySelector('.editor'), {
+            licenseKey: 'GPL',
+            simpleUpload: {
+                uploadUrl: '{{qupath-upload-url}}',
+
+                headers: {
+                    {{qupath-auth}}
+                }
             }
-        },
+        }).then(editor => {
+            window.editor = editor;
 
-    }).then( editor => {
-        window.editor = editor;
-
-        document.querySelector('.ckeditor--loading').style.display = "none";
-    }).catch( error => {
-        document.querySelector( '.ckeditor--loading' ).innerText = "Error while loading editor, please see the log for more details.";
-        console.error( 'Oops, something went wrong!' );
-        console.error( error );
-        console.error( error.stack );
-    });
+            document.querySelector('.ckeditor--loading').style.display = "none";
+        }).catch(error => {
+            RenderCKEditorError(error);
+        });
+    } catch (error) {
+        RenderCKEditorError(error);
+    }
 </script>
 
 </body>
