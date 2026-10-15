@@ -1,4 +1,4 @@
-🔬 QuPath Edu extension
+🔬 QuPath Edu extension [![Paper](https://img.shields.io/badge/DOI-10.1111/joa.14172-blue)](https://doi.org/10.1111/joa.14172)
 =============
 _Use QuPath for teaching histology and pathology._
 
